@@ -1,0 +1,41 @@
+{
+  "name": "myeong-manseryeok-engine",
+  "version": "0.1.0",
+  "description": "MYEONG 만세력/사주 계산 엔진 — 한국 법정시·DST·진태양시·자시 학파를 처리하는 순수 TypeScript 역학 엔진 (13개 모듈)",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "prepack": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [
+    "saju",
+    "manseryeok",
+    "four-pillars",
+    "korean-astrology",
+    "사주",
+    "만세력"
+  ],
+  "license": "UNLICENSED",
+  "private": true
+}

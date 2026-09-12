@@ -1,0 +1,10 @@
+{
+  "name": "manse-engin",
+  "private": true,
+  "description": "MYEONG manseryeok/saju engine workspace",
+  "scripts": {
+    "build": "npm --prefix packages/myeong-engine run build",
+    "test": "node packages/myeong-engine/smoke.test.mjs",
+    "pack": "npm --prefix packages/myeong-engine pack"
+  }
+}
