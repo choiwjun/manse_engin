@@ -7,8 +7,8 @@ MYEONG 만세력/사주 계산 엔진 — 한국 법정시 변천·서머타임(
 ```bash
 # 저장소에서 빌드 산출물(tarball) 생성
 cd packages/myeong-engine
-npm install        # esbuild, typescript (빌드 전용)
-npm run build
+npm ci             # 빌드·검증·데이터 생성용 개발 의존성
+npm test           # 빌드 + 스모크·회귀 테스트
 npm pack           # myeong-manseryeok-engine-<version>.tgz 생성
 
 # 소비 프로젝트에서
@@ -76,6 +76,10 @@ listSolarTermsForYear(2024);                        // 24절기 시각(표준시
 ## 지원 범위와 에러
 
 - 공개 지원 범위: **1908-04-01 ~ 2101년** (`SUPPORTED_MANSERYEOK_RANGE`)
+- 한국 음력: 양력 2050-12-31까지 `korean-lunar-calendar@0.4.0`의 KASI 기준표 사용.
+  2051~2101년은 UTC+09:00 기준 천문 계산 확장이며 KASI 공표값은 아닙니다.
+- 절기 데이터는 2102년까지 보유하여 2101년 말 출생자의 순행 대운을 계산합니다.
+  공개 출생 입력의 상한은 2101년입니다.
 - 범위 초과 → `ManseryeokPolicyError` (`code: 'MANSERYEOK_POLICY_ERROR'`)
 - 데이터 미스 → `ManseryeokDataError` (`code: 'MANSERYEOK_DATA_ERROR'`)
 - 법정시 전환점의 모호/부재 시각 → `AmbiguousCivilTimeError` / `NonexistentCivilTimeError`
@@ -83,10 +87,18 @@ listSolarTermsForYear(2024);                        // 24절기 시각(표준시
 
 ## 주의 사항
 
-- 입력의 `hour`/`minute`은 한국 **법정 시계 라벨**입니다. DST 기간(1948~1960, 1987~1988)에는 엔진이 표준시로 자동 환산해 절기를 비교합니다.
+- 입력의 `hour`/`minute`은 한국 **법정 시계 라벨**입니다. 절기 비교는 역사적 UTC 오프셋과 DST를 모두 반영해 UTC+09:00으로 환산합니다.
+- 진태양시와 자시 학파는 일·시주에 적용합니다. 년·월주와 대운까지의 경과 시간은 출생 순간을 기준으로 하므로 진태양시 옵션에 따라 바뀌지 않습니다.
+- `hour`/`minute` 중 하나라도 `null`이면 시주를 생략하고, 진태양시 보정 없이 정오를 대표 시각으로 사용합니다. 절기 당일의 년·월주와 대운 시작은 잠정값이며 봉투 API는 `TIME_UNKNOWN` 경고를 반환합니다.
+- 대운의 `age`는 표시용 정수이고, `isCurrent`는 `startAgeMonths`의 소수 부분까지 사용합니다. 출생 순간의 KST 날짜에 정수 개월을 달력으로 더하고(월말은 해당 월 말일로 제한), 소수 개월은 1개월=30일로 더한 구간의 시작 시각에 변경됩니다.
 - `calendarType` 필드는 `ziwei` 등 일부 모듈 계약 입력에서만 쓰이며, `BirthInputData`는 `isLunar`/`isLeapMonth`를 사용합니다.
 - 소비 프로젝트의 TypeScript는 `moduleResolution: "bundler"`(또는 `node16`/`nodenext`)를 권장합니다. `lib`는 ES2020 이상이면 충분합니다.
 
 ## 소스 구조
 
 이 패키지는 코드 사본이 아닙니다. `build.mjs`가 저장소 루트의 `src/engine/`을 복사해 `@/engine/*` 별칭을 상대 경로로 재작성한 뒤 esbuild로 번들하고 tsc로 선언을 생성합니다. **엔진 수정은 항상 루트 `src/engine/`에서** 하고, 배포 전 `npm run build && npm pack`으로 산출물을 갱신하세요.
+
+`npm run generate:data`는 잠금 파일의 개발 의존성으로 음양력 표와 2102년 절기 버퍼를
+오프라인 재생성합니다. 일반 빌드는 저장된 표만 사용하므로 런타임 의존성은 없습니다.
+재생성 시 한국 기준표의 월 시작일과 NASA 삭망표를 대조합니다.
+출처와 라이선스는 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)에 수록합니다.

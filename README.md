@@ -16,9 +16,8 @@ packages/myeong-engine/    배포용 npm 패키지 (빌드·번들·타입 선�
 
 ```bash
 cd packages/myeong-engine
-npm install        # 빌드 전용 devDeps (esbuild, typescript)
-npm run build      # dist/ 생성
-node smoke.test.mjs  # 산출물 회귀 검증
+npm ci             # 잠금 파일의 빌드·검증 의존성 설치
+npm test           # 빌드 + 스모크·경계값 회귀 검증
 npm pack           # myeong-manseryeok-engine-0.1.0.tgz
 ```
 
@@ -38,3 +37,6 @@ const r = buildSajuResult({
 ```
 
 자세한 API·입력 형식·에러 계약은 [packages/myeong-engine/README.md](packages/myeong-engine/README.md)를 참고하세요.
+
+한국 음력 기준표는 2050년까지 사용하고, 2051~2101년은 한국 시간대의 천문 계산값으로
+확장합니다. [데이터 출처와 재생성 방법](src/engine/core/data/README.md)을 참고하세요.

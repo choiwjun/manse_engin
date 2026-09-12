@@ -1,7 +1,7 @@
 import { AmbiguousCivilTimeError, ManseryeokPolicyError, NonexistentCivilTimeError } from './errors';
 import { compareDateTime, type DateTimeParts, formatDateKey, shiftDateTimeUtc } from './temporal';
 
-export const KOREAN_LEGAL_TIME_POLICY_ID = 'korean-legal-civil-time@manseryeok-policy-cases-v1';
+export const KOREAN_LEGAL_TIME_POLICY_ID = 'korean-legal-civil-time@manseryeok-policy-cases-v2';
 
 export type KoreanLegalTimeTransitionStatus = 'standard' | 'daylight';
 
@@ -43,13 +43,13 @@ const DST_1988_SOURCE_IDS = ['timeanddate-1988-seoul', 'iana-tzdb-asia-seoul'];
 
 const STANDARD_TIME_RULES: StandardTimeRule[] = [
   {
-    start: parts(1908, 4, 1),
+    start: parts(1908, 4, 1, 0, 2, 8),
     end: parts(1912, 1, 1),
     standardOffsetMinutes: 510,
     sourceIds: KASI_SOURCE_IDS,
   },
   {
-    start: parts(1912, 1, 1),
+    start: parts(1912, 1, 1, 0, 30),
     end: parts(1954, 3, 21),
     standardOffsetMinutes: 540,
     sourceIds: KASI_SOURCE_IDS,
@@ -117,8 +117,10 @@ function dedupeSourceIds(sourceIds: string[]): string[] {
 }
 
 function assertSupportedStandardTransitionLabel(dateTime: DateTimeParts): void {
-  const repeated1954Start = parts(1954, 3, 21);
-  const repeated1954End = parts(1954, 3, 21, 0, 30);
+  // IANA transition labels use the clock immediately before the change.
+  // In 1954 midnight moved BACK to 23:30 of the previous date.
+  const repeated1954Start = parts(1954, 3, 20, 23, 30);
+  const repeated1954End = parts(1954, 3, 21);
   if (isInInterval(dateTime, repeated1954Start, repeated1954End)) {
     throw new AmbiguousCivilTimeError('Korean civil time label is repeated by the 1954 standard-time transition', {
       dateTime,
@@ -129,16 +131,21 @@ function assertSupportedStandardTransitionLabel(dateTime: DateTimeParts): void {
     });
   }
 
-  const skipped1961Start = parts(1961, 8, 10);
-  const skipped1961End = parts(1961, 8, 10, 0, 30);
-  if (isInInterval(dateTime, skipped1961Start, skipped1961End)) {
-    throw new NonexistentCivilTimeError('Korean civil time label is skipped by the 1961 standard-time transition', {
-      dateTime,
-      transitionStart: skipped1961Start,
-      transitionEnd: skipped1961End,
-      policyId: KOREAN_LEGAL_TIME_POLICY_ID,
-      sourceIds: STANDARD_1961_SOURCE_IDS,
-    });
+  const gaps = [
+    { start: parts(1908, 4, 1), end: parts(1908, 4, 1, 0, 2, 8), sourceIds: KASI_SOURCE_IDS },
+    { start: parts(1912, 1, 1), end: parts(1912, 1, 1, 0, 30), sourceIds: KASI_SOURCE_IDS },
+    { start: parts(1961, 8, 10), end: parts(1961, 8, 10, 0, 30), sourceIds: STANDARD_1961_SOURCE_IDS },
+  ];
+  for (const gap of gaps) {
+    if (isInInterval(dateTime, gap.start, gap.end)) {
+      throw new NonexistentCivilTimeError('Korean civil time label is skipped by a standard-time transition', {
+        dateTime,
+        transitionStart: gap.start,
+        transitionEnd: gap.end,
+        policyId: KOREAN_LEGAL_TIME_POLICY_ID,
+        sourceIds: gap.sourceIds,
+      });
+    }
   }
 }
 

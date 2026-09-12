@@ -8,7 +8,7 @@ import { CHEONGAN, JIJI, getOhaengForGan } from '@/engine/adapter/hanja-mapper';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
 import { createNormalizedManseryeokContext } from '@/engine/core/normalized-context';
 import { getGanji, isForwardDirection } from '@/engine/core/ganji';
-import type { DateTimeParts } from '@/engine/core/temporal';
+import { toKstTimestamp, type DateTimeParts } from '@/engine/core/temporal';
 
 /** 60갑자(甲子) 순서 배열 - 천간 10 x 지지 12 조합 */
 const SEXAGENARY_CYCLE: readonly { gan: string; ji: string }[] = (() => {
@@ -29,9 +29,20 @@ function findSexagenaryIndex(gan: string, ji: string): number {
 interface YunAgeResolution {
   startAge: number;
   startAgeMonths: number;
-  birthYear: number;
-  birthMonth: number;
-  birthDay: number;
+  birthKst: DateTimeParts;
+}
+
+/** Calendar months (end-of-month clamped), then fractional months at 30 days/month.
+ * KST arithmetic makes the boundary independent of the host's timezone and DST.
+ */
+function yunStartTimestamp(birth: DateTimeParts, ageMonths: number): number {
+  const wholeMonths = Math.floor(ageMonths);
+  const monthStart = new Date(Date.UTC(birth.year, birth.month - 1 + wholeMonths, 1));
+  const year = monthStart.getUTCFullYear();
+  const month = monthStart.getUTCMonth() + 1;
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return toKstTimestamp({ ...birth, year, month, day: Math.min(birth.day, lastDay) })
+    + Math.round((ageMonths - wholeMonths) * 30 * 86_400_000);
 }
 
 function toKstDateTimeParts(date: Date): DateTimeParts {
@@ -76,14 +87,7 @@ export function calculateDaeun(
     throw new Error(`Invalid monthGan/monthJi: ${palja.monthGan}${palja.monthJi}`);
   }
 
-  const nowParts = toKstDateTimeParts(now);
-  let currentAge = nowParts.year - resolution.birthYear;
-  if (
-    nowParts.month < resolution.birthMonth ||
-    (nowParts.month === resolution.birthMonth && nowParts.day < resolution.birthDay)
-  ) {
-    currentAge -= 1;
-  }
+  const nowTimestamp = now.getTime();
 
   const result: Daeun[] = [];
   for (let i = 0; i < count; i++) {
@@ -92,9 +96,10 @@ export function calculateDaeun(
     const idx = ((monthIdx + offset) % 60 + 60) % 60;
     const { gan, ji } = SEXAGENARY_CYCLE[idx];
     const ohaeng = getOhaengForGan(gan) as Ohaeng;
-    const currentStartAge = resolution.startAge + i * 10;
-    const nextAge = currentStartAge + 10;
-    const isCurrent = currentAge >= currentStartAge && currentAge < nextAge;
+    const startAgeMonths = resolution.startAgeMonths + i * 120;
+    const startsAt = yunStartTimestamp(resolution.birthKst, startAgeMonths);
+    const endsAt = yunStartTimestamp(resolution.birthKst, startAgeMonths + 120);
+    const isCurrent = nowTimestamp >= startsAt && nowTimestamp < endsAt;
 
     result.push({
       age,
@@ -102,7 +107,7 @@ export function calculateDaeun(
       ji,
       ohaeng,
       isCurrent,
-      startAgeMonths: resolution.startAgeMonths + i * 120,
+      startAgeMonths,
     });
   }
 
@@ -173,8 +178,6 @@ function resolveYunAgeResolution(
   return {
     startAge: resolution.startAge,
     startAgeMonths: resolution.startAgeMonths,
-    birthYear: context.solarCivilDateTime.year,
-    birthMonth: context.solarCivilDateTime.month,
-    birthDay: context.solarCivilDateTime.day,
+    birthKst: context.yearMonthContextDateTime,
   };
 }

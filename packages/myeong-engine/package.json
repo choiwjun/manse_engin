@@ -14,7 +14,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "sideEffects": false,
   "engines": {
@@ -22,10 +23,15 @@
   },
   "scripts": {
     "build": "node build.mjs",
+    "generate:data": "node generate-data.mjs",
+    "pretest": "npm run build",
+    "test": "node smoke.test.mjs && node --test regression.test.mjs",
     "prepack": "node build.mjs"
   },
   "devDependencies": {
+    "astronomy-engine": "2.1.19",
     "esbuild": "^0.25.0",
+    "korean-lunar-calendar": "0.4.0",
     "typescript": "^5.9.3"
   },
   "keywords": [

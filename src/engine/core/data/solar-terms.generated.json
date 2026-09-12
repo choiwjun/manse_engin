@@ -53996,5 +53996,271 @@
       "second": 56,
       "julianDay": 2488789.902037037
     }
+  ],
+  "2102": [
+    {
+      "sourceName": "小寒",
+      "koreanName": "소한",
+      "year": 2102,
+      "month": 1,
+      "day": 6,
+      "hour": 3,
+      "minute": 0,
+      "second": 7,
+      "julianDay": 2488804.6250810185
+    },
+    {
+      "sourceName": "大寒",
+      "koreanName": "대한",
+      "year": 2102,
+      "month": 1,
+      "day": 20,
+      "hour": 20,
+      "minute": 19,
+      "second": 48,
+      "julianDay": 2488819.3470833334
+    },
+    {
+      "sourceName": "立春",
+      "koreanName": "입춘",
+      "year": 2102,
+      "month": 2,
+      "day": 4,
+      "hour": 14,
+      "minute": 30,
+      "second": 27,
+      "julianDay": 2488834.1044791667
+    },
+    {
+      "sourceName": "雨水",
+      "koreanName": "우수",
+      "year": 2102,
+      "month": 2,
+      "day": 19,
+      "hour": 10,
+      "minute": 10,
+      "second": 27,
+      "julianDay": 2488848.923923611
+    },
+    {
+      "sourceName": "惊蛰",
+      "koreanName": "경칩",
+      "year": 2102,
+      "month": 3,
+      "day": 6,
+      "hour": 8,
+      "minute": 4,
+      "second": 6,
+      "julianDay": 2488863.8361805556
+    },
+    {
+      "sourceName": "春分",
+      "koreanName": "춘분",
+      "year": 2102,
+      "month": 3,
+      "day": 21,
+      "hour": 8,
+      "minute": 35,
+      "second": 37,
+      "julianDay": 2488878.8580671297
+    },
+    {
+      "sourceName": "清明",
+      "koreanName": "청명",
+      "year": 2102,
+      "month": 4,
+      "day": 5,
+      "hour": 12,
+      "minute": 12,
+      "second": 27,
+      "julianDay": 2488894.0086458335
+    },
+    {
+      "sourceName": "谷雨",
+      "koreanName": "곡우",
+      "year": 2102,
+      "month": 4,
+      "day": 20,
+      "hour": 18,
+      "minute": 54,
+      "second": 28,
+      "julianDay": 2488909.2878240743
+    },
+    {
+      "sourceName": "立夏",
+      "koreanName": "입하",
+      "year": 2102,
+      "month": 5,
+      "day": 6,
+      "hour": 4,
+      "minute": 47,
+      "second": 38,
+      "julianDay": 2488924.6997453705
+    },
+    {
+      "sourceName": "小满",
+      "koreanName": "소만",
+      "year": 2102,
+      "month": 5,
+      "day": 21,
+      "hour": 17,
+      "minute": 21,
+      "second": 54,
+      "julianDay": 2488940.2235416668
+    },
+    {
+      "sourceName": "芒种",
+      "koreanName": "망종",
+      "year": 2102,
+      "month": 6,
+      "day": 6,
+      "hour": 8,
+      "minute": 22,
+      "second": 47,
+      "julianDay": 2488955.8491550926
+    },
+    {
+      "sourceName": "夏至",
+      "koreanName": "하지",
+      "year": 2102,
+      "month": 6,
+      "day": 22,
+      "hour": 0,
+      "minute": 52,
+      "second": 54,
+      "julianDay": 2488971.536736111
+    },
+    {
+      "sourceName": "小暑",
+      "koreanName": "소서",
+      "year": 2102,
+      "month": 7,
+      "day": 7,
+      "hour": 18,
+      "minute": 24,
+      "second": 11,
+      "julianDay": 2488987.2667939817
+    },
+    {
+      "sourceName": "大暑",
+      "koreanName": "대서",
+      "year": 2102,
+      "month": 7,
+      "day": 23,
+      "hour": 11,
+      "minute": 44,
+      "second": 13,
+      "julianDay": 2489002.9890393517
+    },
+    {
+      "sourceName": "立秋",
+      "koreanName": "입추",
+      "year": 2102,
+      "month": 8,
+      "day": 8,
+      "hour": 4,
+      "minute": 22,
+      "second": 49,
+      "julianDay": 2489018.682511574
+    },
+    {
+      "sourceName": "处暑",
+      "koreanName": "처서",
+      "year": 2102,
+      "month": 8,
+      "day": 23,
+      "hour": 19,
+      "minute": 11,
+      "second": 27,
+      "julianDay": 2489034.2996180556
+    },
+    {
+      "sourceName": "白露",
+      "koreanName": "백로",
+      "year": 2102,
+      "month": 9,
+      "day": 8,
+      "hour": 7,
+      "minute": 50,
+      "second": 5,
+      "julianDay": 2489049.826446759
+    },
+    {
+      "sourceName": "秋分",
+      "koreanName": "추분",
+      "year": 2102,
+      "month": 9,
+      "day": 23,
+      "hour": 17,
+      "minute": 30,
+      "second": 58,
+      "julianDay": 2489065.229837963
+    },
+    {
+      "sourceName": "寒露",
+      "koreanName": "한로",
+      "year": 2102,
+      "month": 10,
+      "day": 9,
+      "hour": 0,
+      "minute": 13,
+      "second": 16,
+      "julianDay": 2489080.509212963
+    },
+    {
+      "sourceName": "霜降",
+      "koreanName": "상강",
+      "year": 2102,
+      "month": 10,
+      "day": 24,
+      "hour": 3,
+      "minute": 38,
+      "second": 18,
+      "julianDay": 2489095.6515972223
+    },
+    {
+      "sourceName": "立冬",
+      "koreanName": "입동",
+      "year": 2102,
+      "month": 11,
+      "day": 8,
+      "hour": 4,
+      "minute": 7,
+      "second": 54,
+      "julianDay": 2489110.6721527777
+    },
+    {
+      "sourceName": "小雪",
+      "koreanName": "소설",
+      "year": 2102,
+      "month": 11,
+      "day": 23,
+      "hour": 1,
+      "minute": 51,
+      "second": 8,
+      "julianDay": 2489125.577175926
+    },
+    {
+      "sourceName": "大雪",
+      "koreanName": "대설",
+      "year": 2102,
+      "month": 12,
+      "day": 7,
+      "hour": 21,
+      "minute": 29,
+      "second": 56,
+      "julianDay": 2489140.395787037
+    },
+    {
+      "sourceName": "冬至",
+      "koreanName": "동지",
+      "year": 2102,
+      "month": 12,
+      "day": 22,
+      "hour": 15,
+      "minute": 32,
+      "second": 50,
+      "julianDay": 2489155.147800926
+    }
   ]
 }

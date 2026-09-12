@@ -42,11 +42,11 @@ function collectWarnings<M extends EngineModuleId>(moduleId: M, input: EngineMod
   const warnings: EngineWarning[] = [];
   if (moduleId === 'saju') {
     const birth = (input as EngineModuleInputMap['saju']).birth;
-    if (birth.hour === null || birth.minute === null) {
+    if (birth.hour == null || birth.minute == null) {
       warnings.push({
         code: 'TIME_UNKNOWN',
         field: 'birth.hour',
-        message: '출생시각이 없어 시주 의존 결과는 제한됩니다.',
+        message: '출생시각 미상: 시주는 생략하고 정오를 대표 시각으로 사용합니다. 절기 경계의 년·월주와 대운 시작 시점은 잠정값입니다.',
       });
     }
   }

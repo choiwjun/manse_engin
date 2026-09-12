@@ -164,7 +164,7 @@ export class ManseryeokEngine {
   }
 
   static getPaljaFromContext(context: NormalizedManseryeokContext, includeTime = true): Palja {
-    return buildPalja(this.getGanjiFromContext(context), includeTime);
+    return buildPalja(this.getGanjiFromContext(context), includeTime && context.timeKnown);
   }
 
   static getDayPillar(input: GanjiInput): GanjiPillar {
@@ -259,9 +259,10 @@ export class ManseryeokEngine {
   /**
    * 대운 시작 나이를 계산한다.
    *
-   * 음력 입력은 먼저 양력으로 변환하고, 한국 법정시/진태양시/자시 기준이
-   * 반영된 정규화 컨텍스트의 실제 타임스탬프에서 가장 가까운 12절까지의
+   * 음력 입력은 먼저 양력으로 변환하고, 한국 법정시를 KST로 환산한
+   * 출생 순간에서 가장 가까운 12절까지의
    * 시간을 3일=1년, 1일=4개월 정책으로 환산한다. 최소 1세 보정은 하지 않는다.
+   * 진태양시와 자시 학파는 이 실제 경과 시간에 영향을 주지 않는다.
    */
   static getYunStartAge(input: BirthInputData): number {
     const context = createNormalizedManseryeokContext(input);

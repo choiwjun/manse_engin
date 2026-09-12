@@ -33,8 +33,7 @@ export function calculatePalja(
 ): Palja {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const context = createNormalizedManseryeokContext(input, opts);
-  const includeTime = input.hour !== null && input.minute !== null;
+  const includeTime = context.timeKnown;
 
   return ManseryeokEngine.getPaljaFromContext(context, includeTime);
 }
-

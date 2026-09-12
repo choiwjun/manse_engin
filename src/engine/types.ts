@@ -45,7 +45,9 @@ export interface Daeun {
   gan: string;
   ji: string;
   ohaeng: Ohaeng;
+  /** 출생 순간(KST)에 시작 개월 수를 더한 실제 구간 [시작, 다음 시작). */
   isCurrent: boolean;
+  /** 소수 개월 포함. 정수 개월은 달력 가산, 나머지는 1개월=30일로 환산. */
   startAgeMonths?: number;
 }
 
@@ -139,6 +141,7 @@ export interface BirthInputData {
   year: number;
   month: number;
   day: number;
+  /** 한국 법정 시계 시각. hour/minute 중 하나라도 null이면 시각 미상. */
   hour: number | null;
   minute: number | null;
   gender: Gender;

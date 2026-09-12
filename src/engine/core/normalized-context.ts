@@ -10,7 +10,7 @@ import {
 import { shiftDateTimeUtc, type DateTimeParts } from './temporal';
 
 export type NormalizedCalendarType = 'solar' | 'lunar';
-export type NormalizedDateTimeBasis = 'true-solar' | 'legal-civil';
+export type NormalizedDateTimeBasis = 'true-solar' | 'legal-civil' | 'standard-civil' | 'kst' | 'date-only';
 export type SolarCivilDateTimeSource = 'input-solar' | 'converted-from-lunar';
 
 export interface NormalizedOriginalInput {
@@ -35,7 +35,7 @@ export interface SupportedManseryeokRange {
   publicEndYear: 2101;
   rawLunarSolarStartYear: 1899;
   rawSolarTermStartYear: 1899;
-  rawSolarTermEndYear: 2101;
+  rawSolarTermEndYear: 2102;
   policyId: string;
 }
 
@@ -74,6 +74,8 @@ export interface NormalizedTermLookupBasis {
 
 export interface NormalizedManseryeokContext {
   originalInput: NormalizedOriginalInput;
+  /** false이면 정오를 대표 시각으로 사용하며 시주를 계산하지 않는다. */
+  timeKnown: boolean;
   supportedRange: SupportedManseryeokRange;
   solarCivilDateTime: NormalizedSolarCivilDateTime;
   legalTime: KoreanLegalTimeResolution;
@@ -102,8 +104,8 @@ export const SUPPORTED_MANSERYEOK_RANGE: SupportedManseryeokRange = {
   publicEndYear: 2101,
   rawLunarSolarStartYear: 1899,
   rawSolarTermStartYear: 1899,
-  rawSolarTermEndYear: 2101,
-  policyId: 'manseryeok-supported-range@legal-palja-1908-04-01-2101-raw-data-1899-2101',
+  rawSolarTermEndYear: 2102,
+  policyId: 'manseryeok-supported-range@legal-palja-1908-04-01-2101-terms-through-2102',
 };
 
 export const NORMALIZED_TERM_LOOKUP_BASIS: NormalizedTermLookupBasis = {
@@ -114,12 +116,15 @@ export const NORMALIZED_TERM_LOOKUP_BASIS: NormalizedTermLookupBasis = {
 };
 
 function toInternalDateTime(input: BirthInputData): DateTimeParts {
+  const timeKnown = input.hour != null && input.minute != null;
   return {
     year: input.year,
     month: input.month,
     day: input.day,
-    hour: input.hour ?? 0,
-    minute: input.minute ?? 0,
+    // A missing time is not a midnight birth. Noon avoids inventing a civil-time
+    // transition or moving the known calendar date during solar/DST correction.
+    hour: timeKnown ? input.hour! : 12,
+    minute: timeKnown ? input.minute! : 0,
     second: 0,
   };
 }
@@ -180,6 +185,7 @@ export function createNormalizedManseryeokContext(
   options: NormalizeBirthContextOptions = {},
 ): NormalizedManseryeokContext {
   const resolvedOptions = { ...DEFAULT_CONTEXT_OPTIONS, ...options };
+  const timeKnown = input.hour != null && input.minute != null;
   const originalInput: NormalizedOriginalInput = {
     calendar: input.isLunar ? 'lunar' : 'solar',
     year: input.year,
@@ -213,7 +219,11 @@ export function createNormalizedManseryeokContext(
     ? solarCivilDateTime
     : shiftDateTimeUtc(solarCivilDateTime, -legalTime.daylightOffsetMinutes);
 
-  const corrected = resolvedOptions.trueSolarTime
+  // Solar terms are stored as UTC+09:00 labels. Compare the birth instant in
+  // that same basis, independently of the clock used for day/hour pillars.
+  const yearMonthDateTime = shiftDateTimeUtc(solarCivilDateTime, 540 - legalTime.totalOffsetMinutes);
+
+  const corrected = resolvedOptions.trueSolarTime && timeKnown
     ? correctToTrueSolarTime(
         standardCivilDateTime,
         resolvedOptions.longitude,
@@ -232,9 +242,9 @@ export function createNormalizedManseryeokContext(
         },
         corrected.dayOffset * 24 * 60,
       )
-    : solarCivilDateTime;
-  const basis: NormalizedDateTimeBasis = resolvedOptions.trueSolarTime ? 'true-solar' : 'legal-civil';
-  const schoolEvaluationDateTime = resolvedOptions.trueSolarTime ? trueSolarDateTime : standardCivilDateTime;
+    : timeKnown ? standardCivilDateTime : solarCivilDateTime;
+  const basis: NormalizedDateTimeBasis = !timeKnown ? 'date-only' : corrected ? 'true-solar' : 'standard-civil';
+  const schoolEvaluationDateTime = trueSolarDateTime;
   const school = resolveSchool(
     resolvedOptions.midnightMode,
     schoolEvaluationDateTime.hour,
@@ -248,18 +258,19 @@ export function createNormalizedManseryeokContext(
 
   return {
     originalInput,
+    timeKnown,
     supportedRange: SUPPORTED_MANSERYEOK_RANGE,
     solarCivilDateTime,
     legalTime,
     trueSolar: {
-      enabled: resolvedOptions.trueSolarTime,
+      enabled: Boolean(corrected),
       longitude: resolvedOptions.longitude,
       standardLongitude,
       dayOffset: corrected?.dayOffset ?? 0,
       dateTime: trueSolarDateTime,
     },
     schoolResolution,
-    yearMonthContextDateTime: withBasis(schoolEvaluationDateTime, basis),
+    yearMonthContextDateTime: withBasis(yearMonthDateTime, 'kst'),
     dayHourContextDateTime: applySchoolResolution(schoolEvaluationDateTime, basis, schoolResolution),
     termLookupBasis: NORMALIZED_TERM_LOOKUP_BASIS,
   };
