@@ -1,6 +1,5 @@
 // @TASK P8-R2-T1 - 삼합파(三合派) 분석 엔진
 // @SPEC docs/planning/06-tasks.md#P8-R2-T1
-// @TEST tests/engine/ziwei-samhap.test.ts
 
 import type {
   ZiweiResult,

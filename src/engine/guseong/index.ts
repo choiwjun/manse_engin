@@ -1,8 +1,11 @@
 // @TASK P7-R4-T1 - 구성포국(九星布局) 엔진
 // @SPEC docs/planning/02-trd.md#구성포국-엔진
-// @TEST tests/engine/guseong.test.ts
 
 import type { Ohaeng, GuseongStar, GugungGrid, GuseongResult } from '@/engine/types';
+import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
+import { listSolarTermsForYear } from '@/engine/core/solar-terms';
+import { toJulianDay } from '@/engine/core/temporal';
+import { ManseryeokDataError } from '@/engine/core/errors';
 import {
   getGuseongStarDescription,
   getGuseongRelationDescription,
@@ -117,47 +120,102 @@ export function calculateYearCenterStar(year: number): number {
 /**
  * 월반(月盤) 중궁에 들어갈 구성 번호를 계산한다.
  *
- * 구성기학에서 월반은 연반의 중궁성과 월 번호에 따라 결정된다.
- * 일반적으로 매월 역행하며, 연도의 구성 그룹(상원/중원/하원)에 따라
- * 시작 성이 달라진다.
+ * 표준 월가구성(月家九星) 규칙 — 절기월의 첫 달(寅月, 양력 2월경)의
+ * 중궁성은 해의 지지 그룹으로 정한다:
+ *   子·午·卯·酉년(四仲): 寅月 = 八白(8)
+ *   寅·申·巳·亥년(四孟): 寅月 = 二黒(2)
+ *   辰·戌·丑·未년(四季): 寅月 = 五黃(5)
+ * 이후 매월 1씩 감소(역행)한다.
  *
- * 간략화된 공식:
- *   연도를 3그룹으로 나눈다 (상원/중원/하원).
- *   상원(1,4,7이 연반 중궁): 2월 시작 = 8
- *   중원(2,5,8이 연반 중궁): 2월 시작 = 5
- *   하원(3,6,9가 연반 중궁): 2월 시작 = 2
- *   이후 매월 1씩 감소(역행).
+ * 월주 간지가 주어지면 실제 절기월을 사용하고(정확),
+ * 양력 월만 주어지면 근사한다(2월=寅월, …, 12월=子월, 1월=丑월+전년도).
  *
  * @param year - 대상 연도
  * @param month - 대상 월 (1~12)
+ * @param monthBranch - (선택) 해당 날짜의 절기 월주 지지
+ * @param yearBranch - (선택) 해당 날짜의 절기년 년주 지지
  * @returns 중궁 구성 번호 (1~9)
  */
-export function calculateMonthCenterStar(year: number, month: number): number {
-  const yearCenter = calculateYearCenterStar(year);
+export function calculateMonthCenterStar(
+  year: number,
+  month: number,
+  monthBranch?: string,
+  yearBranch?: string,
+): number {
+  let yearBranchIdx: number;
+  let monthOffset: number;
 
-  // 상원/중원/하원 그룹 판별
-  let febStart: number;
-  if ([1, 4, 7].includes(yearCenter)) {
-    febStart = 8; // 상원갑
-  } else if ([2, 5, 8].includes(yearCenter)) {
-    febStart = 5; // 중원갑
+  if (monthBranch) {
+    const branchIdx = DAY_BRANCHES.indexOf(monthBranch as (typeof DAY_BRANCHES)[number]);
+    if (branchIdx === -1) {
+      throw new ManseryeokDataError(`유효하지 않은 월지입니다: ${monthBranch}`);
+    }
+    // 절기월 지지 인덱스에서 寅월(2)까지의 거리
+    monthOffset = ((branchIdx - 2) % 12 + 12) % 12;
+    // 절기년 년지가 주어지지 않으면 추정: 丑월(1)은 전년도, 나머지는 당해
+    const monthYear = yearBranch
+      ? undefined
+      : branchIdx === 1 ? year - 1 : year;
+    yearBranchIdx = yearBranch
+      ? DAY_BRANCHES.indexOf(yearBranch as (typeof DAY_BRANCHES)[number])
+      : ((monthYear! - 4) % 12 + 12) % 12;
+    if (yearBranchIdx === -1) {
+      throw new ManseryeokDataError(`유효하지 않은 년지입니다: ${yearBranch}`);
+    }
   } else {
-    // 3, 6, 9
-    febStart = 2; // 하원갑
+    // 양력 월 근사: 1월(丑月)은 전년도에 속한다
+    const monthYear = month === 1 ? year - 1 : year;
+    yearBranchIdx = ((monthYear - 4) % 12 + 12) % 12;
+    monthOffset = ((month - 2) % 12 + 12) % 12;
   }
+  return monthStarForYearBranch(yearBranchIdx, monthOffset);
+}
 
-  // 2월 기준에서 월 차이만큼 역행
-  const monthOffset = month - 2;
-  const raw = febStart - monthOffset;
-  return ((raw - 1) % 9 + 9) % 9 + 1;
+function monthStarForYearBranch(yearBranchIdx: number, monthOffset: number): number {
+  const inwolStart = [0, 6, 3, 9].includes(yearBranchIdx) ? 8   // 子午卯酉
+    : [2, 8, 4, 10].includes(yearBranchIdx) ? 2                // 寅申巳亥
+    : 5;                                                     // 辰戌丑未
+  return wrapStar(inwolStart - monthOffset);
+}
+
+// ---------- 일반(日盤) 보조 ----------
+
+const DAY_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const;
+const DAY_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const;
+
+/** 양력 날짜의 60갑자 일진 인덱스(0=甲子) */
+function daySexagenaryIndex(year: number, month: number, day: number): number {
+  const pillar = ManseryeokEngine.getSolarDayPillar(year, month, day);
+  const s = DAY_STEMS.indexOf(pillar.gan as (typeof DAY_STEMS)[number]);
+  const b = DAY_BRANCHES.indexOf(pillar.ji as (typeof DAY_BRANCHES)[number]);
+  for (let i = 0; i < 60; i++) {
+    if (i % 10 === s && i % 12 === b) return i;
+  }
+  throw new ManseryeokDataError(`유효하지 않은 일진: ${pillar.gan}${pillar.ji}`);
+}
+
+/**
+ * 지정 절기(동지/하지)에 가장 가까운 甲子일의 율리우스일을 반환한다.
+ * 甲子일은 60일 주기로 반복되므로 절기일의 일진 인덱스에서
+ * 앞뒤 30일 이내의 甲子일을 찾는다.
+ */
+function nearestJiaziToTerm(year: number, termName: '동지' | '하지'): number {
+  const term = listSolarTermsForYear(year).find((t) => t.koreanName === termName);
+  if (!term) {
+    throw new ManseryeokDataError(`${year}년 ${termName} 절기 데이터가 없습니다.`);
+  }
+  const dayIdx = daySexagenaryIndex(term.year, term.month, term.day);
+  const termJd = toJulianDay(term.year, term.month, term.day);
+  // 가장 가까운 甲子일: dayIdx <= 30이면 과거, 아니면 미래 쪽
+  return dayIdx <= 30 ? termJd - dayIdx : termJd + (60 - dayIdx);
 }
 
 /**
  * 일반(日盤) 중궁에 들어갈 구성 번호를 계산한다.
  *
- * 일반은 동지 이후의 날짜 수에 기반하여 9일 주기로 역행한다.
- * 간략화된 공식: 기준일(2024-01-01 = 일백수성)에서 날짜 차이를 계산,
- * 9일 주기로 역행.
+ * 표준 일가구성(日家九星) 규칙:
+ *   동지에 가장 가까운 甲子일부터 양둔(陽遁) — 甲子=一白, 매일 순행(+1)
+ *   하지에 가장 가까운 甲子일부터 음둔(陰遁) — 甲子=九紫, 매일 역행(-1)
  *
  * @param year - 대상 연도
  * @param month - 대상 월 (1~12)
@@ -165,16 +223,25 @@ export function calculateMonthCenterStar(year: number, month: number): number {
  * @returns 중궁 구성 번호 (1~9)
  */
 export function calculateDayCenterStar(year: number, month: number, day: number): number {
-  // 기준일: 2024-01-01 = 구성 1이 중궁
-  const baseDate = new Date(2024, 0, 1);
-  const targetDate = new Date(year, month - 1, day);
-  const diffDays = Math.round(
-    (targetDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24),
-  );
+  const target = toJulianDay(year, month, day);
+  const summerAnchor = nearestJiaziToTerm(year, '하지');
+  const winterAnchor = nearestJiaziToTerm(year, '동지');
 
-  // 매일 1씩 역행, 9일 주기
-  const raw = 1 - diffDays;
-  return ((raw - 1) % 9 + 9) % 9 + 1;
+  if (target >= winterAnchor) {
+    // 양둔: 올해 동지 기점 이후
+    return wrapStar(1 + Math.round(target - winterAnchor));
+  }
+  if (target >= summerAnchor) {
+    // 음둔: 올해 하지 기점 이후 ~ 동지 기점 전
+    return wrapStar(9 - Math.round(target - summerAnchor));
+  }
+  // 상반년: 작년 동지/하지 기점과 비교
+  const prevWinterAnchor = nearestJiaziToTerm(year - 1, '동지');
+  if (target >= prevWinterAnchor) {
+    return wrapStar(1 + Math.round(target - prevWinterAnchor));
+  }
+  const prevSummerAnchor = nearestJiaziToTerm(year - 1, '하지');
+  return wrapStar(9 - Math.round(target - prevSummerAnchor));
 }
 
 /**
@@ -312,7 +379,10 @@ export function calculateGuseong(
   const yearCenterNum = calculateYearCenterStar(year);
   const yearChart = buildGugungGrid(yearCenterNum);
 
-  const monthCenterNum = calculateMonthCenterStar(year, month);
+  // 실제 절기년·절기월 기준으로 월반을 계산한다
+  const monthPillar = ManseryeokEngine.getMonthPillar({ year, month, day });
+  const yearPillar = ManseryeokEngine.getYearPillar({ year, month, day });
+  const monthCenterNum = calculateMonthCenterStar(year, month, monthPillar.ji, yearPillar.ji);
   const monthChart = buildGugungGrid(monthCenterNum);
 
   const dayCenterNum = calculateDayCenterStar(year, month, day);

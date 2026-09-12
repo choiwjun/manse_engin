@@ -1,6 +1,5 @@
 // @TASK wonjin - 원진살(怨嗔殺) 판별 로직
 // @SPEC docs/planning/02-trd.md#원진살-판별
-// @TEST tests/engine/wonjin.test.ts
 
 import { JIJI } from '@/engine/adapter/hanja-mapper';
 

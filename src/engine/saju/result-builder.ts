@@ -122,6 +122,7 @@ export function normalizeSajuResult(value: unknown): SajuResult | null {
   return {
     palja,
     sipsin: source.sipsin ?? {},
+    jijangganSipsin: source.jijangganSipsin ?? {},
     unsung: source.unsung ?? {},
     jijanggan: source.jijanggan ?? {},
     daeun: source.daeun ?? [],

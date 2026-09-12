@@ -1,6 +1,5 @@
 // @TASK P2-R3-T1 - 학파별 야자시/조자시 분기
 // @SPEC docs/planning/02-trd.md#사주팔자-계산기
-// @TEST tests/engine/calculator.test.ts
 
 import type { MidnightMode } from '@/engine/types';
 

@@ -1,6 +1,5 @@
 // @TASK P10-R1-T1 - 대육임(大六壬) 코어 엔진
 // @SPEC docs/planning/06-tasks.md#P10-R1-T1
-// @TEST tests/engine/daeyukim.test.ts
 
 import type {
   DaeyukimResult,
@@ -10,6 +9,7 @@ import type {
   CheonJang,
 } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
+import { toKstTimestamp } from '@/engine/core/temporal';
 import {
   BRANCHES,
   BRANCH_OHAENG,
@@ -192,25 +192,52 @@ export function deriveSaGwa(
 // 공개 함수 - 삼전(三傳) 도출
 // ===================================================================
 
+// 삼형(三刑) — 지지 -> 그 지지가 형(刑)하는 지지
+const HYUNG_MAP: Record<string, string> = {
+  '寅': '巳', '巳': '申', '申': '寅',
+  '丑': '戌', '戌': '未', '未': '丑',
+  '子': '卯', '卯': '子',
+  '辰': '辰', '午': '午', '酉': '酉', '亥': '亥', // 자형
+};
+
+// 충(沖) 대향 지지
+const CHUNG_MAP: Record<string, string> = {
+  '子': '午', '午': '子', '丑': '未', '未': '丑',
+  '寅': '申', '申': '寅', '卯': '酉', '酉': '卯',
+  '辰': '戌', '戌': '辰', '巳': '亥', '亥': '巳',
+};
+
+// 역마(驛馬): 申子辰→寅, 寅午戌→申, 巳酉丑→亥, 亥卯未→巳
+const YEOKMA_MAP: Record<string, string> = {
+  '申': '寅', '子': '寅', '辰': '寅',
+  '寅': '申', '午': '申', '戌': '申',
+  '巳': '亥', '酉': '亥', '丑': '亥',
+  '亥': '巳', '卯': '巳', '未': '巳',
+};
+
 /**
- * 삼전(三傳)을 도출한다.
+ * 삼전(三傳)을 도출한다 — 九宗門 발용법.
  *
- * 사과에서 적(賊: 상신이 하신을 극)을 찾는다.
- * - 적이 1개: 초전 = 적의 상신
- * - 적이 2개 이상: 첫 번째 적의 상신
- * - 적이 0개: 비(하신이 상신을 극)를 찾는다
- *   - 비가 1개 이상: 첫 번째 비의 상신
- *   - 비도 0개: 제1과 상신을 초전으로 사용 (묘성과 fallback)
- * 중전 = 초전의 천반 지지
- * 말전 = 중전의 천반 지지
+ * 초전(발용):
+ * - 적극이 있으면 賊(하극상)을 剋(상극하)보다 우선 취한다.
+ * - 후보가 여러 개면 비용법(知一: 일간과 음양이 같은 상신)으로 좁히고,
+ *   그래도 남으면 섭해(涉害: 상신의 지반이 四孟 > 四仲 우선)로 취한다.
+ * - 무적극이면 복음(양일 干上神, 음일 支上神)·반음(驛馬)·호시(상신극일)·
+ *   탄사(일극상신) 순으로 취하고, 나머지 특수과는 제1과 상신으로 둔다.
+ * 중전 = 초전이 놓인 지반 위의 천반신 (복음은 초전의 刑)
+ * 말전 = 중전이 놓인 지반 위의 천반신 (복음은 중전의 刑)
  *
  * @param saGwa - 사과 4개
  * @param cheonJiBan - 천지반 배치
+ * @param dayGan - 일간 (한자)
+ * @param dayJi - 일지 (한자)
  * @returns 3개의 SamJeonItem
  */
 export function deriveSamJeon(
   saGwa: SaGwaItem[],
   cheonJiBan: CheonJiBanPosition[],
+  dayGan: string,
+  dayJi: string,
 ): SamJeonItem[] {
   // 천반 조회 헬퍼
   function getHeavenBranch(earthBranch: string): string {
@@ -218,35 +245,91 @@ export function deriveSamJeon(
     return cheonJiBan[idx].heavenBranch;
   }
 
-  // 적(賊) 찾기: 상신이 하신을 극하는 과
-  const jeoks: SaGwaItem[] = [];
-  const bis: SaGwaItem[] = [];
+  const dayYang = YANG_STEM_SET.has(dayGan);
 
-  for (const gwa of saGwa) {
-    const upperOh = BRANCH_OHAENG[gwa.upper];
-    const lowerOh = BRANCH_OHAENG[gwa.lower];
-    if (OHAENG_GEUK[upperOh] === lowerOh) {
-      jeoks.push(gwa);
-    }
-    if (OHAENG_GEUK[lowerOh] === upperOh) {
-      bis.push(gwa);
-    }
-  }
+  // 賊(하극상): 하신이 상신을 극 / 剋(상극하): 상신이 하신을 극
+  const jeoks = saGwa.filter(
+    (g) => OHAENG_GEUK[BRANCH_OHAENG[g.lower]] === BRANCH_OHAENG[g.upper],
+  );
+  const geuks = saGwa.filter(
+    (g) => OHAENG_GEUK[BRANCH_OHAENG[g.upper]] === BRANCH_OHAENG[g.lower],
+  );
 
-  // 초전 결정
+  const bokEum = saGwa.every((g) => g.upper === g.lower);
+  const banEum = saGwa.every((g) => isChungPair(g.upper, g.lower));
+
   let chojeonBranch: string;
-  if (jeoks.length >= 1) {
-    chojeonBranch = jeoks[0].upper;
-  } else if (bis.length >= 1) {
-    chojeonBranch = bis[0].upper;
+  let useHyung = false;
+
+  if (jeoks.length + geuks.length > 0) {
+    // 적극 발용: 賊 우선, 없으면 剋
+    const candidates = jeoks.length > 0 ? jeoks : geuks;
+    if (candidates.length === 1) {
+      chojeonBranch = candidates[0].upper;
+    } else {
+      // 비용법: 일간과 음양이 같은 상신
+      const matched = candidates.filter(
+        (g) => YANG_BRANCH_SET.has(g.upper) === dayYang,
+      );
+      const pool = matched.length > 0 ? matched : candidates;
+      if (pool.length === 1) {
+        chojeonBranch = pool[0].upper;
+      } else {
+        // 섭해: 상신의 지반 위치가 四孟(寅申巳亥) > 四仲(子午卯酉) 우선
+        const earthPosOf = (upper: string) => {
+          const pos = cheonJiBan.find((p) => p.heavenBranch === upper);
+          return pos ? pos.earthBranch : upper;
+        };
+        const MENG = new Set(['寅', '申', '巳', '亥']);
+        const JUNG = new Set(['子', '午', '卯', '酉']);
+        chojeonBranch =
+          pool.find((g) => MENG.has(earthPosOf(g.upper)))?.upper ??
+          pool.find((g) => JUNG.has(earthPosOf(g.upper)))?.upper ??
+          pool[0].upper;
+      }
+    }
+  } else if (bokEum) {
+    // 복음: 양일은 干上神, 음일은 支上神을 초전으로
+    chojeonBranch = dayYang ? saGwa[0].upper : saGwa[2].upper;
+    useHyung = true;
+  } else if (banEum) {
+    // 반음(무적극): 초전 = 일지의 역마, 중전 = 支上神, 말전 = 干上神
+    return [
+      { name: '초전', branch: YEOKMA_MAP[dayJi] ?? saGwa[0].upper, cheonJang: null, yukChin: '' },
+      { name: '중전', branch: saGwa[2].upper, cheonJang: null, yukChin: '' },
+      { name: '말전', branch: saGwa[0].upper, cheonJang: null, yukChin: '' },
+    ];
   } else {
-    // 적/비 모두 없음 -> 제1과 상신 fallback (묘성과)
-    chojeonBranch = saGwa[0].upper;
+    // 무적극 특수과: 호시(상신극일) -> 탄사(일극상신) -> 팔전/별책/묘성 fallback
+    const dayGanOh = GAN_OHAENG[dayGan];
+    const hosi = saGwa.find(
+      (g) => OHAENG_GEUK[BRANCH_OHAENG[g.upper]] === dayGanOh,
+    );
+    const tansa = saGwa.find(
+      (g) => OHAENG_GEUK[dayGanOh] === BRANCH_OHAENG[g.upper],
+    );
+    chojeonBranch = hosi?.upper ?? tansa?.upper ?? saGwa[0].upper;
   }
 
   // 중전, 말전
-  const jungjeonBranch = getHeavenBranch(chojeonBranch);
-  const maljeonBranch = getHeavenBranch(jungjeonBranch);
+  let jungjeonBranch: string;
+  let maljeonBranch: string;
+  if (useHyung) {
+    if (HYUNG_MAP[chojeonBranch] === chojeonBranch) {
+      // 초전이 자형: 양일은 支上神, 음일은 干上神을 중전으로
+      jungjeonBranch = dayYang ? saGwa[2].upper : saGwa[0].upper;
+    } else {
+      jungjeonBranch = HYUNG_MAP[chojeonBranch];
+    }
+    // 중전이 자형이면 말전은 그 충(沖)
+    maljeonBranch =
+      HYUNG_MAP[jungjeonBranch] === jungjeonBranch
+        ? (CHUNG_MAP[jungjeonBranch] ?? jungjeonBranch)
+        : HYUNG_MAP[jungjeonBranch];
+  } else {
+    jungjeonBranch = getHeavenBranch(chojeonBranch);
+    maljeonBranch = getHeavenBranch(jungjeonBranch);
+  }
 
   // 삼전 구성
   const samJeon: SamJeonItem[] = [
@@ -339,48 +422,78 @@ export function placeCheonJang(
 // 공개 함수 - 과명(課名) 판별
 // ===================================================================
 
+const YANG_STEM_SET = new Set(['甲', '丙', '戊', '庚', '壬']);
+const YANG_BRANCH_SET = new Set(['子', '寅', '辰', '午', '申', '戌']);
+const CHUNG_PAIR_SET = new Set(['子午', '丑未', '寅申', '卯酉', '辰戌', '巳亥']);
+
+function isChungPair(a: string, b: string): boolean {
+  return CHUNG_PAIR_SET.has(a + b) || CHUNG_PAIR_SET.has(b + a);
+}
+
 /**
- * 과명(課名)을 판별한다.
+ * 과명(課名)을 판별한다 — 九宗門(구종문) 분류.
  *
- * 9과 분류 (간략 구현):
- * - 원수과: 적이 1개
- * - 중심과: 적이 2개 이상
- * - 설기과: 적 0개, 비가 1개 이상
- * - 요극과: 적/비 모두 0개이고 특수 조건
- * - 묘성과: 위 조건 모두 해당 없음
+ * 판별 순서:
+ * 1. 복음과(伏吟): 모든 과의 상신 = 하신 (천반=지반)
+ * 2. 반음과(返吟): 모든 과의 상신이 하신과 충(沖)
+ * 3. 중심과(重審): 하극상(下賊上)이 1개
+ * 4. 원수과(元首): 하극상 없이 상극하(上克下)가 1개
+ * 5. 지일과(知一): 적극이 2개 이상 → 비용법(일간과 음양이 같은 상신)으로 1개 확정
+ * 6. 섭해과(涉害): 비용법으로도 1개로 좁혀지지 않음
+ * 7. 팔전과(八專): 일간 기거지지 = 일지 (간지동위, 과가 2개로 축약)
+ * 8. 별책과(別責): 실질 과가 3개
+ * 9. 호시과(蒿矢): 상신이 일간을 요극(遥剋)
+ * 10. 탄사과(彈射): 일간이 상신을 요극
+ * 11. 묘성과(昴星): 위 조건 모두 해당 없음
  *
  * @param saGwa - 사과 4개
+ * @param dayGan - 일간 (한자)
+ * @param dayJi - 일지 (한자)
  * @returns 과명 문자열
  */
-export function determineGwaMyeong(saGwa: SaGwaItem[]): string {
-  let jeokCount = 0;
-  let biCount = 0;
+export function determineGwaMyeong(saGwa: SaGwaItem[], dayGan: string, dayJi: string): string {
+  // 1~2. 복음/반음 — 구조적 조건이라 최우선 판별
+  if (saGwa.every((g) => g.upper === g.lower)) return '복음과';
+  if (saGwa.every((g) => isChungPair(g.upper, g.lower))) return '반음과';
 
-  for (const gwa of saGwa) {
-    const upperOh = BRANCH_OHAENG[gwa.upper];
-    const lowerOh = BRANCH_OHAENG[gwa.lower];
-    if (OHAENG_GEUK[upperOh] === lowerOh) {
-      jeokCount++;
-    }
-    if (OHAENG_GEUK[lowerOh] === upperOh) {
-      biCount++;
-    }
+  // 적극 분류: 하극상(적)과 상극하(극)를 구분한다
+  const haJek = saGwa.filter(
+    (g) => OHAENG_GEUK[BRANCH_OHAENG[g.lower]] === BRANCH_OHAENG[g.upper],
+  );
+  const sangGeuk = saGwa.filter(
+    (g) => OHAENG_GEUK[BRANCH_OHAENG[g.upper]] === BRANCH_OHAENG[g.lower],
+  );
+
+  // 3~4. 하극상이 상극하보다 우선한다
+  if (haJek.length === 1) return '중심과';
+  if (haJek.length === 0 && sangGeuk.length === 1) return '원수과';
+
+  // 5~6. 적극이 여러 개면 비용법 → 섭해
+  const candidates = haJek.length > 1 ? haJek : sangGeuk;
+  if (candidates.length > 1) {
+    const dayYang = YANG_STEM_SET.has(dayGan);
+    const matched = candidates.filter((g) => YANG_BRANCH_SET.has(g.upper) === dayYang);
+    if (matched.length === 1) return '지일과';
+    return '섭해과';
   }
 
-  if (jeokCount === 1) return '원수과';
-  if (jeokCount >= 2) return '중심과';
-  if (biCount >= 1) return '설기과';
+  // 무적극 — 7~8. 과 수가 줄어든 경우의 특수과
+  const distinctUppers = new Set(saGwa.map((g) => g.upper)).size;
+  if (GAN_TO_BRANCH[dayGan] === dayJi && distinctUppers <= 2) return '팔전과';
+  if (distinctUppers === 3) return '별책과';
 
-  // 요극과 판별: 천반이 일간 지지를 극하는 것이 있는지
-  // 간략 구현에서는 묘성과로 fallback
+  // 9~10. 요극 — 사과 상신과 일간 사이의 극 관계
+  const dayGanOh = GAN_OHAENG[dayGan];
+  if (saGwa.some((g) => OHAENG_GEUK[BRANCH_OHAENG[g.upper]] === dayGanOh)) return '호시과';
+  if (saGwa.some((g) => OHAENG_GEUK[dayGanOh] === BRANCH_OHAENG[g.upper])) return '탄사과';
+
+  // 11. 묘성과
   return '묘성과';
 }
 
 // ===================================================================
 // 내부 함수 - 절기 탐색
 // ===================================================================
-
-// findRelevantSolarTermForWolJang was removed (unused, superseded by findRelevantSolarTermForWolJangByDate)
 
 /**
  * 일간지에서 甲 旬을 구하고 공망을 결정한다.
@@ -419,9 +532,10 @@ function getVoidBranches(dayGan: string, dayJi: string): [string, string] {
  * @param hour - 시각 (0-23)
  * @returns DaeyukimResult
  */
-function findRelevantSolarTermForWolJangByDate(solarDate: string): string {
+function findRelevantSolarTermForWolJang(solarDate: string, hour: number): string {
   const [year, month, day] = solarDate.split('-').map(Number);
-  const targetTime = new Date(year, month - 1, day).getTime();
+  // 중기의 실제 절입 시각(KST timestamp)을 기준으로 비교한다
+  const targetTime = toKstTimestamp({ year, month, day, hour, minute: 0, second: 0 });
   const candidates = [
     ...ManseryeokEngine.listSolarTermsForYear(year - 1),
     ...ManseryeokEngine.listSolarTermsForYear(year),
@@ -435,7 +549,14 @@ function findRelevantSolarTermForWolJangByDate(solarDate: string): string {
       continue;
     }
 
-    const termTime = new Date(term.year, term.month - 1, term.day).getTime();
+    const termTime = toKstTimestamp({
+      year: term.year,
+      month: term.month,
+      day: term.day,
+      hour: term.hour,
+      minute: term.minute,
+      second: term.second,
+    });
     if (termTime <= targetTime && termTime > bestTime) {
       bestTime = termTime;
       bestName = term.koreanName;
@@ -458,7 +579,7 @@ export function calculateDaeyukim(solarDate: string, hour: number): DaeyukimResu
   const hourJi = BRANCHES[hourBranchIdx];
 
   // --- 4. 월장 결정 ---
-  const solarTermName = findRelevantSolarTermForWolJangByDate(solarDate);
+  const solarTermName = findRelevantSolarTermForWolJang(solarDate, hour);
   const wolJang = getWolJang(solarTermName);
 
   // --- 5. 천지반 구성 ---
@@ -468,7 +589,7 @@ export function calculateDaeyukim(solarDate: string, hour: number): DaeyukimResu
   const saGwa = deriveSaGwa(dayGan, dayJi, cheonJiBan);
 
   // --- 7. 삼전 도출 ---
-  const samJeon = deriveSamJeon(saGwa, cheonJiBan);
+  const samJeon = deriveSamJeon(saGwa, cheonJiBan, dayGan, dayJi);
 
   // --- 8. 12천장 배치 ---
   const cheonJangList = placeCheonJang(dayGan, hourJi);
@@ -503,7 +624,7 @@ export function calculateDaeyukim(solarDate: string, hour: number): DaeyukimResu
   }
 
   // --- 11. 과명 판별 ---
-  const gwaMyeong = determineGwaMyeong(saGwa);
+  const gwaMyeong = determineGwaMyeong(saGwa, dayGan, dayJi);
 
   // --- 12. 공망 결정 ---
   const voidBranches = getVoidBranches(dayGan, dayJi);

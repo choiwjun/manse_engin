@@ -1,6 +1,5 @@
 // @TASK EXT-NAMING-1 - 한자 획수 DB (자원오행 포함)
 // @SPEC 성명학 확장: 강희자전파 vs 현대획수파 학파 분기
-// @TEST tests/engine/naming-extended.test.ts
 
 /**
  * 한자 엔트리 구조.

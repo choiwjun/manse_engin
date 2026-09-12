@@ -1,6 +1,5 @@
 // @TASK P8-R4-T1 - 중주파(中州派) 로직 (왕정농 체계)
 // @SPEC docs/planning/06-tasks.md#P8-R4-T1
-// @TEST tests/engine/ziwei-jungju.test.ts
 
 import type {
   ZiweiResult,

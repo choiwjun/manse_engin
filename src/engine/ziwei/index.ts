@@ -1,6 +1,5 @@
 // @TASK ZIWEI-SELF - 자미두수(紫微斗數) 자체 엔진
 // @SPEC docs/planning/06-tasks.md#자미두수-자체엔진
-// @TEST tests/engine/ziwei.test.ts
 
 import type { ZiweiResult } from '@/engine/types';
 import { calculateZiweiSelf, calculateZiweiByLunarSelf } from './calculator';

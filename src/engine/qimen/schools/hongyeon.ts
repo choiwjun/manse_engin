@@ -1,6 +1,5 @@
 // @TASK P9-R5-T4 - 홍연기문파(洪演奇門派) 분석 엔진
 // @SPEC docs/planning/06-tasks.md#P9-R5-T4
-// @TEST tests/engine/qimen-hongyeon.test.ts
 
 import type { QimenResult, Palja } from '@/engine/types';
 import { calculateQimen } from '@/engine/qimen';

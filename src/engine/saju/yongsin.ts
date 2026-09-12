@@ -1,6 +1,5 @@
 // @TASK P2-R3-T5 - 용신(用神) 판별 (4학파별 분기)
 // @SPEC docs/planning/02-trd.md#격국-용신-판별
-// @TEST tests/engine/gyeokguk.test.ts
 
 import type { Palja, Gyeokguk, Yongsin, Ohaeng, SajuSubSchool } from '@/engine/types';
 import { getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';

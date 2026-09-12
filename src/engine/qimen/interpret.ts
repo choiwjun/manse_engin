@@ -1,6 +1,5 @@
 // @TASK P9-R1-T2 - 기문둔갑 포국 해석 엔진
 // @SPEC docs/planning/06-tasks.md#P9-R1-T2
-// @TEST tests/engine/qimen-interpret.test.ts
 
 import type {
   QimenPalace,

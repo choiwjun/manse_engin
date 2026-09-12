@@ -1,6 +1,5 @@
 // @TASK P8-R3-T1 - 사화파(四化派) 로직
 // @SPEC docs/planning/06-tasks.md#P8-R3-T1
-// @TEST tests/engine/ziwei-sahwa.test.ts
 
 import type {
   ZiweiResult,

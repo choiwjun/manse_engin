@@ -1,6 +1,5 @@
 // @TASK P4-R1-T1 - 작명 분석 엔진
 // @SPEC docs/planning/02-trd.md#작명-분석-엔진
-// @TEST tests/engine/naming.test.ts
 
 import type {
   Ohaeng,
@@ -13,6 +12,7 @@ import type {
   TripleOhaengComparison,
 } from '@/engine/types';
 import { analyzeJawonOhaeng, getHanjaStrokes } from './jawon-ohaeng';
+import { ManseryeokRangeError } from '@/engine/core/errors';
 
 // ---------- 한글 자모 획수 데이터 (강희자전 기준 자모 획수) ----------
 
@@ -419,6 +419,12 @@ export function analyzeName(surname: string, givenName: string): NamingAnalysis 
   const fullName = surname + givenName;
   const chars = [...fullName];
 
+  for (const ch of chars) {
+    if (!isHangulSyllable(ch)) {
+      throw new ManseryeokRangeError(`이름은 한글 음절이어야 합니다: '${ch}'`, { char: ch });
+    }
+  }
+
   // 1. 각 글자의 획수
   const strokes = chars.map(getStrokeCount);
 
@@ -519,6 +525,16 @@ export function analyzeNameExtended(
       school,
       hanjaStrokes: null,
     };
+  }
+
+  // 한자 배열은 성+이름 전체 글자 수와 일치해야 한다.
+  // 부분 배열은 인덱스가 어긋나 잘못된 글자에 한자가 배정되므로 거부한다.
+  const expectedLen = [...surname].length + [...givenName].length;
+  if (hanjaChars.length !== expectedLen) {
+    throw new ManseryeokRangeError(
+      `hanjaChars 길이(${hanjaChars.length})가 성+이름 글자 수(${expectedLen})와 일치해야 합니다.`,
+      { hanjaChars, expectedLen },
+    );
   }
 
   // 3. 자원오행 분석

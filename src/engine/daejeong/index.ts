@@ -1,6 +1,5 @@
 // @TASK P7-R5-T1 - 대정수작괘(大定數作卦) 계산 엔진
 // @SPEC docs/planning/02-trd.md#대정수작괘-엔진
-// @TEST tests/engine/daejeong.test.ts
 //
 // 소옹(邵雍)의 선천역학(先天易學)에 기반한 대정수작괘 계산.
 // 사주팔자의 천간에서 선천수를, 지지에서 후천수를 추출하여

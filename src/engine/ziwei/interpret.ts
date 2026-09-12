@@ -1,6 +1,5 @@
 // @TASK P8-R1-T2 - 자미두수 명반 해석 엔진
 // @SPEC docs/planning/06-tasks.md#P8-R1-T2
-// @TEST tests/engine/ziwei-interpret.test.ts
 
 import type {
   ZiweiResult,

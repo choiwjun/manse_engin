@@ -1,6 +1,5 @@
 // @TASK P7-R1-T1 - 홍연기문(洪衍奇門) 계산 엔진
 // @SPEC docs/planning/02-trd.md#홍연기문-엔진
-// @TEST tests/engine/hongyeon.test.ts
 
 import type { Ohaeng, Palja } from '@/engine/types';
 

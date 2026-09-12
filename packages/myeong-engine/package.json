@@ -1,6 +1,6 @@
 {
   "name": "myeong-manseryeok-engine",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "MYEONG 만세력/사주 계산 엔진 — 한국 법정시·DST·진태양시·자시 학파를 처리하는 순수 TypeScript 역학 엔진 (13개 모듈)",
   "type": "module",
   "main": "./dist/index.cjs",

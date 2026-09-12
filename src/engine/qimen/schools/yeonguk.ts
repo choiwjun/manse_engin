@@ -1,6 +1,5 @@
 // @TASK P9-R5-T2 - 연국파(年局派) 분석 엔진
 // @SPEC docs/planning/06-tasks.md#P9-R5-T2
-// @TEST tests/engine/qimen-yeonguk.test.ts
 
 import type { QimenResult } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';

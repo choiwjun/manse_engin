@@ -12,7 +12,7 @@ npm test           # 빌드 + 스모크·회귀 테스트
 npm pack           # myeong-manseryeok-engine-<version>.tgz 생성
 
 # 소비 프로젝트에서
-npm install /path/to/myeong-manseryeok-engine-0.1.0.tgz
+npm install /path/to/myeong-manseryeok-engine-0.3.0.tgz
 ```
 
 ## 사용

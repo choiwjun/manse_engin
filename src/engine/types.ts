@@ -345,7 +345,7 @@ export interface CalendarDay {
   dayGanJi: string;
   /** 일간의 오행 */
   ohaeng: Ohaeng;
-  /** 12신살 이름 */
+  /** 십이직(十二直) 이름 — 건일·제일·만일·평일·정일·집일·파일·위일·성일·수일·개일·폐일 */
   sinsal12: string;
   /** 길흉 판단 */
   gilhyung: '길' | '흉' | '평';

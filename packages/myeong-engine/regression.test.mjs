@@ -202,6 +202,117 @@ test('projected lunar month starts agree with NASA new-moon dates in KST', () =>
   }
 });
 
+test('ziwei derives the five-elements class from the ming-gong stem-branch naeum', async () => {
+  // 음력 2024-03-01 자시(0시): 명궁 戊辰 → 대림목 → 목삼국 (년주 甲辰 부등화=화육국이 아님)
+  const r = (await esm.executeEngineModuleById('ziwei', {
+    calendarType: 'lunar', date: '2024-03-01', hour: 0, gender: 'male', isLeapMonth: false,
+  })).result;
+  const ming = r.palaces.find(p => p.name === '명궁');
+  assert.equal(ming.heavenlyStem + ming.earthlyBranch, '무진');
+  assert.equal(r.fiveElementsClass, '목삼국');
+});
+
+test('ziwei places 丙子·丁丑 stems and palace names in reverse branch order', async () => {
+  // 甲辰년(2024): 오호둔 순행으로 子궁=丙子, 丑궁=丁丑
+  const r = (await esm.executeEngineModuleById('ziwei', {
+    calendarType: 'solar', date: '2024-05-01', hour: 10, gender: 'male',
+  })).result;
+  const ja = r.palaces.find(p => p.earthlyBranch === '자');
+  const chuk = r.palaces.find(p => p.earthlyBranch === '축');
+  assert.equal(ja.heavenlyStem, '병');
+  assert.equal(chuk.heavenlyStem, '정');
+  // 궁명은 명궁에서 지지 역행으로 배치된다
+  const bro = r.palaces.find(p => p.name === '형제');
+  const ji = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'];
+  assert.equal(ji.indexOf(bro.earthlyBranch), (ji.indexOf(mingBranch(r)) + 11) % 12);
+  function mingBranch(res) {
+    return res.palaces.find(p => p.name === '명궁').earthlyBranch;
+  }
+});
+
+test('ziwei star position follows the quotient-and-offset rule', async () => {
+  // 목삼국(3) 음력 1일 → 자미=辰(진). 보수법: 1+2=3, 3/3=1, 寅+0=寅에서 보수2(짝수) 순행 → 辰
+  const r = (await esm.executeEngineModuleById('ziwei', {
+    calendarType: 'lunar', date: '2024-03-01', hour: 0, gender: 'male', isLeapMonth: false,
+  })).result;
+  assert.equal(r.fiveElementsClass, '목삼국');
+  const ziweiPalace = r.palaces.find(p => p.majorStars.some(s => s.name === '자미'));
+  assert.equal(ziweiPalace.earthlyBranch, '진');
+});
+
+test('qimen places all nine stems including 乙 and honors the term instant', async () => {
+  for (const day of [1, 4, 7, 10, 13, 16, 19, 22, 25, 28]) {
+    for (const hour of [0, 6, 12, 18]) {
+      const r = (await esm.executeEngineModuleById('qimen', {
+        solarDate: `2024-01-${String(day).padStart(2, '0')}`, hour,
+      })).result;
+      const earthStems = r.palaces.map(p => p.earthStem);
+      assert.ok(earthStems.includes('乙'), `2024-01-${day} ${hour}h earth plate missing 乙`);
+      assert.ok(earthStems.every(s => s !== ''), 'earth plate has empty palace');
+    }
+  }
+  // 하지 2024-06-21 05:51: 절입 전은 망종, 후는 하지
+  const before = (await esm.executeEngineModuleById('qimen', { solarDate: '2024-06-21', hour: 5 })).result;
+  const after = (await esm.executeEngineModuleById('qimen', { solarDate: '2024-06-21', hour: 6 })).result;
+  assert.equal(before.solarTerm, '망종');
+  assert.equal(after.solarTerm, '하지');
+});
+
+test('daeyukim switches woljang at the exact term instant', async () => {
+  // 우수 2024-02-19 13:13: 절입 전 월장 子(대한 기준), 후 亥(우수 기준)
+  const before = (await esm.executeEngineModuleById('daeyukim', { solarDate: '2024-02-19', hour: 12 })).result;
+  const after = (await esm.executeEngineModuleById('daeyukim', { solarDate: '2024-02-19', hour: 14 })).result;
+  assert.equal(before.wolJang, '子');
+  assert.equal(after.wolJang, '亥');
+});
+
+test('gyeokguk reaches special formations before ordinary classification', () => {
+  // 甲일간 + 己월간 + 辰월지 → 갑기합화토격 (정격 판별보다 특수격 우선)
+  const r = esm.determineGyeokguk({
+    yearGan: '甲', yearJi: '子', monthGan: '己', monthJi: '辰',
+    dayGan: '甲', dayJi: '午', hourGan: '丙', hourJi: '寅',
+  });
+  assert.equal(r.name, '갑기합화토격');
+  // 정격 경로는 여전히 동작한다
+  const ordinary = esm.determineGyeokguk({
+    yearGan: '甲', yearJi: '子', monthGan: '丙', monthJi: '子',
+    dayGan: '丙', dayJi: '午', hourGan: '丙', hourJi: '寅',
+  });
+  assert.ok(ordinary.name.length > 0);
+});
+
+test('contract validation rejects invalid and non-finite inputs', async () => {
+  const reject = async (id, input, code) => {
+    await assert.rejects(
+      esm.executeEngineModuleById(id, input),
+      err => err.code === code,
+      `${id} ${JSON.stringify(input)}`,
+    );
+  };
+  await reject('maehwa', { method: 'number', first: NaN, second: 3 }, 'INVALID_INPUT');
+  await reject('maehwa', { method: 'number', first: Infinity, second: 3 }, 'INVALID_INPUT');
+  await reject('maehwa', { method: 'number', first: -1, second: 3 }, 'OUT_OF_RANGE');
+  await reject('harak', { year: 2024, month: 99, day: 99 }, 'INVALID_INPUT');
+  await reject('ziwei', { calendarType: 'solar', date: '1990-01-01', hour: 24, gender: 'male' }, 'OUT_OF_RANGE');
+  await reject('qimen', { solarDate: '2024-13-40', hour: 10 }, 'INVALID_INPUT');
+  await reject('hongyeon', { palja: { yearGan: '', yearJi: '', monthGan: '', monthJi: '', dayGan: '', dayJi: '', hourGan: '', hourJi: '' } }, 'INVALID_INPUT');
+  await reject('saju', { birth: birth({ year: 1990, month: 5, day: 15, hour: 99 }), now: '2025-01-15T00:00:00Z' }, 'OUT_OF_RANGE');
+
+  // 3주(시주 생략) 입력은 경고와 함께 통과한다
+  const hy = await esm.executeEngineModuleById('hongyeon', {
+    palja: { yearGan: '甲', yearJi: '子', monthGan: '己', monthJi: '辰', dayGan: '甲', dayJi: '午', hourGan: '', hourJi: '' },
+  });
+  assert.ok(hy.warnings.some(w => w.code === 'PARTIAL_THREE_PILLARS'));
+});
+
+test('compatibility scores unknown-time charts against the valid-character count', async () => {
+  const p = { year: 1990, month: 5, day: 15, hour: null, minute: null, gender: 'male' };
+  const q = { year: 1992, month: 7, day: 20, hour: null, minute: null, gender: 'female' };
+  const env = await esm.executeEngineModuleById('compatibility', { person1: p, person2: q });
+  assert.equal(env.warnings.filter(w => w.code === 'TIME_UNKNOWN').length, 2);
+  assert.ok(Number.isFinite(env.result.ohaengComplement.score));
+});
+
 test('2024 solar-term timestamps remain within one minute of the KASI reference', () => {
   // https://astro.kasi.re.kr/life/post/calendardata
   const fixtures = [
@@ -218,4 +329,78 @@ test('2024 solar-term timestamps remain within one minute of the KASI reference'
     const actual = Date.UTC(t.year, t.month - 1, t.day, t.hour, t.minute, t.second);
     assert.ok(Math.abs(actual - expected) <= 60_000, t.koreanName);
   });
+});
+
+test('tojeong derives a collision-free 8x6x3 gwae from traditional formulas', () => {
+  // 갑진년(2024): 태세수 = 중천수(甲 11) + 중천수(辰 11) = 22
+  // 생년 1990 → 한국나이 35 → 상괘 = (35 + 22) % 8 = 1
+  const r = esm.analyzeTojeong(1990, 5, 15, 2024);
+  assert.equal(r.gwae.sangGwae, 1);
+  assert.ok(r.gwae.jungGwae >= 1 && r.gwae.jungGwae <= 6);
+  assert.ok(r.gwae.haGwae >= 1 && r.gwae.haGwae <= 3);
+  const expected =
+    (r.gwae.sangGwae - 1) * 18 + (r.gwae.jungGwae - 1) * 3 + r.gwae.haGwae;
+  assert.equal(r.gwae.gwaeNumber, expected);
+  assert.equal(r.gwae.gwaeCode, `${r.gwae.sangGwae}${r.gwae.jungGwae}${r.gwae.haGwae}`);
+  assert.ok(r.interpretation && r.interpretation.title);
+  // 생년이 결과에 반영된다
+  const other = esm.analyzeTojeong(1991, 5, 15, 2024);
+  assert.notEqual(other.gwae.sangGwae, r.gwae.sangGwae);
+});
+
+test('lunar month length helper returns 29 or 30 and matches conversion range', () => {
+  for (const [y, m] of [[2024, 1], [2024, 5], [2023, 2], [1990, 9]]) {
+    const days = esm.getLunarMonthDays(y, m);
+    assert.ok(days === 29 || days === 30, `${y}-${m}: ${days}`);
+    // 말일(30) 변환 가능 여부와 일치해야 한다
+    let day30ok = true;
+    try { esm.lunarToSolar({ year: y, month: m, day: 30, isLeapMonth: false }); } catch { day30ok = false; }
+    assert.equal(day30ok, days === 30, `${y}-${m} day30 vs days=${days}`);
+  }
+});
+
+test('harak hexagram lookup respects the lower*10+upper key convention', () => {
+  assert.equal(esm.calculateHexagramNumber(1, 8), 12); // 天地否
+  assert.equal(esm.calculateHexagramNumber(8, 1), 11); // 地天泰
+  assert.throws(() => esm.calculateHexagramNumber(0, 5));
+  assert.throws(() => esm.calculateHexagramNumber(9, 5));
+  const h = esm.calculateHarak(2024, 6, 15);
+  assert.ok(h.hexagramNumber >= 1 && h.hexagramNumber <= 64);
+});
+
+test('daeyukim applies the nine-gates derivation with jeok-first priority', () => {
+  const r = esm.calculateDaeyukim('2024-06-15', 10);
+  assert.ok(typeof r.gwaMyeong === 'string' && r.gwaMyeong.endsWith('과'));
+  assert.equal(r.samJeon.length, 3);
+  // 사과에서 적(하극상)이 정확히 1개면 그 상신이 초전이어야 한다
+  const O = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' };
+  const BO = { 子: '水', 丑: '土', 寅: '木', 卯: '木', 辰: '土', 巳: '火', 午: '火', 未: '土', 申: '金', 酉: '金', 戌: '土', 亥: '水' };
+  const haJek = r.saGwa.filter(g => O[BO[g.lower]] === BO[g.upper]);
+  if (haJek.length === 1) {
+    assert.equal(r.samJeon[0].branch, haJek[0].upper);
+  }
+});
+
+test('naming rejects partial hanja arrays and non-hangul characters', () => {
+  assert.throws(() => esm.analyzeNameExtended('김', '철수', { hanjaChars: ['金', '哲'] }));
+  const ok = esm.analyzeNameExtended('김', '철수', { hanjaChars: ['金', '哲', '秀'] });
+  assert.equal(ok.hanjaStrokes.length, 3);
+  assert.throws(() => esm.analyzeNameExtended('김', 'AB', {}));
+});
+
+test('calendar emits the twelve officers (十二直) names', () => {
+  const TWELVE = new Set(['건일', '제일', '만일', '평일', '정일', '집일', '파일', '위일', '성일', '수일', '개일', '폐일']);
+  const seen = new Set();
+  for (let d = 1; d <= 28; d++) {
+    const day = esm.getCalendarDay(2024, 3, d);
+    assert.ok(TWELVE.has(day.sinsal12), `unexpected: ${day.sinsal12}`);
+    seen.add(day.sinsal12);
+  }
+  // 건제법은 12일 주기 — 한 달에 12종 전부 등장해야 한다
+  assert.equal(seen.size, 12);
+});
+
+test('package version matches ENGINE_VERSION', () => {
+  const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
+  assert.equal(pkg.version, esm.ENGINE_VERSION);
 });

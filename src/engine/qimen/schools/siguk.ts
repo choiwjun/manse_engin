@@ -1,6 +1,5 @@
 // @TASK P9-R5-T1 - 시국파(時局派) 분석 엔진
 // @SPEC docs/planning/06-tasks.md#P9-R5-T1
-// @TEST tests/engine/qimen-siguk.test.ts
 
 import type { QimenResult } from '@/engine/types';
 import { calculateQimen } from '@/engine/qimen';

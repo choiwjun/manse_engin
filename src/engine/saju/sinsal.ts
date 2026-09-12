@@ -1,6 +1,5 @@
 // @TASK P2-R3-T4 - 12sinsal, hyeongchunghoehabpahae, gongmang, naeum-ohaeng
 // @SPEC docs/planning/02-trd.md#sinsal-calculation
-// @TEST tests/engine/sinsal.test.ts
 
 import type { Palja, Sinsal } from '@/engine/types';
 import { CHEONGAN, JIJI } from '@/engine/adapter/hanja-mapper';

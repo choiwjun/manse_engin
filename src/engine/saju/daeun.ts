@@ -1,6 +1,5 @@
 // @TASK P2-R3-T3 - 대운/세운/월운 계산
 // @SPEC docs/planning/02-trd.md#대운-세운-월운
-// @TEST tests/engine/daeun.test.ts
 
 import type { BirthInputData, Daeun, Ohaeng, Palja } from '@/engine/types';
 import type { CalculateOptions } from '@/engine/saju/calculator';

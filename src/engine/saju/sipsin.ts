@@ -1,6 +1,5 @@
 // @TASK P2-R3-T2 - 십신/12운성/지장간 계산
 // @SPEC docs/planning/02-trd.md#십신-12운성-지장간
-// @TEST tests/engine/sipsin.test.ts
 
 import type { Palja, Ohaeng, JijangganSipsin } from '@/engine/types';
 import { getOhaengForGan } from '@/engine/adapter/hanja-mapper';

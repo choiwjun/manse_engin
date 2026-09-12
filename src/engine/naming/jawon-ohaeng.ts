@@ -1,6 +1,5 @@
 // @TASK EXT-NAMING-2 - 자원오행 분석 엔진
 // @SPEC 성명학 확장: 자원오행 (부수 기반 오행 판별)
-// @TEST tests/engine/naming-extended.test.ts
 
 import { HANJA_DB, type HanjaEntry } from './hanja-data';
 import type { Ohaeng } from '@/engine/types';

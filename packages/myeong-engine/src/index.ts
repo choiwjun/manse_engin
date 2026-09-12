@@ -33,7 +33,7 @@ export type {
   GanjiResult,
   GanjiPillar,
 } from './engine/core/ganji';
-export { solarToLunar, lunarToSolar } from './engine/core/lunar-solar';
+export { solarToLunar, lunarToSolar, getLunarMonthDays } from './engine/core/lunar-solar';
 export type { SolarDateTime, LunarDateTime } from './engine/core/lunar-solar';
 export {
   getSolarTermOnOrBefore,
@@ -103,6 +103,32 @@ export type { WonjinPair, WonjinResult } from './engine/saju/wonjin';
 // ---------- 궁합 ----------
 export { calculateCompatibility } from './engine/compatibility';
 export type { CompatibilityInput, CompatibilityResult } from './engine/compatibility/types';
+
+// ---------- 파생 모듈 진입점 ----------
+export { analyzeTojeong } from './engine/tojeong';
+export { calculateZiwei, calculateZiweiByLunar } from './engine/ziwei';
+export { calculateQimen } from './engine/qimen';
+export { calculateDaeyukim } from './engine/daeyukim';
+export { calculateGuseong } from './engine/guseong';
+export { analyzeHongyeon } from './engine/hongyeon';
+export { divineByTime, divineByNumber, divineByName } from './engine/maehwa';
+export { calculateHarak, calculateHexagramNumber } from './engine/harak';
+export { calculateDaejeong } from './engine/daejeong';
+export {
+  analyzeName,
+  analyzeNames,
+  analyzeNameExtended,
+  analyzeNamesExtended,
+} from './engine/naming';
+export {
+  getCalendarDay,
+  getMonthlyCalendar,
+  getDayGanJi,
+  getMonthJi,
+  getSinsal12,
+  getGilhyung,
+  getTaekilInfo,
+} from './engine/calendar';
 
 // ---------- 해석 함수 (봉투 계약 밖의 순수 해석기) ----------
 export { interpretResult as interpretQimenResult } from './engine/qimen/interpret';

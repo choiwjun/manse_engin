@@ -1,6 +1,5 @@
 // @TASK P2-R3-T1 - 사주팔자 계산기(메인)
 // @SPEC docs/planning/02-trd.md#사주팔자-계산기
-// @TEST tests/engine/calculator.test.ts
 
 import type { BirthInputData, MidnightMode, Palja } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';

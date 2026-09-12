@@ -1,6 +1,5 @@
 // @TASK P2-R3-T1 - 한자 매핑 (천간/지지/오행)
 // @SPEC docs/planning/02-trd.md#사주팔자-계산기
-// @TEST tests/engine/calculator.test.ts
 
 import type { Ohaeng } from '@/engine/types';
 

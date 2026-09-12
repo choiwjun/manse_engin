@@ -148,8 +148,13 @@ export function calculateOhaengComplementScore(
   countPalja(palja1);
   countPalja(palja2);
 
-  // 16글자 중 오행 분포 균형도 (이상적: 각 3.2개)
-  const ideal = 16 / 5;
+  // 유효한 글자 수 기준으로 이상적 분포를 계산한다
+  // (시주 없음 등으로 12글자만 유효하면 기준도 2.4로 조정)
+  const validCount = Object.values(ohaengCount).reduce((a, b) => a + b, 0);
+  if (validCount === 0) {
+    return { score: 0, description: '유효한 팔자 글자가 없어 오행 분포를 계산할 수 없습니다' };
+  }
+  const ideal = validCount / 5;
   const deviations = Object.values(ohaengCount).map((c) => Math.abs(c - ideal));
   const avgDeviation = deviations.reduce((a, b) => a + b, 0) / 5;
 

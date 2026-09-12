@@ -1,8 +1,8 @@
 // @TASK P7-R2-T1 - 매화역수(梅花易數) 점술 엔진
 // @SPEC docs/planning/02-trd.md#매화역수-엔진
-// @TEST tests/engine/maehwa.test.ts
 
 import type { Ohaeng } from '@/engine/types';
+import { ManseryeokRangeError } from '@/engine/core/errors';
 import { HEXAGRAM_DATA, KING_WEN_LOOKUP } from './data';
 import type { HexagramEntry } from './data';
 
@@ -178,10 +178,18 @@ export function getOhaengRelation(a: Ohaeng, b: Ohaeng): '상생' | '상극' | '
 /**
  * n % divisor 계산. 나머지가 0이면 divisor를 반환한다.
  * 매화역수에서 나머지 0을 최대값으로 치환하는 규칙 적용.
+ * 음수 입력은 양의 나머지로 정규화한다.
  */
 function modWithFloor(n: number, divisor: number): number {
-  const remainder = n % divisor;
+  const remainder = ((n % divisor) + divisor) % divisor;
   return remainder === 0 ? divisor : remainder;
+}
+
+/** 유한한 양의 정수만 허용한다 (NaN/Infinity/음수 차단). */
+function requirePositiveInteger(value: number, field: string): void {
+  if (!Number.isInteger(value) || value < 1) {
+    throw new ManseryeokRangeError(`매화역수 입력 ${field}는 1 이상의 정수여야 합니다.`, { field, value });
+  }
 }
 
 // ─── 결과 조립 ───────────────────────────────────────
@@ -243,6 +251,14 @@ export function divineByTime(
   day: number,
   hour: number,
 ): MaehwaResult {
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) || month < 1 || month > 12 ||
+    !Number.isInteger(day) || day < 1 || day > 31 ||
+    !Number.isInteger(hour) || hour < 0 || hour > 23
+  ) {
+    throw new ManseryeokRangeError('매화역수 시간점 입력이 유효하지 않습니다.', { year, month, day, hour });
+  }
   const yearNum = yearToJiji(year);
   const hourNum = hourToSijin(hour);
 
@@ -268,6 +284,8 @@ export function divineByTime(
  * @returns MaehwaResult
  */
 export function divineByNumber(num1: number, num2: number): MaehwaResult {
+  requirePositiveInteger(num1, 'first');
+  requirePositiveInteger(num2, 'second');
   const upperNum = modWithFloor(num1, 8);
   const lowerNum = modWithFloor(num2, 8);
   const changingLine = modWithFloor(num1 + num2, 6);
@@ -290,6 +308,8 @@ export function divineByName(
   surnameStrokes: number,
   givenNameStrokes: number,
 ): MaehwaResult {
+  requirePositiveInteger(surnameStrokes, 'surnameStrokes');
+  requirePositiveInteger(givenNameStrokes, 'givenNameStrokes');
   const totalStrokes = surnameStrokes + givenNameStrokes;
   const upperNum = modWithFloor(surnameStrokes, 8);
   const lowerNum = modWithFloor(givenNameStrokes, 8);

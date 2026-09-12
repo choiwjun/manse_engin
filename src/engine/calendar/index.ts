@@ -1,6 +1,5 @@
 // @TASK P4-R3-T1 - 역학달력/일진 엔진
 // @SPEC docs/planning/02-trd.md#역학달력-일진
-// @TEST tests/engine/calendar.test.ts
 
 import type { CalendarDay, MonthlyCalendar, Ohaeng } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
@@ -26,16 +25,20 @@ const JI_HANJA_TO_KOREAN: Record<string, string> = {
   '午': '오', '未': '미', '申': '신', '酉': '유', '戌': '술', '亥': '해',
 };
 
-/** 12신살 순서 (월건 지지부터 시작하여 순서대로 배정) */
+/**
+ * 십이직(十二直, 건제십이신) 순서 — 월건 지지부터 순서대로 배정.
+ * 표준 명칭: 建·除·滿·平·定·執·破·危·成·收·開·閉
+ * (민간 만세력에서 흔히 '12신살'로 불리지만 정식 명칭은 십이직이다)
+ */
 const SINSAL_12_ORDER = [
-  '건록', '제신', '만일', '평일', '정일', '집일',
+  '건일', '제일', '만일', '평일', '정일', '집일',
   '파일', '위일', '성일', '수일', '개일', '폐일',
 ] as const;
 
-/** 길일 12신살 */
-const GIL_SINSAL = new Set(['건록', '만일', '성일', '개일']);
+/** 길일 */
+const GIL_SINSAL = new Set(['건일', '만일', '성일', '개일']);
 
-/** 흉일 12신살 */
+/** 흉일 */
 const HYUNG_SINSAL = new Set(['파일', '위일', '폐일']);
 
 /** 천간 한글→오행 매핑 */
@@ -47,10 +50,10 @@ const GAN_OHAENG_MAP: Record<string, Ohaeng> = {
   '임': '수', '계': '수',
 };
 
-/** 12신살별 택일 정보 */
+/** 십이직별 택일 정보 */
 const TAEKIL_MAP: Record<string, string> = {
-  '건록': '사업 시작, 취직, 이사에 좋음',
-  '제신': '청소, 치료, 제사에 적합',
+  '건일': '사업 시작, 취직, 이사에 좋음',
+  '제일': '청소, 치료, 제사에 적합',
   '만일': '혼인, 개업, 건축에 좋음',
   '평일': '평범한 날, 작은 일에 무난',
   '정일': '계약, 약속, 협의에 적합',
@@ -141,33 +144,33 @@ export function getMonthJi(year: number, month: number, day: number = 15): strin
 }
 
 /**
- * 12신살을 계산한다.
+ * 십이직(十二直)을 계산한다.
  *
- * 월건(月建)의 지지를 기준으로 12신살을 순서대로 배정한다.
- * 월지가 '인'이면: 인=건록, 묘=제신, 진=만일, ...
+ * 월건(月建)의 지지를 기준으로 십이직을 순서대로 배정한다.
+ * 월지가 '인'이면: 인=건일, 묘=제일, 진=만일, ...
  * 임의의 월지에서 시작하여 순환 배정한다.
  *
  * @param monthJi 월건 지지 (한글)
  * @param dayJi   일지 (한글)
- * @returns 12신살 이름
+ * @returns 십이직 이름
  */
 export function getSinsal12(monthJi: string, dayJi: string): string {
   const monthIdx = jiToIndex(monthJi);
   const dayIdx = jiToIndex(dayJi);
 
-  // 월지 인덱스부터 건록이 시작. 일지까지의 거리가 곧 12신살 인덱스
+  // 월지 인덱스부터 건일이 시작. 일지까지의 거리가 곧 십이직 인덱스
   const offset = (dayIdx - monthIdx + 12) % 12;
   return SINSAL_12_ORDER[offset];
 }
 
 /**
- * 12신살에 따른 길흉을 판단한다.
+ * 십이직에 따른 길흉을 판단한다.
  *
- * - 길: 건록, 만일, 성일, 개일
+ * - 길: 건일, 만일, 성일, 개일
  * - 흉: 파일, 위일, 폐일
- * - 평: 제신, 평일, 정일, 집일, 수일
+ * - 평: 제일, 평일, 정일, 집일, 수일
  *
- * @param sinsal12 12신살 이름
+ * @param sinsal12 십이직 이름
  * @returns '길' | '흉' | '평'
  */
 export function getGilhyung(sinsal12: string): '길' | '흉' | '평' {
@@ -177,9 +180,9 @@ export function getGilhyung(sinsal12: string): '길' | '흉' | '평' {
 }
 
 /**
- * 12신살에 따른 택일 정보를 반환한다.
+ * 십이직에 따른 택일 정보를 반환한다.
  *
- * @param sinsal12 12신살 이름
+ * @param sinsal12 십이직 이름
  * @returns 택일 설명 문자열
  */
 export function getTaekilInfo(sinsal12: string): string {

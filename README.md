@@ -18,13 +18,13 @@ packages/myeong-engine/    배포용 npm 패키지 (빌드·번들·타입 선�
 cd packages/myeong-engine
 npm ci             # 잠금 파일의 빌드·검증 의존성 설치
 npm test           # 빌드 + 스모크·경계값 회귀 검증
-npm pack           # myeong-manseryeok-engine-0.1.0.tgz
+npm pack           # myeong-manseryeok-engine-0.3.0.tgz
 ```
 
 ## 설치 (소비 프로젝트)
 
 ```bash
-npm install /path/to/myeong-manseryeok-engine-0.1.0.tgz
+npm install /path/to/myeong-manseryeok-engine-0.3.0.tgz
 ```
 
 ```ts

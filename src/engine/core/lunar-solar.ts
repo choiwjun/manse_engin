@@ -86,3 +86,15 @@ export function lunarToSolar(input: LunarDateTime): SolarDateTime {
     second: resolved.second,
   };
 }
+
+/**
+ * 음력 월의 날수(29 또는 30)를 반환한다.
+ * 해당 월이 지원 범위에 없으면 ManseryeokDataError를 던진다.
+ */
+export function getLunarMonthDays(year: number, month: number, isLeapMonth = false): number {
+  const key1 = toLunarKey(year, month, 1, isLeapMonth);
+  if (!LOOKUP.lunarToSolar[key1]) {
+    throw new ManseryeokDataError(`Unsupported lunar month: ${key1}`, { lunarDate: key1 });
+  }
+  return LOOKUP.lunarToSolar[toLunarKey(year, month, 30, isLeapMonth)] ? 30 : 29;
+}

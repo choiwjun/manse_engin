@@ -1,6 +1,5 @@
 // @TASK P9-R5-T3 - 월국파(月局派) 분석 엔진
 // @SPEC docs/planning/06-tasks.md#P9-R5-T3
-// @TEST tests/engine/qimen-wolguk.test.ts
 
 import type { QimenResult } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';

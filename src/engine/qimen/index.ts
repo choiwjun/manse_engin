@@ -1,6 +1,5 @@
 // @TASK P9-R1-T1 - 기문둔갑(奇門遁甲) 코어 엔진
 // @SPEC docs/planning/06-tasks.md#P9-R1-T1
-// @TEST tests/engine/qimen.test.ts
 
 import type { DunType, QimenPalace, QimenResult, QimenGyeokguk } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
@@ -138,10 +137,11 @@ export function getBureauNumber(
 /**
  * 지반(地盤)을 배치한다.
  *
- * 삼기육의 9개 간(戊->己->庚->辛->壬->癸->丁->丙->乙)을 궁에 배치한다.
- * - 양둔: 국수 궁부터 순행 (1->2->3->4->6->7->8->9)
- * - 음둔: 국수 궁부터 역행 (9->8->7->6->4->3->2->1)
- * - 중궁(5)은 건너뛰고, 기궁 처리 (양둔=곤궁2, 음둔=간궁8 의 간과 동일)
+ * 삼기육의 9개 간(戊->己->庚->辛->壬->癸->丁->丙->乙)을 9궁에 배치한다.
+ * - 양둔: 戊를 국수 궁에 놓고 궁수 순행 (戊->己->… 순으로 궁수 +1, mod 9)
+ * - 음둔: 戊를 국수 궁에 놓고 궁수 역행 (궁수 -1, mod 9)
+ * - 중궁(5)에도 간이 놓인다. 중궁의 간은 후속 8궁 구조(구성/팔문/팔신)에서
+ *   기궁 궁(양둔=곤궁2, 음둔=간궁8)으로 귀속시켜 해석한다.
  *
  * @param bureauNumber - 국수 (1-9)
  * @param dunType - '양둔' | '음둔'
@@ -152,27 +152,14 @@ export function placeEarthPlate(
   dunType: DunType,
 ): Map<number, string> {
   const plate = new Map<number, string>();
-  const nextFn = dunType === '양둔' ? nextPalaceForward : nextPalaceReverse;
+  const dir = dunType === '양둔' ? 1 : -1;
 
-  // 국수 위치를 시작점으로 사용. 5(중궁)이면 기궁 궁에서 시작.
-  let palace = resolveCenter(bureauNumber, dunType);
-
-  // 삼기육의 9개 간 중 8개를 8궁(중궁 제외)에 배치.
   // SANQI_LIUYI = [戊, 己, 庚, 辛, 壬, 癸, 丁, 丙, 乙]
-  // 순서: 戊를 국수 궁에 놓고, 나머지를 순행(양둔)/역행(음둔)으로 배치.
-  // 9번째 간(乙)이 도착하는 궁은 이미 중궁에 기궁된 궁이거나,
-  // 순환하여 시작 궁을 덮어쓰게 된다.
-  // 기문둔갑에서 실제로 8궁에 8개만 배치하고 중궁은 기궁 처리한다.
-  for (let i = 0; i < 8; i++) {
+  // 9개 간을 9궁(중궁 포함)에 모두 배치한다.
+  for (let i = 0; i < 9; i++) {
+    const palace = (((bureauNumber - 1 + dir * i) % 9) + 9) % 9 + 1;
     plate.set(palace, SANQI_LIUYI[i]);
-    palace = nextFn(palace);
-    // 중궁(5) 건너뛰기
-    if (palace === 5) palace = nextFn(palace);
   }
-
-  // 중궁: 기궁 궁의 간과 동일
-  const gijung = dunType === '양둔' ? 2 : 8;
-  plate.set(5, plate.get(gijung)!);
 
   return plate;
 }
@@ -182,43 +169,31 @@ export function placeEarthPlate(
 // ===================================================================
 
 /**
- * solar-terms 모듈의 절기 데이터에서 현재 날짜 이전의
- * 가장 가까운 기문둔갑 절기를 찾는다.
- */
-// findRelevantSolarTerm was removed (unused, superseded by findRelevantSolarTermByDate)
-
-/**
- * 절기 입기 후 경과일로 원(元)을 결정한다.
+ * 일간지로 원(元)을 결정한다 (拆補法 부두 규칙).
  *
- * 간략화: 경과일 / 5 의 몫 (0=상원, 1=중원, 2+=하원)
+ * 부두(符頭)는 5일 주기의 시작일로 천간이 甲 또는 己인 날이다.
+ * 해당일이 속한 부두의 지지로 원을 정한다:
+ * - 부두 지지가 子·午·卯·酉 → 상원
+ * - 부두 지지가 寅·申·巳·亥 → 중원
+ * - 부두 지지가 辰·戌·丑·未 → 하원
  */
-function determineYuan(
-  termYear: number, termMonth: number, termDay: number,
-  targetYear: number, targetMonth: number, targetDay: number,
-): '상원' | '중원' | '하원' {
-  const termMs = new Date(termYear, termMonth - 1, termDay).getTime();
-  const targetMs = new Date(targetYear, targetMonth - 1, targetDay).getTime();
-  const diff = Math.floor((targetMs - termMs) / (1000 * 60 * 60 * 24));
-  const idx = Math.min(Math.floor(diff / 5), 2);
-  return (['상원', '중원', '하원'] as const)[idx];
+function determineYuan(dayGan: string, dayJi: string): '상원' | '중원' | '하원' {
+  const sexIdx = getSexagenaryIndex(
+    stemIndex(dayGan),
+    (BRANCHES as readonly string[]).indexOf(dayJi),
+  );
+  // 가장 가까운 이전 부두(甲=간지인덱스%10==0, 己==5)까지의 거리
+  const r = sexIdx % 10;
+  const back = r < 5 ? r : r - 5;
+  const buduBranchIdx = ((sexIdx - back) % 12 + 12) % 12;
+  if ([0, 6, 3, 9].includes(buduBranchIdx)) return '상원'; // 子午卯酉
+  if ([2, 8, 4, 10].includes(buduBranchIdx)) return '중원'; // 寅申巳亥
+  return '하원'; // 辰戌丑未
 }
 
 /**
  * 시간 천간/지지 인덱스로 해당 시진이 속하는 甲 旬 이름을 구한다.
  */
-function findRelevantSolarTermByDate(solarDate: string): {
-  name: string; year: number; month: number; day: number;
-} {
-  const term = ManseryeokEngine.getSolarTermOnOrBefore(solarDate);
-
-  return {
-    name: term.koreanName,
-    year: term.year,
-    month: term.month,
-    day: term.day,
-  };
-}
-
 function getJiaGroupName(hourStemIdx: number, hourBranchIdx: number): string {
   const sexIdx = getSexagenaryIndex(hourStemIdx, hourBranchIdx);
   const names = ['甲子', '甲戌', '甲申', '甲午', '甲辰', '甲寅'];
@@ -463,8 +438,6 @@ const PALACE_BRANCHES: Record<number, string[]> = {
  */
 export function calculateQimen(solarDate: string, hour: number): QimenResult {
   // --- 1. 날짜 파싱 ---
-  const parts = solarDate.split('-').map(Number);
-  const [year, month, day] = parts;
   const context = ManseryeokEngine.getSolarContextFromDateString(solarDate, hour);
 
   // --- 2. 일간/일지 ---
@@ -477,17 +450,15 @@ export function calculateQimen(solarDate: string, hour: number): QimenResult {
   const hourGan = getHourStem(dayGan, hourBranchIdx);
 
   // --- 4. 절기 -> 양둔/음둔 ---
-  const termInfo = findRelevantSolarTermByDate(solarDate);
-  const dunType = getDunType(termInfo.name);
+  // 현재 절기는 입력 시각의 실제 timestamp 기준으로 조회한다
+  const termInfo = context.currentSolarTerm;
+  const dunType = getDunType(termInfo.koreanName);
 
   // --- 5. 원(元) ---
-  const yuan = determineYuan(
-    termInfo.year, termInfo.month, termInfo.day,
-    year, month, day,
-  );
+  const yuan = determineYuan(dayGan, dayJi);
 
   // --- 6. 국수 ---
-  const bureauNumber = getBureauNumber(termInfo.name, yuan);
+  const bureauNumber = getBureauNumber(termInfo.koreanName, yuan);
 
   // --- 7. 지반 배치 ---
   const earthPlate = placeEarthPlate(bureauNumber, dunType);
@@ -566,7 +537,7 @@ export function calculateQimen(solarDate: string, hour: number): QimenResult {
   return {
     dunType,
     bureauNumber,
-    solarTerm: termInfo.name,
+    solarTerm: termInfo.koreanName,
     yuan,
     solarDate,
     dayGan,

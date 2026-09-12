@@ -80,9 +80,9 @@ function getPalaceStems(yearStem: string): string[] {
   const palaceStems: string[] = [];
   for (let i = 0; i < 12; i++) {
     // i=0 은 子궁, i=2 은 寅궁
-    // 寅궁의 천간을 기준으로 子~亥 배치
-    // 寅=인덱스2 → 子 = 寅-2 = 기궁천간인덱스 - 2
-    const stemIdx = mod(yinStemIdx + (i - 2), 10);
+    // 오호둔은 寅궁 천간에서 시작해 寅→卯→…→亥→子→丑 순행으로 배치하므로
+    // 子·丑궁은 사이클의 끝(寅으로부터 +10, +11)에 온다
+    const stemIdx = mod(yinStemIdx + mod(i - 2, 12), 10);
     palaceStems[i] = STEMS[stemIdx];
   }
   return palaceStems;
@@ -137,22 +137,23 @@ export function generateChart(input: ChartInput): ZiweiResult {
   const yearBranchIdx = branchIndex(input.yearBranch);
   const shichenIdx = hourToShichenIndex(input.hour);
 
-  // 1. 오행국 결정
-  const juNumber = getWuxingJu(yearStemIdx, yearBranchIdx);
-  const juName = getWuxingJuName(juNumber);
-
-  // 2. 명궁/신궁 위치
+  // 1. 명궁/신궁 위치
   const mingGongBranch = getMingGongBranch(input.lunarMonth, shichenIdx);
   const shenGongBranch = getShenGongBranch(input.lunarMonth, shichenIdx);
 
-  // 3. 12궁 천간 배치
+  // 2. 12궁 천간 배치
   const palaceStems = getPalaceStems(input.yearStem);
 
+  // 3. 오행국 결정: 명궁의 천간+지지 납음으로 결정한다
+  const mingGongStem = palaceStems[mingGongBranch];
+  const juNumber = getWuxingJu(stemIndex(mingGongStem), mingGongBranch);
+  const juName = getWuxingJuName(juNumber);
+
   // 4. 12궁 초기화: 명궁 위치부터 12궁 이름 배치
-  // 명궁이 있는 지지인덱스부터 순행으로 12궁을 배치
+  // 명궁→형제→부처→…는 지지 역행 방향으로 배치한다
   const palaces: PalaceBuild[] = [];
   for (let i = 0; i < 12; i++) {
-    const branchIdx = mod(mingGongBranch + i, 12);
+    const branchIdx = mod(mingGongBranch - i, 12);
     palaces.push({
       branchIdx,
       stem: palaceStems[branchIdx],
@@ -335,13 +336,13 @@ function placeMinorStars(
     findPalaceByBranch(tianma).minorStars.push({ name: '천마', type: 'minor' });
   }
 
-  // 지공(地劫): 亥(11)에서 시진만큼 순행
+  // 지겁(地劫): 亥(11)에서 시진만큼 순행
   const dikong = mod(11 + shichenIdx, 12);
-  findPalaceByBranch(dikong).minorStars.push({ name: '지공', type: 'minor' });
+  findPalaceByBranch(dikong).minorStars.push({ name: '지겁', type: 'minor' });
 
-  // 천공(地空): 亥(11)에서 시진만큼 역행
+  // 지공(地空): 亥(11)에서 시진만큼 역행
   const tiankong = mod(11 - shichenIdx, 12);
-  findPalaceByBranch(tiankong).minorStars.push({ name: '천공', type: 'minor' });
+  findPalaceByBranch(tiankong).minorStars.push({ name: '지공', type: 'minor' });
 }
 
 // ---------- 사화 배치 ----------

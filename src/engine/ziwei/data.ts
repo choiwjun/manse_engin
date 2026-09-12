@@ -45,8 +45,8 @@ export const MAJOR_STAR_NAMES_KR = [
 // 납음 오행국수 테이블: 60갑자 인덱스(0~59) → 오행국수
 // 매 2개 간지가 같은 납음 → floor(index/2) 로 30쌍에 매핑
 const NAYIN_JU_MAP: number[] = [
-  // 甲子乙丑(해중금)=4, 丙寅丁卯(노중화)=6, 戊辰己巳(대림목)=3, 庚午辛未(노방토)=5, 壬申癸酉(검봉금)=2 [-- 없음, 여기서는 수이국]
-  4, 4, 6, 6, 3, 3, 5, 5, 2, 2,
+  // 甲子乙丑(해중금)=4, 丙寅丁卯(노중화)=6, 戊辰己巳(대림목)=3, 庚午辛未(노방토)=5, 壬申癸酉(검봉금)=4
+  4, 4, 6, 6, 3, 3, 5, 5, 4, 4,
   // 甲戌乙亥(산두화)=6, 丙子丁丑(간하수)=2, 戊寅己卯(성두토)=5, 庚辰辛巳(백랍금)=4, 壬午癸未(양류목)=3
   6, 6, 2, 2, 5, 5, 4, 4, 3, 3,
   // 甲申乙酉(천중수)=2, 丙戌丁亥(옥상토)=5, 戊子己丑(벽력화)=6, 庚寅辛卯(송백목)=3, 壬辰癸巳(장류수)=4 -- 장류수=수→4? 아니다
@@ -116,20 +116,17 @@ export function getWuxingJuName(ju: number): string {
   }
 }
 
-// ---------- 자미성(紫微星) 위치 결정 테이블 ----------
+// ---------- 자미성(紫微星) 위치 결정 ----------
 // 오행국수 + 음력 일수 → 자미성 궁위치(지지 인덱스 0~11)
 // 인덱스: 인=0 기준이 아니라 자=0 기준 (BRANCHES 순서)
 
-// 자미성 안성법(安星法):
-// 오행국수로 음력일을 나누어 몫과 나머지로 자미성 위치를 계산
-// 공식: 자미성 위치 = f(오행국수, 음력일)
-// 구체적 공식:
-//   quotient = ceil(lunarDay / juNumber)
-//   remainder = lunarDay % juNumber
-//   if (remainder == 0) → 자미 = 寅(인) 궁에서 quotient-1 만큼 이동
-//   if (remainder is odd) → 자미 = 寅(인) 궁에서 quotient 만큼 순행
-//   if (remainder is even) → 자미 = 寅(인) 궁에서 quotient 만큼 역행
-// 이동 방향: 나머지가 홀수→순행(+), 짝수→역행(-)
+// 자미성 안성법(安星法, 補數法):
+//   1. 음력일에 보수(補數, 국수의 배수가 되도록 더하는 수)를 더해 국수로 나눈다
+//      offset = 국수 - (일 % 국수), 일이 국수의 배수면 offset = 0
+//   2. 상수(商數) = (일 + offset) / 국수
+//   3. 寅궁을 1로 세어 상수만큼 순행 → 기준궁 = 寅 + 상수 - 1
+//   4. 보수가 짝수면 기준궁에서 보수만큼 순행(+), 홀수면 역행(-)
+// 예: 수이국 1일 → offset 1, 상수 1, 기준 寅, 홀수 역행 → 丑
 
 /**
  * 자미성 위치를 계산한다.
@@ -138,22 +135,14 @@ export function getWuxingJuName(ju: number): string {
  * @returns 지지 인덱스 (0=子 ~ 11=亥) -- BRANCHES 기준
  */
 export function getZiweiPosition(ju: number, lunarDay: number): number {
-  const quotient = Math.ceil(lunarDay / ju);
   const remainder = lunarDay % ju;
+  const offset = remainder === 0 ? 0 : ju - remainder;
+  const quotient = (lunarDay + offset) / ju;
 
   // 寅(인) = BRANCHES index 2
-  const yinIndex = 2;
-
-  if (remainder === 0) {
-    // 나머지 0: 인궁에서 (quotient-1)만큼 역행(-)
-    return ((yinIndex - (quotient - 1)) % 12 + 12) % 12;
-  } else if (remainder % 2 === 1) {
-    // 홀수 나머지: 인궁에서 quotient만큼 순행(+)
-    return (yinIndex + quotient) % 12;
-  } else {
-    // 짝수 나머지: 인궁에서 quotient만큼 역행(-)
-    return ((yinIndex - quotient) % 12 + 12) % 12;
-  }
+  const base = 2 + quotient - 1;
+  const pos = offset % 2 === 0 ? base + offset : base - offset;
+  return ((pos % 12) + 12) % 12;
 }
 
 // ---------- 14주성 배치 규칙 ----------
@@ -305,12 +294,8 @@ export const TIANKUI_TIANYUE: Record<string, [number, number]> = {
   '癸': [3, 5],   // 魁=卯, 鉞=巳
 };
 
-// 화성(火星) 위치: 년지 + 시진
-// 양년(寅午戌) → 丑(1)에서 시진 순행
-// 음년(申子辰) → 寅(2)에서 시진 순행
-// 양년(巳酉丑) → 卯(3)에서 시진 순행
-// 음년(亥卯未) → 酉(9)에서 시진 순행
-// 간략화: 년지 기준 화성 기궁
+// 화성(火星) 위치: 년지 삼합 그룹별 기궁 + 시진 순행 (표준 안성법)
+// 寅午戌 → 丑(1), 申子辰 → 寅(2), 巳酉丑 → 卯(3), 亥卯未 → 酉(9)에서 시진만큼 순행
 export const HUOXING_BASE: Record<number, number> = {
   2: 1,  // 寅→丑
   6: 1,  // 午→丑
@@ -342,14 +327,14 @@ export const LINGXING_BASE: Record<number, number> = {
   7: 10, // 未→戌
 };
 
-// 천마(天馬) 위치: 년지 기준
+// 천마(天馬) 위치: 년지 삼합 그룹 기준
+// 寅午戌→申(8), 申子辰→寅(2), 巳酉丑→亥(11), 亥卯未→巳(5)
 export const TIANMA_TABLE: Record<number, number> = {
   2: 8,  // 寅→申
   8: 2,  // 申→寅
   5: 11, // 巳→亥
   11: 5, // 亥→巳
-  0: 2,  // 子→寅 -- 아니
-  // 천마: 寅午戌→申, 申子辰→寅, 巳酉丑→亥, 亥卯未→巳
+  0: 2,  // 子→寅
   6: 8,  // 午→申
   10: 8, // 戌→申
   4: 2,  // 辰→寅
@@ -359,16 +344,9 @@ export const TIANMA_TABLE: Record<number, number> = {
   7: 5,  // 未→巳
 };
 
-// 지공(地空)/천공(天空) 위치: 시진 기준
-// 지공: 시진인덱스에서 역행 1칸 (亥에서 시작, 역행)
-// 실제: 지공 = (11 - 시진인덱스 + 12) % 12 → 약간 다르게:
-// 지공(地劫): 시진인덱스+1 의 역위치 → 亥(11)에서 시진만큼 순행
-// 천공(地空): 亥(11)에서 시진만큼 역행
-// 정확한 공식:
-// 지공(地劫): (hourIdx + 11) % 12 → 즉 시진-1 (역)
-// 아니, 좀 더 정확하게:
-// 地劫: 亥(11)에서 시진만큼 순행 = (11 + hourIdx) % 12
-// 地空(天空): 亥(11)에서 시진만큼 역행 = (11 - hourIdx + 12) % 12
+// 지겁(地劫)/지공(地空) 위치: 시진 기준
+// 지겁(地劫): 亥(11)에서 시진만큼 순행 = (11 + hourIdx) % 12
+// 지공(地空): 亥(11)에서 시진만큼 역행 = (11 - hourIdx + 12) % 12
 
 // ---------- 오호둔(五虎遁) 법칙 ----------
 // 년간에 따라 인(寅)궁의 천간을 결정

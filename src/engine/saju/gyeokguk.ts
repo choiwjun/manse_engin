@@ -1,6 +1,5 @@
 // @TASK P2-R3-T5 - 격국(格局) 판별 (정격 10격 + 특수격)
 // @SPEC docs/planning/02-trd.md#격국-용신-판별
-// @TEST tests/engine/gyeokguk.test.ts
 
 import type { Palja, Gyeokguk, Ohaeng } from '@/engine/types';
 import { getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';
@@ -297,16 +296,27 @@ function lookupGyeokguk(name: string): Gyeokguk | null {
  * 팔자에서 격국을 판별한다.
  *
  * 판별 순서:
- * 1. 건록격/양인격 확인 (월지가 일간의 건록/양인 위치)
- * 2. 정격 10격 판별 (월지 지장간 + 월간 투출 기준)
- * 3. 화격 판별 (일간-월간 간합 + 월지 득령)
- * 4. 종격 판별 (일간 극약/극강 + 세력 분석)
+ * 1. 화격 판별 (일간-월간 간합 + 월지 득령)
+ * 2. 종격 판별 (일간 극약/극강 + 세력 분석)
+ * 3. 건록격/양인격 확인 (월지가 일간의 건록/양인 위치)
+ * 4. 정격 10격 판별 (월지 지장간 + 월간 투출 기준)
  * 5. 최종 폴백: 외격
+ *
+ * 특수격(화격·종격)을 정격보다 먼저 평가한다. 정격은 유효한 일간·월지 조합에
+ * 항상 매칭되므로 먼저 두면 특수격이 영구적으로 도달 불가가 된다.
  */
 export function determineGyeokguk(palja: Palja): Gyeokguk {
   const { dayGan, monthGan, monthJi } = palja;
 
-  // ── Step 1: 건록격 / 양인격 확인 ──
+  // ── Step 1: 화격 판별 ──
+  const hwagyeok = detectHwagyeok(palja);
+  if (hwagyeok) return hwagyeok;
+
+  // ── Step 2: 종격 판별 ──
+  const jongyeok = detectJongyeok(palja);
+  if (jongyeok) return jongyeok;
+
+  // ── Step 3: 건록격 / 양인격 확인 ──
   if (GEONROK_MAP[dayGan] === monthJi) {
     return lookupGyeokguk('건록격')!;
   }
@@ -314,7 +324,7 @@ export function determineGyeokguk(palja: Palja): Gyeokguk {
     return lookupGyeokguk('양인격')!;
   }
 
-  // ── Step 2: 정격 10격 판별 ──
+  // ── Step 4: 정격 10격 판별 ──
   const monthJijanggan = JIJANGGAN_TABLE[monthJi];
   if (monthJijanggan && monthJijanggan.length > 0) {
     const bongi = monthJijanggan[0];
@@ -333,14 +343,6 @@ export function determineGyeokguk(palja: Palja): Gyeokguk {
       }
     }
   }
-
-  // ── Step 3: 화격 판별 ──
-  const hwagyeok = detectHwagyeok(palja);
-  if (hwagyeok) return hwagyeok;
-
-  // ── Step 4: 종격 판별 ──
-  const jongyeok = detectJongyeok(palja);
-  if (jongyeok) return jongyeok;
 
   // ── Step 5: 최종 폴백 ──
   return OEGYEOK_DEFAULT;

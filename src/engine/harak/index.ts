@@ -1,8 +1,8 @@
 // @TASK P7-R3-T1 - 하락리수(河洛理數) 계산 엔진
 // @SPEC docs/planning/02-trd.md#하락리수-엔진
-// @TEST tests/engine/harak.test.ts
 
 import type { Ohaeng, Trigram, HarakResult } from '@/engine/types';
+import { ManseryeokRangeError, ManseryeokDataError } from '@/engine/core/errors';
 import {
   CHEONGAN_MAP,
   JIJI_MAP,
@@ -193,11 +193,16 @@ export function calculateHexagramNumber(
   upperTrigramNumber: number,
   lowerTrigramNumber: number,
 ): number {
-  const key = upperTrigramNumber * 10 + lowerTrigramNumber;
+  for (const [name, n] of [['상괘', upperTrigramNumber], ['하괘', lowerTrigramNumber]] as const) {
+    if (!Number.isInteger(n) || n < 1 || n > 8) {
+      throw new ManseryeokRangeError(`${name} 번호는 1~8이어야 합니다: ${n}`, { [name]: n });
+    }
+  }
+  // HEXAGRAM_DATA의 키 규약: 하괘번호 * 10 + 상괘번호 (괘명의 두 번째 글자가 상괘)
+  const key = lowerTrigramNumber * 10 + upperTrigramNumber;
   const entry = HEXAGRAM_DATA[key];
   if (!entry) {
-    // 데이터가 없는 조합은 합산 키 기반 폴백
-    return ((upperTrigramNumber - 1) * 8 + (lowerTrigramNumber - 1)) + 1;
+    throw new ManseryeokDataError(`64괘 데이터에 없는 조합입니다: 상괘 ${upperTrigramNumber}, 하괘 ${lowerTrigramNumber}`, { key });
   }
   return entry[0];
 }
