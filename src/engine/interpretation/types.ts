@@ -2,6 +2,8 @@
 // 1층(Facts: SajuResult)을 소비해 2층(Detector: 구조 패턴 감지)과
 // 4층(Assembler: 풀이 문서 조립)을 잇는다. 기존 계산 코드는 건드리지 않는다.
 
+import type { OhaengMeter } from './meter';
+
 export type PatternCategory = 'flow' | 'imbalance' | 'relation' | 'cross' | 'timing';
 
 export type PatternPolarity = 'plus' | 'caution' | 'neutral';
@@ -57,4 +59,6 @@ export interface SajuInterpretation {
     gyeokguk: string;
     yongsin: string;
   };
+  /** 강약 계량 결과 — 오행 분포·일간 신강신약 수치 */
+  meter: OhaengMeter;
 }

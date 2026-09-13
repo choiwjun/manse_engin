@@ -10,6 +10,8 @@ export type {
   SajuInterpretation,
   SipsinGroup,
 } from './types';
+export type { OhaengMeter, OhaengMeterSlot } from './meter';
 export { PATTERN_REGISTRY, isRegisteredPattern } from './registry';
+export { measureOhaeng } from './meter';
 export { runDetectors, interpretSaju } from './assemble';
 export { runAllDetectors, DETECTORS } from './detectors';

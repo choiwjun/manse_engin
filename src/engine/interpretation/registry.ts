@@ -40,6 +40,38 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   },
 
   // ---------- imbalance: 과부족 경향 ----------
+  'saju/imbalance/daymaster-strong': {
+    category: 'imbalance',
+    priority: 35,
+    title: '신강(身强)',
+    defaultText:
+      '일간의 축(비겁+인성)이 두터운 신강입니다. 자기 기반이 튼튼한 대신, 식상·재성·관성으로 내보내는 활동(일·거래·성과)이 이 명식의 순환 원동력입니다.',
+    polarity: 'neutral',
+  },
+  'saju/imbalance/daymaster-weak': {
+    category: 'imbalance',
+    priority: 35,
+    title: '신약(身弱)',
+    defaultText:
+      '일간의 축(비겁+인성)이 얇은 신약입니다. 기반 보강(학습·수용·자기 축)이 상시 과제이며, 무리한 확장보다 인프라를 쌓는 방향이 맞습니다.',
+    polarity: 'caution',
+  },
+  'saju/imbalance/ohaeng-skew': {
+    category: 'imbalance',
+    priority: 36,
+    title: '오행 편중(五行偏重)',
+    defaultText:
+      '오행 분포의 격차가 큽니다. 굵은 오행이 인생의 주 테마를 만들고 얇은 오행 영역은 후천적 보완 주제가 됩니다.',
+    polarity: 'caution',
+  },
+  'saju/imbalance/ohaeng-missing': {
+    category: 'imbalance',
+    priority: 37,
+    title: '결오행(缺五行)',
+    defaultText:
+      '명식에 없는 오행(결오행)이 있습니다. 해당 오행 영역(예: 금=정리·규율, 목=추진·확장)은 타고난 영역이 아니라 채워가는 주제로 읽습니다.',
+    polarity: 'neutral',
+  },
   'saju/imbalance/insung-gwada': {
     category: 'imbalance',
     priority: 30,

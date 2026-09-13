@@ -4,6 +4,7 @@ import type { SajuResult } from '@/engine/types';
 import type { DetectedPattern, SajuInterpretation } from './types';
 import { runAllDetectors } from './detectors';
 import { isRegisteredPattern, PATTERN_REGISTRY } from './registry';
+import { measureOhaeng } from './meter';
 
 /** detector 실행 → 레지스트리 결합 → 동일 키 병합 → 우선순위 정렬. 등록되지 않은 키는 버린다(품질 게이트). */
 export function runDetectors(result: SajuResult): DetectedPattern[] {
@@ -28,8 +29,9 @@ export function runDetectors(result: SajuResult): DetectedPattern[] {
 /** SajuResult(1층 facts) → 구조화된 풀이 문서(4층) */
 export function interpretSaju(result: SajuResult): SajuInterpretation {
   const patterns = runDetectors(result);
+  const meter = measureOhaeng(result);
 
-  const headline = `${result.gyeokguk.name} · 용신 ${result.yongsin.ohaeng} — ${result.yongsin.reasoning.split(':')[1]?.trim() ?? result.yongsin.reasoning}`;
+  const headline = `${result.gyeokguk.name} · 일간 ${meter.dayMaster.verdictLabel} ${meter.dayMaster.score}% · 용신 ${result.yongsin.ohaeng} — ${result.yongsin.reasoning.split(':')[1]?.trim() ?? result.yongsin.reasoning}`;
 
   const structureLines = patterns
     .filter((p) => p.polarity === 'plus')
@@ -49,5 +51,6 @@ export function interpretSaju(result: SajuResult): SajuInterpretation {
       gyeokguk: result.gyeokguk.description,
       yongsin: result.yongsin.reasoning,
     },
+    meter,
   };
 }

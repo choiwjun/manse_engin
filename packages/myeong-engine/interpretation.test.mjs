@@ -1,7 +1,7 @@
 // 해석 계층(detector·조립기) 회귀 테스트 — `npm run build` 후 실행.
 // 골든 케이스: 1985-01-10 16:45 남(甲子 丁丑 己酉 壬申, 비견격·용신 금)
 import assert from 'node:assert/strict';
-import { buildSajuResult, interpretSaju, runDetectors, PATTERN_REGISTRY } from './dist/index.js';
+import { buildSajuResult, interpretSaju, runDetectors, measureOhaeng, PATTERN_REGISTRY } from './dist/index.js';
 
 const NOW = '2026-09-13T12:00:00+09:00';
 
@@ -22,6 +22,19 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(keys.includes('saju/cross/sinsal-장성-siksang'), '장성(일지)+식신 교차');
   assert.ok(keys.includes('saju/cross/sinsal-화개-bigeop'), '화개(월지)+비견 교차');
   assert.ok(keys.includes('saju/timing/daeun-fit'), '38세 辛巳(금)=용신 대운');
+
+  // 계량기 — 골든 값 (본기/중기/여기 가중 + 월지 2배)
+  // 甲子 丁丑 己酉 壬申: 목 1.0·화 1.0·토 2.3(己+丑본기x2+申여기)·금 1.8·수 2.9(壬+子+丑중기x2+申중기) = 9.0
+  const meter = measureOhaeng(r);
+  assert.ok(Math.abs(meter.dayMaster.score - 36.7) < 0.3, `비겁+인성 점유율: ${meter.dayMaster.score}`);
+  assert.equal(meter.dayMaster.verdict, 'weak');
+  const to = meter.distribution.find((d) => d.ohaeng === '토');
+  const su = meter.distribution.find((d) => d.ohaeng === '수');
+  assert.ok(to && Math.abs(to.percent - 25.6) < 0.3, `토 점유율: ${to?.percent}`);
+  assert.ok(su && Math.abs(su.percent - 32.2) < 0.3, `수 점유율: ${su?.percent}`);
+  assert.ok(meter.season.kingOhaeng === '토', '丑월 계교 → 토왕');
+  assert.ok(keys.includes('saju/imbalance/daymaster-weak'), '신약 감지');
+  assert.ok(keys.includes('saju/imbalance/ohaeng-skew'), '오행 편중 감지 (수 32.2% vs 목 11.1%)');
 
   const interp = interpretSaju(r);
   const priorities = interp.patterns.map((p) => p.priority);
