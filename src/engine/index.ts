@@ -107,3 +107,22 @@ export {
 // ---------- 해석 함수 ----------
 export { interpretResult as interpretQimenResult } from './qimen/interpret';
 export { interpretResult as interpretDaeyukimResult } from './daeyukim/interpret';
+
+// ---------- 해석 계층 (detector·조립기) ----------
+export {
+  interpretSaju,
+  runDetectors,
+  runAllDetectors,
+  DETECTORS,
+  PATTERN_REGISTRY,
+  isRegisteredPattern,
+} from './interpretation';
+export type {
+  DetectedPattern,
+  PatternCategory,
+  PatternMeta,
+  PatternPolarity,
+  RawPattern,
+  SajuInterpretation,
+  SipsinGroup,
+} from './interpretation';

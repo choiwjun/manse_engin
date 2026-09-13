@@ -133,3 +133,22 @@ export {
 // ---------- 해석 함수 (봉투 계약 밖의 순수 해석기) ----------
 export { interpretResult as interpretQimenResult } from './engine/qimen/interpret';
 export { interpretResult as interpretDaeyukimResult } from './engine/daeyukim/interpret';
+
+// ---------- 해석 계층 (detector·조립기) ----------
+export {
+  interpretSaju,
+  runDetectors,
+  runAllDetectors,
+  DETECTORS,
+  PATTERN_REGISTRY,
+  isRegisteredPattern,
+} from './engine/interpretation';
+export type {
+  DetectedPattern,
+  PatternCategory,
+  PatternMeta,
+  PatternPolarity,
+  RawPattern,
+  SajuInterpretation,
+  SipsinGroup,
+} from './engine/interpretation';
