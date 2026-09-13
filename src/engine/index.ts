@@ -116,6 +116,7 @@ export {
   DETECTORS,
   PATTERN_REGISTRY,
   isRegisteredPattern,
+  measureOhaeng,
 } from './interpretation';
 export type {
   DetectedPattern,
@@ -125,4 +126,6 @@ export type {
   RawPattern,
   SajuInterpretation,
   SipsinGroup,
+  OhaengMeter,
+  OhaengMeterSlot,
 } from './interpretation';
