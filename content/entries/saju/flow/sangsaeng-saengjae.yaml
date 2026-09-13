@@ -1,0 +1,22 @@
+# 골든 케이스(1985-01-10 16:45 남) 기준 — 레지스트리 fallback 문구의 content DB 오버라이드 1호
+id: saju/flow/sangsaeng-saengjae
+title: 식상생재(食傷生財)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 기술이 재산이 되는 명식 — 전문성 축적이 곧 수입 축적입니다.
+  medium: 일지 식신이 시주의 정재를 생하는 식상생재 구조로, 몸에 밴 기술·표현이 말년으로 갈수록 실속이 됩니다. 일의 방향은 '기술 → 수입'의 한 줄 라인으로 단순하게 가져가는 것이 맞습니다.
+  long: 식신이 자리를 잡고 시주에서 재성이 받아주는 구조는, 전문직·기술직·콘텐츠 등 '자기 손으로 만드는 가치'가 시간이 지나며 자산으로 전환되는 전형적인 형태입니다. 강도가 최상 등급이므로 이 흐름이 명식의 주 라인이며, 조직에 눌려 있기보다 기술을 쌓아 물건·서비스로 파는 쪽이 재물 축적 속도가 빠릅니다.
+tags: [재물, 식상, 흐름, 전문성]

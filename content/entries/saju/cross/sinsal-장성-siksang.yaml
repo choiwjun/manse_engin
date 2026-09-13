@@ -1,0 +1,20 @@
+# 한글 신살명 키 검증용 샘플 (골든 케이스 기준 — 일지 酉 장성 + 식신)
+id: saju/cross/sinsal-장성-siksang
+title: 장성+식상(將星食傷)
+audience: counselor
+status: draft
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 일지 장성에 식신 — 전문 분야의 머리로 인정받는 조합.
+tags: [신살, 장성, 식상]

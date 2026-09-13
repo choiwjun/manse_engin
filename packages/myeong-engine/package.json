@@ -24,8 +24,9 @@
   "scripts": {
     "build": "node build.mjs",
     "generate:data": "node generate-data.mjs",
+    "content:validate": "node build.mjs && node validate-content.mjs",
     "pretest": "npm run build",
-    "test": "node smoke.test.mjs && node --test regression.test.mjs && node --test interpretation.test.mjs",
+    "test": "node smoke.test.mjs && node --test regression.test.mjs && node --test interpretation.test.mjs && node validate-content.mjs",
     "prepack": "node build.mjs"
   },
   "devDependencies": {
