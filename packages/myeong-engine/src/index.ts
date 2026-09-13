@@ -134,7 +134,7 @@ export {
 export { interpretResult as interpretQimenResult } from './engine/qimen/interpret';
 export { interpretResult as interpretDaeyukimResult } from './engine/daeyukim/interpret';
 
-// ---------- 해석 계층 (detector·조립기) ----------
+// ---------- 해석 계층 (detector·조립기·동적 문장·축별 리포트·시점 서사) ----------
 export {
   interpretSaju,
   runDetectors,
@@ -143,15 +143,29 @@ export {
   PATTERN_REGISTRY,
   isRegisteredPattern,
   measureOhaeng,
+  renderPattern,
+  strengthLabel,
+  judgeOhaeng,
+  buildTimingNarrative,
+  assembleReport,
 } from './engine/interpretation';
 export type {
   DetectedPattern,
   PatternCategory,
+  PatternFigures,
   PatternMeta,
   PatternPolarity,
+  PatternSlot,
   RawPattern,
   SajuInterpretation,
   SipsinGroup,
   OhaengMeter,
   OhaengMeterSlot,
+  ReportAxis,
+  ReportSection,
+  SajuReport,
+  AssembleReportOptions,
+  TimingNarrative,
+  TimingVerdict,
+  TimingVerdictInfo,
 } from './engine/interpretation';

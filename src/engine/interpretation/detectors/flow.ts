@@ -1,18 +1,21 @@
 // 흐름류 detector — 십신 묶음의 상생 라인 감지.
 // 십신 정의상 흐름 쌍(식상→재성 등)은 오행이 항상 상생이므로,
 // 감지 조건은 존재 여부 + 자릿수 + 위치적 연결(인접성)로 본다.
+// 동적 문장용 slots는 [원(source), 대상(target)] 순으로 채운다.
 
 import type { SajuResult } from '@/engine/types';
-import type { RawPattern, SipsinGroup } from '../types';
+import type { PatternSlot, RawPattern, SipsinGroup } from '../types';
 import {
   areAdjacent,
   countGroups,
-  formatGroupCounts,
-  groupOfSlot,
+  pillarIndex,
+  toPatternSlot,
   glyphOfSlot,
+  groupOfSlot,
   sipsinNameOfSlot,
   SIPSIN_SLOTS,
 } from '../sipsin-groups';
+import type { SipsinSlot } from '../sipsin-groups';
 
 function slotsOfGroup(result: SajuResult, group: SipsinGroup) {
   return SIPSIN_SLOTS.filter((slot) => groupOfSlot(result, slot) === group);
@@ -46,6 +49,27 @@ function hasAdjacency(aSlots: string[], bSlots: string[]): boolean {
   return aSlots.some((a) => bSlots.some((b) => areAdjacent(a as never, b as never)));
 }
 
+/** 문장 재료로 쓸 대표 쌍: 기둥 거리가 가장 가까운 쌍, 같으면 앞 기둥 우선 */
+function bestPair(aSlots: SipsinSlot[], bSlots: SipsinSlot[]): [SipsinSlot, SipsinSlot] | null {
+  if (aSlots.length === 0 || bSlots.length === 0) return null;
+  let best: [SipsinSlot, SipsinSlot] | null = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+  for (const a of aSlots) {
+    for (const b of bSlots) {
+      const score = Math.abs(pillarIndex(a) - pillarIndex(b)) * 10 + pillarIndex(a) + pillarIndex(b);
+      if (score < bestScore) {
+        bestScore = score;
+        best = [a, b];
+      }
+    }
+  }
+  return best;
+}
+
+function patternSlots(result: SajuResult, src: SipsinSlot, tgt: SipsinSlot): PatternSlot[] {
+  return [toPatternSlot(result, src), toPatternSlot(result, tgt)];
+}
+
 export function detectSangsaengSaengjae(result: SajuResult): RawPattern[] {
   const counts = countGroups(result);
   if (counts.siksang < 1 || counts.jaesung < 1) return [];
@@ -53,6 +77,7 @@ export function detectSangsaengSaengjae(result: SajuResult): RawPattern[] {
   const jaeSlots = slotsOfGroup(result, 'jaesung');
   const adjacent = hasAdjacency(sikSlots, jaeSlots);
   const strength = clamp(0.5 + (adjacent ? 0.2 : 0) + (counts.siksang + counts.jaesung - 2) * 0.15, 0.5, 1);
+  const pair = bestPair(sikSlots, jaeSlots);
   return [
     {
       key: 'saju/flow/sangsaeng-saengjae',
@@ -61,6 +86,7 @@ export function detectSangsaengSaengjae(result: SajuResult): RawPattern[] {
         `식상 ${counts.siksang}·재성 ${counts.jaesung}${adjacent ? ' (인접 배치)' : ''}`,
         ...slotEvidence(result, [...sikSlots, ...jaeSlots]),
       ],
+      slots: pair ? patternSlots(result, pair[0], pair[1]) : undefined,
     },
   ];
 }
@@ -72,6 +98,7 @@ export function detectGwaninSangsaeng(result: SajuResult): RawPattern[] {
   const inSlots = slotsOfGroup(result, 'insung');
   const adjacent = hasAdjacency(gwanSlots, inSlots);
   const strength = clamp(0.5 + (adjacent ? 0.2 : 0) + (counts.gwansung + counts.insung - 2) * 0.15, 0.5, 1);
+  const pair = bestPair(gwanSlots, inSlots);
   return [
     {
       key: 'saju/flow/gwanin-sangsaeng',
@@ -80,6 +107,7 @@ export function detectGwaninSangsaeng(result: SajuResult): RawPattern[] {
         `관성 ${counts.gwansung}·인성 ${counts.insung}${adjacent ? ' (인접 배치)' : ''}`,
         ...slotEvidence(result, [...gwanSlots, ...inSlots]),
       ],
+      slots: pair ? patternSlots(result, pair[0], pair[1]) : undefined,
     },
   ];
 }
@@ -92,11 +120,13 @@ export function detectJaesaengGwan(result: SajuResult): RawPattern[] {
   if (jaeGan.length < 1 || gwanGan.length < 1) return [];
   const adjacent = hasAdjacency(jaeGan, gwanGan);
   const strength = clamp(0.5 + (adjacent ? 0.2 : 0) + (counts.jaesung + counts.gwansung - 2) * 0.1, 0.5, 1);
+  const pair = bestPair(jaeGan, gwanGan);
   return [
     {
       key: 'saju/flow/jaesaeng-gwan',
       strength,
       evidence: [`천간 노출 재성 ${jaeGan.length}·관성 ${gwanGan.length}`, ...slotEvidence(result, [...jaeGan, ...gwanGan])],
+      slots: pair ? patternSlots(result, pair[0], pair[1]) : undefined,
     },
   ];
 }
@@ -109,11 +139,13 @@ export function detectSangsaengJesal(result: SajuResult): RawPattern[] {
   const sikSlots = slotsOfGroup(result, 'siksang');
   const adjacent = hasAdjacency(sikSlots, pyeongwan);
   const strength = clamp(0.5 + (adjacent ? 0.2 : 0) + (pyeongwan.length - 2) * 0.2, 0.5, 1);
+  const pair = bestPair(sikSlots, pyeongwan);
   return [
     {
       key: 'saju/flow/sangsaeng-jesal',
       strength,
       evidence: [`편관 ${pyeongwan.length}·식상 ${counts.siksang}`, ...slotEvidence(result, [...pyeongwan, ...sikSlots])],
+      slots: pair ? patternSlots(result, pair[0], pair[1]) : undefined,
     },
   ];
 }

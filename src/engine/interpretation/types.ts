@@ -4,12 +4,29 @@
 
 import type { OhaengMeter } from './meter';
 
-export type PatternCategory = 'flow' | 'imbalance' | 'relation' | 'cross' | 'timing';
+export type PatternCategory = 'flow' | 'imbalance' | 'relation' | 'cross' | 'timing' | 'johu';
 
 export type PatternPolarity = 'plus' | 'caution' | 'neutral';
 
 /** 십신 묶음. detector 내부 판단 단위이자 조합키의 접미어 */
 export type SipsinGroup = 'bigeop' | 'siksang' | 'jaesung' | 'gwansung' | 'insung';
+
+/** 패턴을 이루는 자리(슬롯) 한 개 — 동적 문장의 위치·글자·십신 재료 */
+export interface PatternSlot {
+  /** 슬롯 ID ('dayJi' 등). 신살·궁같은 특수 출처면 임의 ID */
+  slot: string;
+  /** 위치 라벨 ('일지', '시간' 등) */
+  label: string;
+  /** 팔자 글자 (예: '酉') */
+  glyph: string;
+  /** 십신 이름. 일간처럼 십신이 없는 자리면 null */
+  sipsin: string | null;
+  /** 십신 묶음. 판별 불가면 null */
+  group: SipsinGroup | null;
+}
+
+/** 패턴의 수치 재료 — intro 문장에 쓰는 키-값 (예: dayMasterScore, topPercent) */
+export type PatternFigures = Record<string, string | number>;
 
 /** 레지스트리에 등록된 패턴의 정적 메타데이터 + 기본 문구 */
 export interface PatternMeta {
@@ -21,6 +38,8 @@ export interface PatternMeta {
   /** content DB가 없을 때 쓰는 기본 해석 문구(3층 fallback) */
   defaultText: string;
   polarity: PatternPolarity;
+  /** 동적 문장의 결론형. 있으면 renderPattern이 intro+(제목, 강도)+conclusion으로 조립 */
+  conclusion?: string;
 }
 
 /** detector가 내놓는 생 패턴 (레지스트리 메타데이터 결합 전) */
@@ -31,6 +50,10 @@ export interface RawPattern {
   strength: number;
   /** 패턴의 근거 — 엔진 facts 인용 (예: '일지 酉=식신') */
   evidence: string[];
+  /** 패턴을 이루는 자리들 — 동적 문장의 위치·글자 재료 */
+  slots?: PatternSlot[];
+  /** 패턴의 수치 재료 — 동적 문장의 intro에 쓴다 */
+  figures?: PatternFigures;
 }
 
 /** 레지스트리 결합 후의 완성 패턴 */

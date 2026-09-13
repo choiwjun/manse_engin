@@ -65,6 +65,7 @@ export function detectGongmangCross(result: SajuResult): RawPattern[] {
       key: GONGMANG_KEY[group],
       strength: 0.7,
       evidence: [`${slotLabel(slot)} ${glyph}(${sipsinNameOfSlot(result, slot)}) — 공망 ${gongmang.join('·')}`],
+      slots: [{ slot, label: slotLabel(slot), glyph, sipsin: sipsinNameOfSlot(result, slot), group }],
     });
   }
   return patterns;
@@ -81,6 +82,7 @@ export function detectGyeokgukYongsin(result: SajuResult): RawPattern[] {
         key: 'saju/cross/gyeokguk-yongsin-fit',
         strength: 0.8,
         evidence: [`격국 ${result.gyeokguk.name} — 용신 ${result.yongsin.ohaeng}(${groupLabel(ysGroup)})`],
+        figures: { gyeokguk: result.gyeokguk.name, yongsin: result.yongsin.ohaeng },
       },
     ];
   }
@@ -91,6 +93,12 @@ export function detectGyeokgukYongsin(result: SajuResult): RawPattern[] {
       evidence: [
         `격국 ${result.gyeokguk.name}(${groupLabel(gkGroup)} 축) — 용신 ${result.yongsin.ohaeng}(${groupLabel(ysGroup)} 축)`,
       ],
+      figures: {
+        gyeokguk: result.gyeokguk.name,
+        yongsin: result.yongsin.ohaeng,
+        gyeokgukGroup: groupLabel(gkGroup),
+        yongsinGroup: groupLabel(ysGroup),
+      },
     },
   ];
 }
@@ -108,6 +116,16 @@ export function detectSinsalSipsin(result: SajuResult): RawPattern[] {
       key,
       strength: 0.6,
       evidence: [`${slotLabel(sin.position)} ${sin.name} + ${sipsinNameOfSlot(result, sin.position as never)}(${groupLabel(group)})`],
+      slots: [
+        {
+          slot: sin.position,
+          label: slotLabel(sin.position),
+          glyph: slotGlyph(result, sin.position) ?? '',
+          sipsin: sipsinNameOfSlot(result, sin.position as never),
+          group,
+        },
+      ],
+      figures: { sin: sin.name },
     });
   }
   return patterns;

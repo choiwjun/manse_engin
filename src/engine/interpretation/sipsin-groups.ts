@@ -2,7 +2,7 @@
 // SajuResult.sipsin은 위치별 십신 이름을 주므로, 여기서 묶음(Group)·오행·인접성을 계산한다.
 
 import type { SajuResult } from '@/engine/types';
-import type { SipsinGroup } from './types';
+import type { PatternSlot, SipsinGroup } from './types';
 import { getOhaengForGan } from '@/engine/adapter/hanja-mapper';
 
 export const SIPSIN_SLOTS = [
@@ -17,7 +17,22 @@ export const SIPSIN_SLOTS = [
 
 export type SipsinSlot = (typeof SIPSIN_SLOTS)[number];
 
-const SIPSIN_GROUP: Record<string, SipsinGroup> = {
+const POS_LABEL: Record<SipsinSlot, string> = {
+  yearGan: '년간',
+  yearJi: '년지',
+  monthGan: '월간',
+  monthJi: '월지',
+  dayJi: '일지',
+  hourGan: '시간',
+  hourJi: '시지',
+};
+
+/** 슬롯 ID → 위치 라벨 ('dayJi' → '일지'). 알 수 없는 ID는 그대로 반환 */
+export function posLabel(slot: string): string {
+  return POS_LABEL[slot as SipsinSlot] ?? slot;
+}
+
+export const SIPSIN_GROUP: Record<string, SipsinGroup> = {
   비견: 'bigeop',
   겁재: 'bigeop',
   식신: 'siksang',
@@ -70,6 +85,17 @@ export function glyphOfSlot(result: SajuResult, slot: SipsinSlot): string {
     case 'hourJi':
       return palja.hourJi;
   }
+}
+
+/** 슬롯을 동적 문장 재료(PatternSlot)로 변환. 일간처럼 십신이 없는 자리는 sipsin·group이 null */
+export function toPatternSlot(result: SajuResult, slot: SipsinSlot): PatternSlot {
+  return {
+    slot,
+    label: posLabel(slot),
+    glyph: glyphOfSlot(result, slot),
+    sipsin: sipsinNameOfSlot(result, slot),
+    group: groupOfSlot(result, slot),
+  };
 }
 
 /** '식신' → '식상(食傷)' 라벨 */

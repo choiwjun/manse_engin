@@ -1,10 +1,12 @@
 // 4층 조립기 — 감지 패턴(2층) + 레지스트리 문구(3층)를 풀이 문서로 조립한다.
+// 문장은 renderPattern이 위치·강도·글자를 반영해 동적으로 만든다.
 
 import type { SajuResult } from '@/engine/types';
 import type { DetectedPattern, SajuInterpretation } from './types';
 import { runAllDetectors } from './detectors';
 import { isRegisteredPattern, PATTERN_REGISTRY } from './registry';
 import { measureOhaeng } from './meter';
+import { renderPattern } from './sentence';
 
 /** detector 실행 → 레지스트리 결합 → 동일 키 병합 → 우선순위 정렬. 등록되지 않은 키는 버린다(품질 게이트). */
 export function runDetectors(result: SajuResult): DetectedPattern[] {
@@ -14,11 +16,17 @@ export function runDetectors(result: SajuResult): DetectedPattern[] {
     const meta = PATTERN_REGISTRY[raw.key];
     const existing = byKey.get(raw.key);
     if (existing) {
-      // 같은 패턴이 여러 번 감지되면 강도는 최대, 근거는 합친다
+      // 같은 패턴이 여러 번 감지되면 강도는 최대, 근거·재료는 합친다
       existing.strength = Math.max(existing.strength, raw.strength);
       for (const e of raw.evidence) {
         if (!existing.evidence.includes(e)) existing.evidence.push(e);
       }
+      for (const s of raw.slots ?? []) {
+        if (!existing.slots?.some((x) => x.slot === s.slot && x.glyph === s.glyph)) {
+          existing.slots = [...(existing.slots ?? []), s];
+        }
+      }
+      if (raw.figures) existing.figures = { ...existing.figures, ...raw.figures };
       continue;
     }
     byKey.set(raw.key, { ...raw, ...meta });
@@ -35,10 +43,10 @@ export function interpretSaju(result: SajuResult): SajuInterpretation {
 
   const structureLines = patterns
     .filter((p) => p.polarity === 'plus')
-    .map((p) => `${p.title}: ${p.defaultText}`);
+    .map((p) => renderPattern(p));
   const cautionLines = patterns
     .filter((p) => p.polarity === 'caution')
-    .map((p) => `${p.title}: ${p.defaultText}`);
+    .map((p) => renderPattern(p));
 
   return {
     patterns,

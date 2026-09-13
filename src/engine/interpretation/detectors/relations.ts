@@ -1,8 +1,10 @@
-// 관계 detector — 천간합(직접 표)과 지지 합·충·형·해(엔진의 analyzeJijiRelations 재사용).
+// 관계 detector — 천간합(직접 표)과 지지 합·충·형·해(엔진의 analyzeJijiRelations 재사용),
+// 원진(result.wonjin 재사용). 동적 문장용 slots를 [a, b] 순으로 채운다.
 
 import type { SajuResult } from '@/engine/types';
-import type { RawPattern } from '../types';
+import type { PatternSlot, RawPattern } from '../types';
 import { analyzeJijiRelations } from '@/engine/saju/sinsal';
+import { posLabel, SIPSIN_GROUP } from '../sipsin-groups';
 
 const GAN_HAP_KEYS: Record<string, string> = {
   '甲己': 'saju/relation/gan-hap-gabgi',
@@ -25,6 +27,17 @@ const JIJI_POSITION_LABEL: Record<string, string> = {
   dayJi: '일지',
   hourJi: '시지',
 };
+
+/** 천간 슬롯 → PatternSlot. result.sipsin의 천간 키는 일간이 빈 문자열이라 여기서 보강한다 */
+function ganSlot(result: SajuResult, pos: string, glyph: string): PatternSlot {
+  const sipsin = pos === 'dayGan' ? null : result.sipsin[pos] || null;
+  const group = sipsin ? SIPSIN_GROUP[sipsin] ?? null : null;
+  return { slot: pos, label: GAN_POSITION_LABEL[pos] ?? pos, glyph, sipsin, group };
+}
+
+function jiSlot(glyph: string, pos?: string): PatternSlot {
+  return { slot: pos ?? glyph, label: pos ? JIJI_POSITION_LABEL[pos] ?? posLabel(pos) : posLabel(glyph), glyph, sipsin: null, group: null };
+}
 
 /** 천간합 — 일간과의 합은 강도를 높인다 (자아와의 결합이므로 해석 무게가 크다) */
 export function detectGanHap(result: SajuResult): RawPattern[] {
@@ -53,6 +66,7 @@ export function detectGanHap(result: SajuResult): RawPattern[] {
         key: pair,
         strength: involvesDayGan ? 0.8 : 0.6,
         evidence: [evidence],
+        slots: [ganSlot(result, posA, ganA), ganSlot(result, posB, ganB)],
       });
     }
   }
@@ -90,7 +104,29 @@ export function detectJijiRelations(result: SajuResult): RawPattern[] {
       key,
       strength,
       evidence: [`${positions}: ${rel.jijis.join('·')} (${rel.description})`],
+      slots: rel.jijis.map((ji, i) => jiSlot(ji, rel.positions[i])),
     });
   }
   return patterns;
+}
+
+/** 원진 — 엔진 1층 facts(result.wonjin)를 패턴으로 변환. 원진은 은근한 마찰이라 강도는 보통 수준 */
+export function detectWonjin(result: SajuResult): RawPattern[] {
+  const wonjin = result.wonjin;
+  if (!wonjin?.hasWonjin || wonjin.pairs.length === 0) return [];
+  return [
+    {
+      key: 'saju/relation/wonjin',
+      strength: 0.6,
+      evidence: wonjin.pairs.map((p) => `${p.position1}(${p.branch1})–${p.position2}(${p.branch2}): ${p.interpretation}`),
+      slots: wonjin.pairs
+        .slice(0, 2)
+        .flatMap((p) => [
+          jiSlot(p.branch1, undefined),
+          jiSlot(p.branch2, undefined),
+        ])
+        .filter((s, i, arr) => arr.findIndex((x) => x.glyph === s.glyph) === i)
+        .slice(0, 2),
+    },
+  ];
 }

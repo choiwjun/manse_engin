@@ -5,9 +5,10 @@ import type { RawPattern } from '../types';
 import { detectSangsaengSaengjae, detectGwaninSangsaeng, detectJaesaengGwan, detectSangsaengJesal } from './flow';
 import { detectInsungGwada, detectBigeopGwada, detectSiksangGwada, detectGwansungGwada, detectJaesungNochul } from './imbalance';
 import { detectDayMasterStrong, detectDayMasterWeak, detectOhaengSkew } from './strength';
-import { detectGanHap, detectJijiRelations } from './relations';
+import { detectGanHap, detectJijiRelations, detectWonjin } from './relations';
 import { detectGongmangCross, detectGyeokgukYongsin, detectSinsalSipsin } from './crossings';
-import { detectDaeunYongsin } from './timing';
+import { detectJohu } from './johu';
+import { detectDaeunYongsin, detectDaeunSeunCross } from './timing';
 
 export type DetectorFn = (result: SajuResult) => RawPattern[];
 
@@ -29,12 +30,16 @@ export const DETECTORS: DetectorFn[] = [
   // relation
   detectGanHap,
   detectJijiRelations,
+  detectWonjin,
   // cross
   detectGongmangCross,
   detectGyeokgukYongsin,
   detectSinsalSipsin,
+  // johu
+  detectJohu,
   // timing
   detectDaeunYongsin,
+  detectDaeunSeunCross,
 ];
 
 export function runAllDetectors(result: SajuResult): RawPattern[] {
