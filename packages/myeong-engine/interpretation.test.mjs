@@ -72,10 +72,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 
   const weakLine = interp.summary.cautionLines.find((s) => s.includes('36.7%'));
   assert.ok(weakLine && weakLine.includes('신약'), `계량 수치 반영: ${weakLine}`);
-  assert.ok(
-    interp.summary.structureLines.some((s) => s.includes('당령')),
-    '조후 detector — 丑월(토왕) × 己(토) 일간 = 당령 일간',
-  );
+  // 조후 detector 발화는 summary 캡과 무관하게 패턴 자체로 단언한다 (조합키 증가로 상위 라인이 밀릴 수 있음)
+  const johuPattern = interp.patterns.find((p) => p.key === 'saju/johu/season-command');
+  assert.ok(johuPattern, '조후 detector — 丑월(토왕) × 己(토) 일간 = 당령 일간');
+  assert.ok(renderPattern(johuPattern).includes('당령'), '조후 렌더 문장에 당령 표현');
   assert.ok(keys.includes('saju/johu/season-command'), '조후 키 등록');
   assert.ok(keys.includes('saju/relation/wonjin') === r.wonjin.hasWonjin, '원진 detector — facts와 일치');
 

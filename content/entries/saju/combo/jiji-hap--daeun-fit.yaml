@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-hap--daeun-fit
+title: 합×용신운(合用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 종아격
+  yongsin: 토
+body:
+  short: 지지 합이 있는데 대운이 용신 방향입니다. 묶인 결속이 시기의 도움을 받는 구간이라, 협업·계약·결합 같은 묶이는 결정이 이 시기에 잘 붙습니다.
+  medium: 지지 합이 있는 명식에 현재 대운이 용신 방향으로 들어온 구간입니다. 묶인 결속이 시기의 도움을 받는 시기라, 협업·계약·파트너십·결합처럼 남과 묶이는 결정이 잘 붙습니다. 합의 자리가 묶어두는 영역에서 기회가 열리니, 그 자리의 관계를 활용한 결정을 이 구간에 두기 좋습니다.
+tags: [조합, 합, 대운, 용신]

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-hae--daeun-tension
+title: 해×기신운(害忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 13
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙乙
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 지지 해가 있는데 대운이 기신 방향입니다. 미세한 마찰이 시기의 무게와 겹치는 구간이라, 겉으로 드러나지 않는 손상·누수가 생기기 쉬우니 관계·건강·자산의 작은 이상을 조기에 점검하는 것이 좋습니다.
+  medium: 지지 해가 있는 명식에 현재 대운이 기신 방향으로 들어온 구간입니다. 미세한 마찰이 시기의 무게와 겹치는 시기라, 겉으로 드러나지 않는 손상·누수·곪음이 생기기 쉽습니다. 관계의 작은 불편, 건강의 미세한 이상, 자산의 조용한 누수를 이 구간에 조기 점검하는 것이 좋습니다.
+tags: [조합, 해, 대운, 기신]

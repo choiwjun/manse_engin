@@ -850,6 +850,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '쌓여 있던 오해·미움이 풀리기 쉬운 해로, 오래된 관계의 화해를 이 해에 시도하기 좋습니다.',
   },
 
+  // ---------- combo 7차: 공망×운 / 합·형·해×운 / 강약×조후 잔여 ----------
+  'saju/combo/gongmang-jaesung--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '재공망×기신운(財空亡忌神運)',
+    defaultText:
+      '재성 자리가 공망인데 대운이 기신 방향입니다. 재물의 실체가 비어 있는 구조에 시기까지 어긋나는 구간이라, 재물 쪽 기대를 낮추고 실물보다 현금 흐름을 먼저 잡는 것이 안전합니다.',
+    polarity: 'caution',
+    conclusion: '재물의 실체가 비어 있는 구조에 시기까지 어긋나는 구간으로, 현금 흐름을 먼저 잡는 것이 안전합니다.',
+  },
+  'saju/combo/gongmang-gwansung--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '관공망×기신운(官空亡忌神運)',
+    defaultText:
+      '관성 자리가 공망인데 대운이 기신 방향입니다. 지위·규범의 자리가 비어 있는 구조에 시기까지 어긋나는 구간이라, 명분보다 실질 역할을 먼저 확인하고 조직의 약속은 문서로 받아두는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '지위의 자리가 비어 있는 구조에 시기까지 어긋나는 구간으로, 실질 역할과 문서 확인이 우선입니다.',
+  },
+  'saju/combo/jiji-hap--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '합×용신운(合用神運)',
+    defaultText:
+      '지지 합이 있는데 대운이 용신 방향입니다. 묶인 결속이 시기의 도움을 받는 구간이라, 협업·계약·결합 같은 묶이는 결정이 이 시기에 잘 붙습니다.',
+    polarity: 'plus',
+    conclusion: '묶인 결속이 시기의 도움을 받는 구간으로, 협업·계약·결합이 잘 붙습니다.',
+  },
+  'saju/combo/jiji-hap--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '합×기신운(合忌神運)',
+    defaultText:
+      '지지 합이 있는데 대운이 기신 방향입니다. 묶인 결속이 시기와 어긋나는 구간이라, 합으로 잡힌 관계·자리가 오히려 발목을 잡기 쉬우니 묶인 것을 푸는 결정도 선택지입니다.',
+    polarity: 'caution',
+    conclusion: '묶인 결속이 시기와 어긋나는 구간으로, 묶인 것을 푸는 결정도 선택지입니다.',
+  },
+  'saju/combo/jiji-hyeong--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '형×기신운(刑忌神運)',
+    defaultText:
+      '지지 형이 있는데 대운이 기신 방향입니다. 규칙·약속의 마찰이 시기의 무게와 겹치는 구간이라, 계약·약속·절차의 작은 어긋남이 크게 번지기 쉬우니 문서·절차를 꼼꼼히 확인하는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '규칙·약속의 마찰이 시기의 무게와 겹치는 구간으로, 문서·절차 확인이 중요합니다.',
+  },
+  'saju/combo/jiji-hae--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '해×기신운(害忌神運)',
+    defaultText:
+      '지지 해가 있는데 대운이 기신 방향입니다. 미세한 마찰이 시기의 무게와 겹치는 구간이라, 겉으로 드러나지 않는 손상·누수가 생기기 쉬우니 관계·건강·자산의 작은 이상을 조기에 점검하는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '미세한 마찀이 시기의 무게와 겹치는 구간으로, 작은 이상을 조기에 점검하는 것이 좋습니다.',
+  },
+  'saju/combo/daymaster-weak--johu-support': {
+    category: 'combo',
+    priority: 9,
+    title: '신약×계절후원(身弱季節後援)',
+    defaultText:
+      '일간이 약한데 계절이 일간을 생합니다. 얇은 축에 계절의 도움이 붙는 구조라, 태어난 계절이 주는 자원(환경·타이밍·지원)을 활용하면 약함을 상쇄할 수 있습니다.',
+    polarity: 'plus',
+    conclusion: '얇은 축에 계절의 도움이 붙는 구조로, 환경·타이밍·지원을 활용하면 약함을 상쇄할 수 있습니다.',
+  },
+  'saju/combo/daymaster-strong--johu-pressure': {
+    category: 'combo',
+    priority: 9,
+    title: '신강×계절압박(身强季節壓迫)',
+    defaultText:
+      '일간이 강한데 계절이 일간을 극합니다. 강한 힘에 계절의 제동이 걸리는 구조라, 힘이 있어도 환경이 눌러주니 무리한 확장보다 계절이 허락하는 범위 안에서 움직이는 것이 맞습니다.',
+    polarity: 'caution',
+    conclusion: '강한 힘에 계절의 제동이 걸리는 구조로, 환경이 허락하는 범위 안에서 움직이는 것이 맞습니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

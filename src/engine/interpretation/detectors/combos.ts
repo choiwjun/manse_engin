@@ -732,5 +732,153 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     });
   }
 
+  // ---------- 7차 확장: 공망×운 / 합·형·해×운 / 강약×조후 잔여 ----------
+
+  // 재공망×기신운 — 재성 자리에 공망이 걸려 있는데 대운이 기신
+  if (gongmangJaeSlots.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/gongmang-jaesung--daeun-tension',
+      strength: 0.65,
+      evidence: [
+        ...meterEvidence,
+        `공망 ${result.gongmang!.join('·')} — 재성 자리 ${gongmangJaeSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: gongmangJaeSlots.map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 관공망×기신운 — 관성 자리에 공망이 걸려 있는데 대운이 기신
+  if (gongmangGwanSlots.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/gongmang-gwansung--daeun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `공망 ${result.gongmang!.join('·')} — 관성 자리 ${gongmangGwanSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: gongmangGwanSlots.map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  const hapRelations = (result.jijiRelations ?? []).filter((r) => r.type === '합');
+  const hyeongRelations = (result.jijiRelations ?? []).filter((r) => r.type === '형');
+  const haeRelations = (result.jijiRelations ?? []).filter((r) => r.type === '해');
+
+  // 합×용신운 — 지지 합이 있는데 대운이 용신
+  if (hapRelations.length > 0 && daeunFit) {
+    patterns.push({
+      key: 'saju/combo/jiji-hap--daeun-fit',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 용신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: hapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 합×기신운 — 지지 합이 있는데 대운이 기신
+  if (hapRelations.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-hap--daeun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: hapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 형×기신운 — 지지 형이 있는데 대운이 기신
+  if (hyeongRelations.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-hyeong--daeun-tension',
+      strength: 0.65,
+      evidence: [
+        ...meterEvidence,
+        `형 ${hyeongRelations.length}건 — ${hyeongRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: hyeongRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 해×기신운 — 지지 해가 있는데 대운이 기신
+  if (haeRelations.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-hae--daeun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `해 ${haeRelations.length}건 — ${haeRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: haeRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 신약×계절후원 — 일간이 약한데 계절이 일간을 생함
+  if (weak && johu === 'support') {
+    patterns.push({
+      key: 'saju/combo/daymaster-weak--johu-support',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}이 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})을 생함 + 신약`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
+    });
+  }
+
+  // 신강×계절압박 — 일간이 강한데 계절이 일간을 극함
+  if (strong && johu === 'pressure') {
+    patterns.push({
+      key: 'saju/combo/daymaster-strong--johu-pressure',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}이 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})을 극함 + 신강`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
+    });
+  }
+
   return patterns;
 }

@@ -89,3 +89,18 @@
 **설계 메모** — 과다×기신운(비겁·인성·식상)과 결핍×용신운(대운·세운) 축을 채웠다. 충·원진의 세운용신 변형은 '마찰이 용신운을 만나 정리·전환의 계기가 되는 해'로 해석 방향을 잡았다(마찰 제거가 아닌 전환 계기).
 
 검증: `npm test` 전체 통과, `content:validate OK — 엔트리 98건 통과 (레지스트리 98키 중 미작성 0키)`
+
+## 11차 추가 — 조합키 7차 확장 (98→106키)
+
+- `gongmang-jaesung--daeun-tension` (재공망×기신운)
+- `gongmang-gwansung--daeun-tension` (관공망×기신운)
+- `jiji-hap--daeun-fit` (합×용신운)
+- `jiji-hap--daeun-tension` (합×기신운)
+- `jiji-hyeong--daeun-tension` (형×기신운)
+- `jiji-hae--daeun-tension` (해×기신운)
+- `daymaster-weak--johu-support` (신약×계절후원)
+- `daymaster-strong--johu-pressure` (신강×계절압박)
+
+**설계 메모** — 공망×운(재·관 자리 공망 + 기신운)과 지지 합·형·해×운, 강약×조후 잔여 축을 채웠다. 조합키가 늘며 골든 케이스에서 `당령`(johu) 라인이 `structureLines` 상한(6)을 또 밀려나는 문제가 재발해, 회귀 테스트를 summary 캡 단언에서 `interp.patterns` 직접 단언으로 바꿨다 — 캡과 무관하게 detector 발화 자체를 검증하는 쪽이 확장에 강하다.
+
+검증: `npm test` 전체 통과, `content:validate OK — 엔트리 106건 통과 (레지스트리 106키 중 미작성 0키)`
