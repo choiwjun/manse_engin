@@ -1,0 +1,12 @@
+# 십이직 해석 문구 — 평일(平日)
+id: taekil/sinsal12/pyeongil
+title: 평일(平日)
+audience: counselor
+status: reviewed
+sinsal: 평일
+body:
+  short: 평탄한 날입니다. 큰 일보다 일상·유지·점검에 맞습니다.
+  note: 평탄한 날입니다. 큰 일보다 일상·유지·점검에 맞습니다.
+  suited: [평범한 일상, 작은 약속, 정기 점검]
+  avoid: [큰 결정, 새 사업 시작]
+tags: [택일, 십이직, 평일]

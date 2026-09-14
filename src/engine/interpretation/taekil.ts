@@ -4,6 +4,7 @@
 
 import type { CalendarDay } from '@/engine/types';
 import { josa } from './sentence';
+import { getContentEntry } from './content';
 
 export interface TaekilLine {
   /** 해석 축 라벨 ('십이직', '길흉', '택일 적합', '오행') */
@@ -88,9 +89,32 @@ const SINSAL_DETAIL: Record<string, { suited: string[]; avoid: string[]; note: s
   },
 };
 
+/** 십이직 한글 → content DB 키 접미어 (로마자 파일명) */
+const SINSAL_KEY: Record<string, string> = {
+  '건일': 'geonil', '제일': 'jeil', '만일': 'manil', '평일': 'pyeongil',
+  '정일': 'jeongil', '집일': 'jipil', '파일': 'pail', '위일': 'wiil',
+  '성일': 'seongil', '수일': 'suil', '개일': 'gaeil', '폐일': 'pyeil',
+};
+
+/** 십이직 해석 — content DB(taekil/sinsal12/*) 우선, 없으면 코드 fallback */
+function sinsalDetail(sinsal12: string): { suited: string[]; avoid: string[]; note: string } {
+  const key = SINSAL_KEY[sinsal12];
+  const entry = key ? getContentEntry(`taekil/sinsal12/${key}`) : null;
+  const body = entry?.body as Record<string, unknown> | undefined;
+  const fallback = SINSAL_DETAIL[sinsal12] ?? { suited: [], avoid: [], note: '' };
+  if (body) {
+    return {
+      suited: Array.isArray(body.suited) ? (body.suited as string[]) : fallback.suited,
+      avoid: Array.isArray(body.avoid) ? (body.avoid as string[]) : fallback.avoid,
+      note: typeof body.note === 'string' ? body.note : fallback.note,
+    };
+  }
+  return fallback;
+}
+
 /** 단일 날짜 해석 */
 export function interpretTaekil(day: CalendarDay): TaekilInterpretation {
-  const detail = SINSAL_DETAIL[day.sinsal12] ?? { suited: [], avoid: [], note: '' };
+  const detail = sinsalDetail(day.sinsal12);
   const lines: TaekilLine[] = [];
   const guidance: string[] = [];
 

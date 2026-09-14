@@ -154,3 +154,20 @@
 **설계 메모** — 대운 전환의 '6개월 전'은 나이 추정이 아닌 실제 구간 시각(endsAt - now)으로 판정. 이를 위해 `Daeun` 타입에 `startsAt`/`endsAt` epoch 필드를 추가했다(하위호환 — optional).
 
 검증: `npm test` 전체 통과 (작명×사주 교차·월운×세운·대운 전환 테스트 추가), `content:validate OK — 114키`
+
+## 15차 추가 — 작명·택일 문구 content DB 분리 (114→137 엔트리)
+
+코드에 박혀 있던 작명·택일 해석 문구를 content DB로 외부화해, 상담사가 코드 없이 문구를 고칠 수 있게 했다.
+
+**새 네임스페이스** — `saju/*`(패턴 레지스트리 키) 외에 비패턴 문구 키를 추가:
+- `taekil/sinsal12/*` — 십이직 12종 해석 (건일~폐일). `body.note`·`body.suited`·`body.avoid` 커스텀 필드
+- `naming/grade/*` — 작명 등급 가이드 5종 (상·중상·중·중하·하)
+- `naming/structure/*` — 작명 구조 해석 6종 (사격 길수/흉수, 오행 상생/상극, 수리오행 편중/분산)
+
+**해석기 연결**
+- `interpretTaekil` — `sinsalDetail()`이 `taekil/sinsal12/*` DB를 먼저 읽고 없으면 코드 fallback
+- `interpretName` — `phrase()` 헬퍼로 `naming/*` DB 우선, 없으면 코드 fallback
+
+**검증기 완화** — `validate-content.mjs`의 레지스트리 등록·sampleBirth/assert 대조를 `saju/*` 키에만 적용. `naming/*`·`taekil/*`는 id=경로·status·audience·body.short·금칙어만 검사. `content/README.md`에 네임스페이스 표 추가.
+
+검증: `npm test` 전체 통과, `content:validate OK — 엔트리 137건 통과 (레지스트리 114키 중 미작성 0키)`

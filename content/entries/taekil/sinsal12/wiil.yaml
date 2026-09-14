@@ -1,0 +1,12 @@
+# 십이직 해석 문구 — 위일(危日)
+id: taekil/sinsal12/wiil
+title: 위일(危日)
+audience: counselor
+status: reviewed
+sinsal: 위일
+body:
+  short: 위태로운 기운의 날입니다. 큰 일을 피하고 조심스럽게 유지하는 날입니다.
+  note: 위태로운 기운의 날입니다. 큰 일을 피하고 조심스럽게 유지하는 날입니다.
+  suited: [점검·보완, 조심스러운 유지]
+  avoid: [큰일·도박, 개업·혼인, 장거리 여행]
+tags: [택일, 십이직, 위일]

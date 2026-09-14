@@ -114,9 +114,11 @@ for (const file of files) {
     continue;
   }
 
-  // ① 경로=조합키=레지스트리 등록
+  // ① 경로=조합키. saju/* 키는 패턴 레지스트리 등록이 필요하고,
+  //    naming/*·taekil/* 같은 비패턴 문구 키는 레지스트리 대상이 아니다.
+  const isSajuKey = keyFromPath.startsWith('saju/');
   if (doc.id !== keyFromPath) errors.push(`${rel}: id(${doc.id})가 경로(${keyFromPath})와 불일치`);
-  if (!isRegisteredPattern(keyFromPath)) errors.push(`${rel}: 레지스트리에 없는 키 — ${keyFromPath}`);
+  if (isSajuKey && !isRegisteredPattern(keyFromPath)) errors.push(`${rel}: 레지스트리에 없는 키 — ${keyFromPath}`);
 
   // ② 스키마 필드
   if (!STATUSES.includes(doc.status)) errors.push(`${rel}: status(${doc.status})는 ${STATUSES.join('|')} 중 하나`);
@@ -132,10 +134,11 @@ for (const file of files) {
     Number.isInteger(birth.day) &&
     (birth.gender === 'male' || birth.gender === 'female') &&
     (birth.isLunar === true || birth.isLunar === false);
-  if (!birthOk) errors.push(`${rel}: sampleBirth 필수 필드(year/month/day/gender/isLunar) 불완전`);
+  // sampleBirth/assert는 사주 명식 재실행 대조용 — saju/* 키에만 강제한다.
+  if (isSajuKey && !birthOk) errors.push(`${rel}: sampleBirth 필수 필드(year/month/day/gender/isLunar) 불완전`);
 
-  // ③ sampleBirth 엔진 재실행 대조
-  if (birthOk) {
+  // ③ sampleBirth 엔진 재실행 대조 (saju/* 키만)
+  if (isSajuKey && birthOk) {
     const hour = birth.hour == null ? null : birth.hour;
     const minute = birth.minute == null ? null : birth.minute;
     const result = buildSajuResult({
@@ -181,7 +184,7 @@ if (files.length === 0) {
   errors.push('content/entries 아래에 엔트리가 없다 — 파이프라인이 비어 있음');
 }
 
-// 레지스트리 전 키 커버리지 표시(실패는 아님 — 채워가는 진행 지표)
+// 레지스트리 전 키 커버리지 표시(실패는 아님 — 채워가는 진행 지표). saju/* 키만 커버리지 대상.
 const covered = new Set(files.map((f) => relative(ENTRIES_DIR, f).split(sep).join('/').replace(/\.(yaml|yml)$/, '')));
 const total = Object.keys(PATTERN_REGISTRY).length;
 const missing = Object.keys(PATTERN_REGISTRY).filter((k) => !covered.has(k)).length;

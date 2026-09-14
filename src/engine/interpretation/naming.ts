@@ -4,6 +4,13 @@
 
 import type { NamingAnalysis, NamingResult, SajuResult } from '@/engine/types';
 import { measureOhaeng } from './meter';
+import { getContentEntry } from './content';
+
+/** content DB 문구 — naming/* 키의 body.short를 읽고, 없으면 fallback */
+function phrase(key: string, fallback: string): string {
+  const short = getContentEntry(key)?.body?.short;
+  return typeof short === 'string' && short.trim().length >= 5 ? short.trim() : fallback;
+}
 
 export interface NamingLine {
   /** 해석 축 라벨 ('사격 흐름', '오행 조화', '수리 길흉', '발음오행') */
@@ -79,7 +86,7 @@ export function interpretName(analysis: NamingAnalysis, surname: string): Naming
   // 사격 흐름 — 원형이정 4격 수치와 길흉 분포
   const wonhyeongText = `원격 ${analysis.wonhyeong.won} · 형격 ${analysis.wonhyeong.hyeong} · 이격 ${analysis.wonhyeong.yi} · 정격 ${analysis.wonhyeong.jeong}`;
   if (suri.hyung === 0) {
-    lines.push({ label: '사격 흐름', text: `${wonhyeongText} — 4격이 모두 길수(吉數)로 잡힌 구조입니다. 초년부터 말년까지 수리의 흐름이 안정적입니다.` });
+    lines.push({ label: '사격 흐름', text: `${wonhyeongText} — ${phrase('naming/structure/suri-all-gil', '4격이 모두 길수(吉數)로 잡힌 구조입니다. 초년부터 말년까지 수리의 흐름이 안정적입니다.')}` });
     strengths.push('사격 4격이 모두 길수로 잡혀 수리 흐름이 안정적입니다.');
   } else {
     lines.push({
@@ -87,13 +94,13 @@ export function interpretName(analysis: NamingAnalysis, surname: string): Naming
       text: `${wonhyeongText} — ${suri.hyungPos.join('·')}에 흉수가 있습니다. 해당 시기의 흐름이 약할 수 있으니 그 시기의 결정은 다른 근거를 더 보는 것이 좋습니다.`,
     });
     cautions.push(`${suri.hyungPos.join('·')}에 흉수가 있어 해당 시기의 수리 흐름이 약합니다.`);
-    guidance.push('흉수가 있는 격의 시기에는 큰 결정을 다른 근거(사주 운세 등)와 함께 보는 것이 안전합니다.');
+    guidance.push(phrase('naming/structure/suri-has-hyung', '흉수가 있는 격의 시기에는 큰 결정을 다른 근거(사주 운세 등)와 함께 보는 것이 안전합니다.'));
   }
 
   // 오행 조화 — 발음오행 인접 관계
   const ohaengText = `발음오행 ${analysis.balumOhaeng.join('·')} — 상생 ${ohaeng.sangsaeng}쌍 · 상극 ${ohaeng.sanggeuk}쌍 · 비화 ${ohaeng.bihwa}쌍`;
   if (ohaeng.sanggeuk === 0) {
-    lines.push({ label: '오행 조화', text: `${ohaengText} — 인접 글자가 서로 밀거나 부딪히지 않는 조화입니다. 이름이 주는 첫인상·발음의 흐름이 순합니다.` });
+    lines.push({ label: '오행 조화', text: `${ohaengText} — ${phrase('naming/structure/ohaeng-sangsaeng', '인접 글자가 서로 밀거나 부딪히지 않는 조화입니다. 이름이 주는 첫인상·발음의 흐름이 순합니다.')}` });
     strengths.push('발음오행이 인접 글자 간 상극 없이 조화를 이룹니다.');
   } else {
     lines.push({
@@ -101,7 +108,7 @@ export function interpretName(analysis: NamingAnalysis, surname: string): Naming
       text: `${ohaengText} — ${ohaeng.geukPairs.join('·')}에서 상극이 일어납니다. 발음의 흐름이 끊기거나 부딪히는 느낌이 있을 수 있습니다.`,
     });
     cautions.push(`발음오행 ${ohaeng.geukPairs.join('·')}에서 상극이 일어나 발음 흐름이 끊깁니다.`);
-    guidance.push('상극이 있는 글자 자리의 발음을 부드럽게 바꾸거나, 다른 후보와 비교해 상극이 없는 쪽을 우선 고려하는 것이 좋습니다.');
+    guidance.push(phrase('naming/structure/ohaeng-sanggeuk', '상극이 있는 글자 자리의 발음을 부드럽게 바꾸거나, 다른 후보와 비교해 상극이 없는 쪽을 우선 고려하는 것이 좋습니다.'));
   }
 
   // 수리오행 분포 — 같은 오행 편중 여부
@@ -110,19 +117,23 @@ export function interpretName(analysis: NamingAnalysis, surname: string): Naming
     const only = analysis.suriOhaeng[0];
     lines.push({ label: '수리오행', text: `수리오행이 ${only} 하나로 편중되어 있습니다. 한 방향의 기운이 강한 이름이라, 사주에서 그 오행이 필요한 경우에는 보완 효과가 크지만 이미 충분하면 과할 수 있습니다.` });
     cautions.push(`수리오행이 ${only} 하나로 편중되어 한 방향의 기운이 강합니다.`);
-    guidance.push('수리오행이 한 방향으로 편중된 이름은 사주의 용신·기신과 대조해 보완인지 과잉인지 확인하는 것이 좋습니다.');
+    guidance.push(phrase('naming/structure/suri-ohaeng-skew', '수리오행이 한 방향으로 편중된 이름은 사주의 용신·기신과 대조해 보완인지 과잉인지 확인하는 것이 좋습니다.'));
   } else {
-    lines.push({ label: '수리오행', text: `수리오행 ${analysis.suriOhaeng.join('·')} — ${suriOhaengSet.size}종이 섞여 있어 한 방향으로 치우치지 않는 분포입니다.` });
+    lines.push({ label: '수리오행', text: `수리오행 ${analysis.suriOhaeng.join('·')} — ${phrase('naming/structure/suri-ohaeng-mixed', `${suriOhaengSet.size}종이 섞여 있어 한 방향으로 치우치지 않는 분포입니다.`)}` });
     strengths.push('수리오행이 한 방향으로 치우치지 않는 분포입니다.');
   }
 
-  // 총점 기반 종합 가이드
+  // 총점 기반 종합 가이드 — 등급별 문구는 content DB(naming/grade/*) 우선
   if (analysis.totalScore >= 85) {
-    guidance.push('총점이 높은 이름입니다. 사주의 용신 오행과 발음·수리오행이 맞물리는지만 확인하면 바로 쓸 수 있는 수준입니다.');
+    guidance.push(phrase('naming/grade/sang', '총점이 높은 이름입니다. 사주의 용신 오행과 발음·수리오행이 맞물리는지만 확인하면 바로 쓸 수 있는 수준입니다.'));
   } else if (analysis.totalScore >= 70) {
-    guidance.push('총점이 무난한 이름입니다. 위에 적힌 주의 축 하나만 보완하면 쓸 만한 수준입니다.');
+    guidance.push(phrase('naming/grade/jungsang', '총점이 무난한 이름입니다. 위에 적힌 주의 축 하나만 보완하면 쓸 만한 수준입니다.'));
+  } else if (analysis.totalScore >= 55) {
+    guidance.push(phrase('naming/grade/jung', '총점이 중간인 이름입니다. 흉수 위치와 상극 자리를 다른 후보와 비교해 보완된 쪽을 우선 고려하는 것이 좋습니다.'));
+  } else if (analysis.totalScore >= 40) {
+    guidance.push(phrase('naming/grade/jungha', '총점이 낮은 이름입니다. 흉수 위치와 상극 자리를 다른 후보와 비교해 보완된 쪽을 우선 고려하는 것이 좋습니다.'));
   } else {
-    guidance.push('총점이 낮은 이름입니다. 흉수 위치와 상극 자리를 다른 후보와 비교해 보완된 쪽을 우선 고려하는 것이 좋습니다.');
+    guidance.push(phrase('naming/grade/ha', '총점이 매우 낮은 이름입니다. 수리·오행 구조가 모두 약하니, 다른 후보를 우선 검토하는 것이 좋습니다.'));
   }
 
   const headline = `${fullName} — ${analysis.totalScore}점 ${grade} (${suri.hyung === 0 ? '4격 길수' : `${suri.hyung}격 흉수`} · 상극 ${ohaeng.sanggeuk}쌍)`;
