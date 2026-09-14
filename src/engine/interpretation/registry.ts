@@ -776,6 +776,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '압박을 실력으로 다루는 능력이 시기와 맞물린 구간으로, 경쟁·심사에서 실력을 발휘하기 좋습니다.',
   },
 
+  // ---------- combo 6차: 과다×기신운 / 결핍×용신운 / 노출×세운 / 관계×세운용신 ----------
+  'saju/combo/bigeop-gwada--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '비겁과다×기신운(比劫過多忌神運)',
+    defaultText:
+      '비겁이 과다한데 대운이 기신 방향입니다. 경쟁자·동업자가 많은 구조에 시기까지 어긋나는 구간이라, 동업·공동투자·보증처럼 남과 묶이는 결정은 이 시기에 특히 신중해야 합니다.',
+    polarity: 'caution',
+    conclusion: '경쟁 구조에 시기까지 어긋나는 구간으로, 남과 묶이는 결정은 특히 신중해야 합니다.',
+  },
+  'saju/combo/insung-gwada--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '인과다×기신운(印過多忌神運)',
+    defaultText:
+      '인성이 과다한데 대운이 기신 방향입니다. 생각·수용이 과한 구조에 시기까지 어긋나는 구간이라, 배움이나 준비를 이유로 실행을 미루기 쉬우니 결정의 마감을 정해두는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '생각이 실행을 앞서기 쉬운 구간으로, 결정의 마감을 정해두는 것이 좋습니다.',
+  },
+  'saju/combo/siksang-gwada--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '식과다×기신운(食過多忌神運)',
+    defaultText:
+      '식상이 과다한데 대운이 기신 방향입니다. 표현·생산이 과한 구조에 시기까지 어긋나는 구간이라, 말·글·산출물이 화를 부르기 쉬우니 만드는 양을 줄이고 검증 단계를 늘리는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '산출물이 화를 부르기 쉬운 구간으로, 양을 줄이고 검증을 늘리는 것이 좋습니다.',
+  },
+  'saju/combo/jaesung-nochul--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '재노출×세운기신(財露出歲運忌神)',
+    defaultText:
+      '재성이 천간에 드러난 명식에 세운이 기신 방향입니다. 재물이 밖으로 보이는 구조에 연운이 어긋나는 해라, 투자·대출·큰 지출은 이 해를 피하고 기존 자산의 방어에 집중하는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '재물이 밖으로 보이는 구조에 연운이 어긋나는 해로, 큰 지출은 피하고 자산 방어에 집중합니다.',
+  },
+  'saju/combo/ohaeng-missing--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '오행결핍×용신운(五行缺乏用神運)',
+    defaultText:
+      '오행 분포에 결핍이 있는데 대운이 용신 방향입니다. 비어 있는 축을 용신운이 메워주는 구간이라, 평소 약했던 영역에서 기회가 열릴 수 있으니 그 축의 결정을 이 시기에 두기 좋습니다.',
+    polarity: 'plus',
+    conclusion: '비어 있는 축을 용신운이 메워주는 구간으로, 약했던 영역의 기회를 이 시기에 잡기 좋습니다.',
+  },
+  'saju/combo/ohaeng-missing--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '오행결핍×세운용신(五行缺乏歲運用神)',
+    defaultText:
+      '오행 분포에 결핍이 있는데 세운이 용신 방향입니다. 올해는 비어 있는 축을 연운이 메워주는 해라, 평소 약했던 영역의 결정을 이 해에 두면 보완 효과를 받기 쉽습니다.',
+    polarity: 'plus',
+    conclusion: '비어 있는 축을 연운이 메워주는 해로, 약했던 영역의 결정을 이 해에 두면 보완 효과를 받습니다.',
+  },
+  'saju/combo/jiji-chung--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '충×세운용신(沖歲運用神)',
+    defaultText:
+      '충의 마찰이 있는데 세운이 용신 방향입니다. 올해는 마찰이 연운의 도움으로 오히려 정리·전환의 계기가 되는 해라, 오래 끌던 관계·영역의 문제를 이 해에 매듭짓기 좋습니다.',
+    polarity: 'plus',
+    conclusion: '마찰이 연운의 도움으로 정리·전환의 계기가 되는 해로, 오래 끌던 문제를 매듭짓기 좋습니다.',
+  },
+  'saju/combo/wonjin--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '원진×세운용신(怨嗔歲運用神)',
+    defaultText:
+      '원진의 속마찰이 있는데 세운이 용신 방향입니다. 올해는 쌓여 있던 오해·미움이 연운의 도움으로 풀리기 쉬운 해라, 오래된 관계의 감정 정리나 화해를 이 해에 시도하기 좋습니다.',
+    polarity: 'plus',
+    conclusion: '쌓여 있던 오해·미움이 풀리기 쉬운 해로, 오래된 관계의 화해를 이 해에 시도하기 좋습니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

@@ -74,3 +74,18 @@
 **설계 메모** — 흐름×세운·관계×세운·흐름×대운 잔여 축을 채웠다. `seunFit`/`seunTension`은 8차에 도입된 세운 오행 판정(천간 우선·비면 지지)을 그대로 재사용. 조합키가 늘어나며 `interpretSaju`의 `structureLines` 상한 5가 골든 케이스에서 당령 라인을 밀어내는 문제가 발생해 상한을 6/5로 상향(`assemble.ts`).
 
 검증: `npm test` 전체 통과, `content:validate OK — 엔트리 90건 통과 (레지스트리 90키 중 미작성 0키)`
+
+## 10차 추가 — 조합키 6차 확장 (90→98키)
+
+- `bigeop-gwada--daeun-tension` (비겁과다×기신운)
+- `insung-gwada--daeun-tension` (인과다×기신운)
+- `siksang-gwada--daeun-tension` (식과다×기신운)
+- `jaesung-nochul--seun-tension` (재노출×세운기신)
+- `ohaeng-missing--daeun-fit` (오행결핍×용신운)
+- `ohaeng-missing--seun-fit` (오행결핍×세운용신)
+- `jiji-chung--seun-fit` (충×세운용신)
+- `wonjin--seun-fit` (원진×세운용신)
+
+**설계 메모** — 과다×기신운(비겁·인성·식상)과 결핍×용신운(대운·세운) 축을 채웠다. 충·원진의 세운용신 변형은 '마찰이 용신운을 만나 정리·전환의 계기가 되는 해'로 해석 방향을 잡았다(마찰 제거가 아닌 전환 계기).
+
+검증: `npm test` 전체 통과, `content:validate OK — 엔트리 98건 통과 (레지스트리 98키 중 미작성 0키)`

@@ -613,5 +613,124 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     });
   }
 
+  // ---------- 6차 확장: 과다×기신운 / 결핍×용신운 / 노출×세운 / 관계×세운용신 ----------
+
+  // 비겁과다×기신운 — 비겁이 과다한데 대운이 기신
+  if (bigeopGwada && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/bigeop-gwada--daeun-tension',
+      strength: 0.65,
+      evidence: [...meterEvidence, `비겁 ${counts.bigeop} + 기신 대운`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'bigeop').map((s) =>
+        toPatternSlot(result, s),
+      ),
+    });
+  }
+
+  // 인과다×기신운 — 인성이 과다한데 대운이 기신
+  if (insungGwada && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/insung-gwada--daeun-tension',
+      strength: 0.6,
+      evidence: [...meterEvidence, `인성 ${counts.insung} + 기신 대운`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'insung').map((s) =>
+        toPatternSlot(result, s),
+      ),
+    });
+  }
+
+  // 식과다×기신운 — 식상이 과다한데 대운이 기신
+  if (siksangGwada && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/siksang-gwada--daeun-tension',
+      strength: 0.6,
+      evidence: [...meterEvidence, `식상 ${counts.siksang} + 기신 대운`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang').map((s) =>
+        toPatternSlot(result, s),
+      ),
+    });
+  }
+
+  // 재노출×세운기신 — 천간 재성 노출이 있는데 세운이 기신
+  if (jaeExposed && seunTension) {
+    patterns.push({
+      key: 'saju/combo/jaesung-nochul--seun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `천간 재성 노출 ${exposedJaeCount(result)} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: SIPSIN_SLOTS.filter(
+        (s) => s.endsWith('Gan') && (result.sipsin[s] === '편재' || result.sipsin[s] === '정재'),
+      ).map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 오행결핍×용신운 — 결핍 오행이 있는데 대운이 용신
+  if (missingOhaeng.length > 0 && daeunFit) {
+    patterns.push({
+      key: 'saju/combo/ohaeng-missing--daeun-fit',
+      strength: 0.6,
+      evidence: [...meterEvidence, `결핍 오행 ${missingOhaeng.join('·')} + 용신 대운`],
+      figures: { dayMasterScore: meter.dayMaster.score, missing: missingOhaeng.join('·') },
+    });
+  }
+
+  // 오행결핍×세운용신 — 결핍 오행이 있는데 세운이 용신
+  if (missingOhaeng.length > 0 && seunFit) {
+    patterns.push({
+      key: 'saju/combo/ohaeng-missing--seun-fit',
+      strength: 0.55,
+      evidence: [
+        ...meterEvidence,
+        `결핍 오행 ${missingOhaeng.join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}`, missing: missingOhaeng.join('·') },
+    });
+  }
+
+  // 충×세운용신 — 지지 충이 있는데 세운이 용신
+  if (chungRelations.length > 0 && seunFit) {
+    patterns.push({
+      key: 'saju/combo/jiji-chung--seun-fit',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `충 ${chungRelations.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: chungRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 원진×세운용신 — 원진이 있는데 세운이 용신
+  if (wonjin?.hasWonjin && seunFit) {
+    patterns.push({
+      key: 'saju/combo/wonjin--seun-fit',
+      strength: 0.55,
+      evidence: [
+        ...meterEvidence,
+        `원진 ${wonjin.pairs.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: wonjin.pairs.flatMap((p) => [
+        { slot: p.branch1, label: p.position1, glyph: p.branch1, sipsin: null, group: null },
+        { slot: p.branch2, label: p.position2, glyph: p.branch2, sipsin: null, group: null },
+      ]),
+    });
+  }
+
   return patterns;
 }
