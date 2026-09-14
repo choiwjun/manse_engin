@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/gongmang-siksang
+title: 식상 공망(食傷空亡)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 식상 공망 — 표현 욕구는 있으나 공개에 무게감이 섞입니다.
+  medium: 만들고 말하고 싶은 욕구는 분명한데 발표·공개 단계에서 마음이 무거워 늦게 나오기도 합니다. 공개 루트를 미리 정해두면 표현의 흐름이 부드러워집니다.
+tags: [공망, 식상]

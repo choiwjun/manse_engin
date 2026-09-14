@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/imbalance/ohaeng-skew
+title: 오행 편중(五行偏重)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 오행 편중 — 굵은 오행이 주 테마, 얇은 오행이 보완 과제입니다.
+  medium: 분포 격차가 커서 인생의 무게가 특정 오행 영역에 실립니다. 굵은 오행을 일·정체성의 축으로 쓰고, 얇은 오행은 환경·인물·습관으로 후천적으로 채우는 전략이 맞습니다.
+tags: [오행, 밸런스]

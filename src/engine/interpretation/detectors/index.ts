@@ -6,6 +6,7 @@ import { detectSangsaengSaengjae, detectGwaninSangsaeng, detectJaesaengGwan, det
 import { detectInsungGwada, detectBigeopGwada, detectSiksangGwada, detectGwansungGwada, detectJaesungNochul } from './imbalance';
 import { detectDayMasterStrong, detectDayMasterWeak, detectOhaengSkew } from './strength';
 import { detectGanHap, detectJijiRelations, detectWonjin } from './relations';
+import { detectSamhapBanghap } from './sanbang';
 import { detectGongmangCross, detectGyeokgukYongsin, detectSinsalSipsin } from './crossings';
 import { detectJohu } from './johu';
 import { detectDaeunYongsin, detectDaeunSeunCross } from './timing';
@@ -30,6 +31,7 @@ export const DETECTORS: DetectorFn[] = [
   // relation
   detectGanHap,
   detectJijiRelations,
+  detectSamhapBanghap,
   detectWonjin,
   // cross
   detectGongmangCross,

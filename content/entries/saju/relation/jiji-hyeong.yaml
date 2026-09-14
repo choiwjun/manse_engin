@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/relation/jiji-hyeong
+title: 지지 형(支刑)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 지지형 — 규칙·약속을 어겼을 때 비용이 커지는 구조입니다.
+  medium: 형이 걸린 자리는 매뉴얼·계약·절차를 지킬 때 평온하고, 건너뛸 때 비용이 집중됩니다. 이 영역일수록 문서화와 절차 준수가 실질적인 리스크 관리가 됩니다.
+tags: [지지형, 절차]

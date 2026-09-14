@@ -7,6 +7,7 @@ import { runAllDetectors } from './detectors';
 import { isRegisteredPattern, PATTERN_REGISTRY } from './registry';
 import { measureOhaeng } from './meter';
 import { renderPattern } from './sentence';
+import { getContentEntry } from './content';
 
 /** detector 실행 → 레지스트리 결합 → 동일 키 병합 → 우선순위 정렬. 등록되지 않은 키는 버린다(품질 게이트). */
 export function runDetectors(result: SajuResult): DetectedPattern[] {
@@ -29,7 +30,8 @@ export function runDetectors(result: SajuResult): DetectedPattern[] {
       if (raw.figures) existing.figures = { ...existing.figures, ...raw.figures };
       continue;
     }
-    byKey.set(raw.key, { ...raw, ...meta });
+    const entry = getContentEntry(raw.key);
+    byKey.set(raw.key, { ...raw, ...meta, ...(entry ? { contentId: raw.key } : {}) });
   }
   return [...byKey.values()].sort((a, b) => a.priority - b.priority || b.strength - a.strength);
 }

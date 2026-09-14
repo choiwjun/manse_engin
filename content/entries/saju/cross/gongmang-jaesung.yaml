@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/gongmang-jaesung
+title: 재성 공망(財星空亡)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 재성 공망 — 재물의 눈은 있으나 소유에 대한 집착이 낮습니다.
+  medium: 기회를 알아보는 감각은 있지만 잡고 유지하는 힘이 약해 흘러보내기도 합니다. 소유보다 흐름(현금흐름) 중심의 재물 관리가 이 구조에 맞습니다.
+tags: [공망, 재성]

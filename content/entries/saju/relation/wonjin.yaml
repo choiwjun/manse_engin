@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/relation/wonjin
+title: 원진(元辰)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 원진 — 끌리다 다시 귀찮게 느껴지는 밀당 구조입니다.
+  medium: 원진은 큰 파괴보다 은근한 소모가 특징입니다. 해당 자리의 관계는 가깝다 멀다를 반복하기 쉬우니, 만남의 빈도와 소통 방식을 정해두면 오래 끌리는 마찰을 줄입니다.
+tags: [원진, 관계]

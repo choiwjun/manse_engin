@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/relation/gan-hap-mugye
+title: 무계합(戊癸合)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 戊癸 천간합 — 거리를 넘는 결합이 생깁니다.
+  medium: 나이·배경이 다른 상대와의 유대가 특징인 합입니다. 서로 보완이 되는 만큼, 기대치를 조율해두면 오래 유지됩니다.
+tags: [천간합, 관계]

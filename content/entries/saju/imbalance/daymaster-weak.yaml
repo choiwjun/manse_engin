@@ -1,0 +1,22 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/imbalance/daymaster-weak
+title: 신약(身弱)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 신약 — 기반 보강이 상시 과제, 무리한 확장보다 인프라입니다.
+  medium: 비겁·인성의 축이 얇아 에너지 관리가 곧 실력입니다. 배움·수용·휴식으로 축을 채우는 루틴이 있으면, 같은 일을 해도 소모가 훨씬 적습니다.
+  long: 신약한 명식은 받는 구조를 만드는 게 우선입니다. 인성(스승·자격·시스템)을 곁에 두고, 비겁(동료·파트너)과 힘을 합하는 형태가 안전합니다. 단독 확장·홀로 서는 사업은 소모가 커지기 쉬우니, 시점(대운·세운)이 도와줄 때 선택적으로 감행하는 게 맞습니다.
+tags: [강약, 회복]

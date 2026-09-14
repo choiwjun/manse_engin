@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/gyeokguk-yongsin-split
+title: 격국·용신 이축(格用異軸)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 본업(격)과 사이드(용)를 나눠 운영하는 이중 구조가 안정형입니다.
+  medium: 사회적 뼈대(격)와 개인적 활용점(용)이 갈라져 있어 한쪽에 몰빵하면 균형이 깨집니다. 본업(격)에 사이드(용)를 붙이는 이중 구조가 이 명식의 안정형입니다.
+tags: [격국, 용신]

@@ -63,6 +63,8 @@ export interface DetectedPattern extends RawPattern {
   title: string;
   defaultText: string;
   polarity: PatternPolarity;
+  /** content DB에 등록된 엔트리가 있으면 그 조합키 — 문구 오버라이드의 근거 */
+  contentId?: string;
 }
 
 /** 4층 조립기의 출력 — 풀이 문서의 구조화된 형태 */

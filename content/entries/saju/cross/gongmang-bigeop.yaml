@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/gongmang-bigeop
+title: 비겁 공망(比劫空亡)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 비겁 공망 — 경쟁 구도에 집착하지 않는 편입니다.
+  medium: 이기고 지는 구도 자체에 흥미가 낮아 자기 페이스를 유지합니다. 경쟁 역량이 없다는 뜻이 아니라, 경쟁 밖의 가치(고유 영역)에서 힘이 나는 구조입니다.
+tags: [공망, 비겁]

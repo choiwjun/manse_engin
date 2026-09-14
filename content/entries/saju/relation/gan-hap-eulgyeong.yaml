@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/relation/gan-hap-eulgyeong
+title: 을경합(乙庚合)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 乙庚 천간합 — 서로 끌리는 연결이 만들어집니다.
+  medium: 부드러움과 강건함이 만나는 합으로, 사람·조직과의 연결이 잘 형성됩니다. 다만 합은 결이 바뀌는 지점이기도 하니, 유대가 편의가 아닌 방향인지 확인하며 관리하세요.
+tags: [천간합, 관계]

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/gongmang-insung
+title: 인성 공망(印星空亡)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 인성 공망 — 학문·자격의 동기가 실용으로 향합니다.
+  medium: 형식적 학습보다 쓸 수 있는 지식에서 동기가 생깁니다. 자격·학위는 수단일 뿐이므로, 목적이 분명한 학습일수록 이 구조의 효율이 올라갑니다.
+tags: [공망, 인성]

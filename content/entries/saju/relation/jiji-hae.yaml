@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/relation/jiji-hae
+title: 지지 해(支害)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 지지해 — 미세한 마찰이 반복되는 자리입니다.
+  medium: 큰 사고보다 사소한 갈등이 쌓이는 구조입니다. 해당 자리의 관계·일에서는 감정 대응보다 형식적 합의(서면·계약·확인)로 정리하는 게 효율적입니다.
+tags: [지지해, 마찰]

@@ -48,6 +48,36 @@ for (const file of walk(pkgEngineSrc)) {
 }
 console.log(`rewrote ${rewritten} '@/engine/*' import specifiers`);
 
+// ---------- 2.5. content 문구 DB 번들 (content/entries YAML → JSON 인라인) ----------
+// 런타임 파일시스템 비의존을 유지하기 위해 빌드 타임에 JSON으로 굳혀
+// src/engine/interpretation/content-db.generated.json을 덮어쓴다. 스키마·금칙어 위반은 빌드를 깬다.
+{
+  const { listYamlFiles, collectEntry } = await import('./content-db.mjs');
+  const entriesDir = path.join(rootDir, 'content', 'entries');
+  const files = listYamlFiles(entriesDir);
+  const db = {};
+  const errors = [];
+  for (const file of files) {
+    try {
+      const { keyFromPath, doc, errors: entryErrors } = collectEntry(file, entriesDir);
+      if (entryErrors.length > 0) errors.push(`${path.relative(rootDir, file)}: ${entryErrors.join(' / ')}`);
+      db[keyFromPath] = doc;
+    } catch (e) {
+      errors.push(`${path.relative(rootDir, file)}: ${e.message}`);
+    }
+  }
+  if (errors.length > 0) {
+    console.error(`content DB 번들 실패 — ${errors.length}건`);
+    for (const e of errors) console.error(`  ✗ ${e}`);
+    process.exit(1);
+  }
+  writeFileSync(
+    path.join(pkgEngineSrc, 'interpretation', 'content-db.generated.json'),
+    JSON.stringify(db, null, 2) + '\n',
+  );
+  console.log(`generated content-db.generated.json (${Object.keys(db).length} entries)`);
+}
+
 // ---------- 3. esbuild 번들 (ESM + CJS, JSON 인라인) ----------
 const { build } = require('esbuild');
 const common = {

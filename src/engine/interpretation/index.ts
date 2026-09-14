@@ -31,3 +31,5 @@ export { runAllDetectors, DETECTORS } from './detectors';
 export { renderPattern, strengthLabel, josa } from './sentence';
 export { judgeOhaeng, buildTimingNarrative } from './narrative';
 export { assembleReport } from './report';
+export { renderReportMarkdown, type RenderReportOptions } from './markdown';
+export { getContentEntry, contentEntryCount, conclusionFor, type ContentEntry, type ContentBody, type ContentDb } from './content';

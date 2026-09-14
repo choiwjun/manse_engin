@@ -21,11 +21,15 @@ export interface ReportSection {
   headline: string;
   /** 동적 문장들 (축 관련 패턴 + 궁 배치 facts) */
   lines: string[];
+  /** 이 섹션의 문장의 근거가 된 감지 패턴들 — 렌더러가 DB 심층 문구(body.long)를 붙일 때 사용 */
+  patterns: DetectedPattern[];
 }
 
 export interface SajuReport {
   /** 격국·강약·용신 기반 헤드라인 */
   headline: string;
+  /** 원국 표기 (예: '甲子 丁丑 己酉 壬申', 시각 미상 시 마지막이 '(시각 미상)') */
+  paljaLabel: string;
   meter: OhaengMeter;
   /** 축별 섹션 — 상담 문서의 목차 */
   sections: Record<ReportAxis, ReportSection>;
@@ -155,7 +159,7 @@ function buildLoveSection(
   lines.push(...renderList(relevant, 3));
 
   const headline = `배우자궁 일지 ${dayJiSipsin ? `${dayJiSipsin}(${dayJiGlyph})` : dayJiGlyph} · ${dayJiRelations.length > 0 ? `지지 ${dayJiRelations[0].type} ${dayJiRelations.length}건` : '지지 관계 없음'}`;
-  return { axis: 'love', title: AXIS_TITLES.love, headline, lines: dedupe(lines) };
+  return { axis: 'love', title: AXIS_TITLES.love, headline, lines: dedupe(lines), patterns: relevant };
 }
 
 function buildWealthSection(
@@ -193,7 +197,7 @@ function buildWealthSection(
   }
 
   const headline = `재성 ${jaePercent}% · ${jaeSlots.length > 0 ? `${jaeSlots.length}자리 배치` : '재성 부재'}${riskPatterns.some((p) => p.key === 'saju/imbalance/jaesung-nochul') ? ' · 천간 노출' : ''}`;
-  return { axis: 'wealth', title: AXIS_TITLES.wealth, headline, lines: dedupe(lines) };
+  return { axis: 'wealth', title: AXIS_TITLES.wealth, headline, lines: dedupe(lines), patterns: [...flowPatterns, ...riskPatterns] };
 }
 
 /** 일간이 극하는 오행 = 재성 오행 */
@@ -236,7 +240,7 @@ function buildCareerSection(
   }
 
   const headline = `${result.gyeokguk.name} · 관성 ${gwanPercent}% vs 식상 ${sikPercent}%`;
-  return { axis: 'career', title: AXIS_TITLES.career, headline, lines: dedupe(lines) };
+  return { axis: 'career', title: AXIS_TITLES.career, headline, lines: dedupe(lines), patterns: [...flowPatterns, ...crossPatterns] };
 }
 
 function buildHealthSection(
@@ -265,7 +269,7 @@ function buildHealthSection(
   if (gwansungGwada) lines.push(renderPattern(gwansungGwada));
 
   const headline = `오행 최다 ${top.ohaeng} ${top.percent}%${missing.length > 0 ? ` · 결오행 ${missing.map((m) => m.ohaeng).join('·')}` : ''}`;
-  return { axis: 'health', title: AXIS_TITLES.health, headline, lines: dedupe(lines) };
+  return { axis: 'health', title: AXIS_TITLES.health, headline, lines: dedupe(lines), patterns: gwansungGwada ? [gwansungGwada] : [] };
 }
 
 function buildFamilySection(
@@ -297,7 +301,7 @@ function buildFamilySection(
   lines.push(...renderList(relationPatterns, 2));
 
   const headline = `년~시 4궁 십신 분포 · 비겁 ${counts.bigeop}% · 인성 ${counts.insung}%`;
-  return { axis: 'family', title: AXIS_TITLES.family, headline, lines: dedupe(lines) };
+  return { axis: 'family', title: AXIS_TITLES.family, headline, lines: dedupe(lines), patterns: relationPatterns };
 }
 
 function dedupe(lines: string[]): string[] {
@@ -312,8 +316,13 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
 
   const headline = `${result.gyeokguk.name} · 일간 ${meter.dayMaster.verdictLabel} ${meter.dayMaster.score}% · 용신 ${result.yongsin.ohaeng}`;
 
+  const { palja } = result;
+  const hourPillar = palja.hourGan && palja.hourJi ? `${palja.hourGan}${palja.hourJi}` : null;
+  const paljaLabel = `${palja.yearGan}${palja.yearJi} ${palja.monthGan}${palja.monthJi} ${palja.dayGan}${palja.dayJi} ${hourPillar ?? '(시각 미상)'}`;
+
   return {
     headline,
+    paljaLabel,
     meter,
     sections: {
       love: buildLoveSection(result, patterns, meter, opts),

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/relation/jiji-hap
+title: 지지 합(支合)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 지지합 — 해당 자리의 기운이 결합되어 안정·결속이 형성됩니다.
+  medium: 합이 걸린 자리는 사람·일과 묶여 오래가는 성향이 있습니다. 다만 합은 묶임이므로, 그 자리의 변화가 필요한 시기에는 이동이 늦어지기도 합니다.
+tags: [지지합, 결속]

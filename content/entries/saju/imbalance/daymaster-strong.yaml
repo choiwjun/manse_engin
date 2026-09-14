@@ -1,0 +1,22 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/imbalance/daymaster-strong
+title: 신강(身强)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 신강 — 기반이 튼튼하니 내보내는 활동이 명식의 원동력입니다.
+  medium: 비겁·인성의 축이 두터워 자기 기준이 분명하고 회복이 빠릅니다. 대신 이 명식은 쌓아두기만 하면 막히므로, 일·거래·성과로 내보내는 흐름이 순환의 열쇠입니다.
+  long: 신강한 명식의 관리 포인트는 배출입니다. 식상(산출·표현), 재성(거래·수입), 관성(책임·자리) 어느 축으로든 내보내는 통로를 확보해두면 에너지가 성과로 전환됩니다. 협업에서는 자기 기준을 내려놓는 순간의 유연함이 갈등을 줄입니다.
+tags: [강약, 기반]

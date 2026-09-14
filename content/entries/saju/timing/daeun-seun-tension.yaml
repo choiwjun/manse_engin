@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/timing/daeun-seun-tension
+title: 대운·세운 동압(大運歲運同壓)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 대운·세운 동압 — 큰 판과 연 판이 함께 무거운 구간입니다.
+  medium: 기신 대운 위에 기신 세운이 겹쳐 소모·압박이 중첩됩니다. 큰 결정은 미루고, 건강·현금흐름·계약 조건을 점검하는 방어의 해로 운영하는 게 맞습니다.
+tags: [대운, 세운, 기신]

@@ -9,6 +9,7 @@ import {
   assembleReport,
   buildTimingNarrative,
   renderPattern,
+  renderReportMarkdown,
   PATTERN_REGISTRY,
 } from './dist/index.js';
 
@@ -59,6 +60,13 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(flowLine.includes('생하여(식상생재, 강도 최상)'), `첫형+제목+강도 조립: ${flowLine}`);
   assert.ok(/[년월시]지의 [가-힣]+\(.+\)/.test(flowLine), `위치·십신·글자 반영: ${flowLine}`);
   assert.ok(flowLine.endsWith('.'), '결론형으로 종결');
+
+  // 4차 — content DB 문구 오버라이드
+  const flowPattern = interp.patterns.find((p) => p.key === 'saju/flow/sangsaeng-saengjae');
+  assert.ok(flowPattern, '식상생재 패턴');
+  assert.equal(flowPattern.contentId, 'saju/flow/sangsaeng-saengjae', 'content DB 등록 → contentId');
+  assert.ok(flowLine.includes('전문성 축적이 곧 수입 축적'), `DB body.short 오버라이드: ${flowLine}`);
+
   const weakLine = interp.summary.cautionLines.find((s) => s.includes('신약'));
   assert.ok(weakLine && weakLine.includes('36.7%'), `계량 수치 반영: ${weakLine}`);
   assert.ok(
@@ -87,10 +95,21 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(rep.timing.daeun && rep.timing.daeun.ganJi === '辛巳', '현재 대운 서사 (38세 辛巳)');
   assert.equal(rep.timing.daeun.verdict, 'fit', '용신 대운 판정');
   assert.ok(rep.timing.sewoon && rep.timing.sewoon.ganJi.length === 2, '세운 서사');
+  assert.equal(rep.timing.sewoon.sipsin, '정인', `세운 십신 — 丙 vs 일간 己 = 정인: ${rep.timing.sewoon.sipsin}`);
   assert.ok(rep.timing.combined && rep.timing.combined.includes('큰 판'), '대운×세운 결합 서사');
   assert.ok(rep.timing.checkQuestions.length >= 1, '과거 대운 역검증 확인 질문');
   const narrative = buildTimingNarrative(r);
   assert.deepEqual(narrative.lines, rep.timing.lines, 'buildTimingNarrative와 리포트 timing 일치');
+
+  // 4차 — 풀이 문서 마크다운 렌더러
+  const md = renderReportMarkdown(rep);
+  assert.ok(md.startsWith('# 사주 풀이 리포트'), '마크다운 문서 헤더');
+  assert.ok(md.includes('원국: 甲子 丁丑 己酉 壬申'), '원국 표기');
+  for (const header of ['## 오행 계량', '## 적성·일', '## 재물', '## 연애·배우자', '## 건강', '## 육친', '## 시점 서사', '### 상담 확인 질문']) {
+    assert.ok(md.includes(header), `문서 섹션 헤더: ${header}`);
+  }
+  assert.ok(md.includes('**식상생재(食傷生財)**'), 'DB body.long 심층 문단 삽입');
+  assert.ok(!md.includes('undefined') && !md.includes('null'), '렌더 누수 방지');
 
   // 3차 — 시각 미상에서도 리포트가 예외 없이 조립되어야 한다
   const repNoHour = assembleReport(saju({ year: 1963, month: 8, day: 17, hour: null, minute: null, gender: 'female' }), {
@@ -112,6 +131,20 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(r.wonjin?.hasWonjin, '원진 facts 존재');
   const keys = runDetectors(r).map((p) => p.key);
   assert.ok(keys.includes('saju/relation/wonjin'), '원진 패턴 감지');
+}
+
+// 4차 — 삼합·방합 감지 (1980-09-13: 申酉丑 巳酉丑 금국 / 1980-01-10: 未丑午巳 巳午未 화국)
+{
+  const r = saju({ year: 1980, month: 9, day: 13, hour: 10, minute: 0, gender: 'male' });
+  const samhap = runDetectors(r).find((p) => p.key === 'saju/relation/samhap');
+  assert.ok(samhap, '삼합 감지 (巳酉丑 금국)');
+  const samhapText = renderPattern(samhap);
+  assert.ok(samhapText.includes('금국'), `삼합 문장에 국 오행: ${samhapText}`);
+
+  const r2 = saju({ year: 1980, month: 1, day: 10, hour: 10, minute: 0, gender: 'male' });
+  const banghap = runDetectors(r2).find((p) => p.key === 'saju/relation/banghap');
+  assert.ok(banghap, '방합 감지 (巳午未 화국)');
+  assert.ok(renderPattern(banghap).includes('화국'), '방합 문장에 국 오행');
 }
 
 // 4) 계약 일관성 — 다양한 출생에서 (a) 모든 키가 레지스트리에 등록 (b) 강도 0~1 (c) 골든 문구 존재

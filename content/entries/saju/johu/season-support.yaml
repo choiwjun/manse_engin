@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/johu/season-support
+title: 계절 후원(季節扶援)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 계절 후원 — 태어난 계절이 일간을 밀어줍니다.
+  medium: 왕한 오행이 일간을 생해 환경이 기본적으로 편합니다. 원국의 단점이 계절 덕에 완화되며, 스트레스 상황에서도 회복 속도가 빠른 편입니다.
+tags: [조후, 계절]

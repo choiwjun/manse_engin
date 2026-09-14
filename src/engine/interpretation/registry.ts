@@ -213,6 +213,24 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'caution',
     conclusion: '큰 다툼보다 은근한 마찰을 오래 끌기 쉬우니, 대면·소통 방식을 미리 정해두는 게 좋습니다.',
   },
+  'saju/relation/samhap': {
+    category: 'relation',
+    priority: 40,
+    title: '삼합(三合)',
+    defaultText:
+      '세 지지가 생왕묘 삼합을 이룹니다. 한 오행으로 뭉치는 강한 결속이라 해당 오행 기운이 명식의 주축으로 크게 작동합니다.',
+    polarity: 'plus',
+    conclusion: '세 지지가 한 국(局)으로 뭉치는 강한 결속으로, 해당 오행 기운이 명식의 주축으로 크게 작동합니다.',
+  },
+  'saju/relation/banghap': {
+    category: 'relation',
+    priority: 40,
+    title: '방합(方合)',
+    defaultText:
+      '세 지지가 같은 방향(계절)의 방합을 이룹니다. 해당 오행 기운이 한 방향으로 쏠려 계절의 힘이 원국 안에서 재현됩니다.',
+    polarity: 'plus',
+    conclusion: '해당 오행 기운이 한 방향으로 쏠려, 계절의 힘이 원국 안에서 재현되는 강한 구조입니다.',
+  },
 
   // ---------- cross: 요소 교차 해석 (요소 단위로는 나올 수 없는 깊이) ----------
   'saju/cross/gongmang-bigeop': {

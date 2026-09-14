@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/relation/gan-hap-gabgi
+title: 갑기합(甲己合)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 甲己 천간합 — 조직·규범과의 유대가 생기는 결합입니다.
+  medium: 규범·상사·조직과의 끌림이 강합니다. 상황에 따라 협력과 속박 사이에서 결이 바뀌는 지점이니, 관계의 조건을 명확히 두는 게 좋습니다.
+tags: [천간합, 관계]

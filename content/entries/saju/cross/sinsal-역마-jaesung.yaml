@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/sinsal-역마-jaesung
+title: 역마+재성(驛馬財星)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 역마에 재성 — 이동·무역·교통과 결부된 재물 활동이 잘 붙습니다.
+  medium: 움직임의 기운(역마)이 재성과 만나 외부·이동이 포함된 사업에서 수익이 나는 구조입니다. 한자리에 앉아 있는 일보다 움직이는 만큼 기회가 열립니다.
+tags: [신살, 역마, 재성]

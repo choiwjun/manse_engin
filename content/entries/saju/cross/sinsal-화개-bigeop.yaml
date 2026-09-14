@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/sinsal-화개-bigeop
+title: 화개+비겁(華蓋比劫)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 화개에 비겁 — 혼자 파는 학문·기술의 독립 재능입니다.
+  medium: 혼자서 깊이 파는 힘과 자아가 결합해 독립 연구·단독 전문가 형태가 됩니다. 협업보다 독립된 권한이 주어질 때 재능이 제대로 발휘됩니다.
+tags: [신살, 화개, 비겁]

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+id: saju/cross/sinsal-장성-gwansung
+title: 장성+관성(將星官星)
+audience: counselor
+status: linted
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 장성에 관성 — 위계 안에서 리더십이 떠받쳐집니다.
+  medium: 조직의 질서가 주는 자리(장성)에 관성이 겹쳐, 맡은 자리에서 인정받는 리더 형태가 됩니다. 권한이 주어질수록 성과가 커지는 구조입니다.
+tags: [신살, 장성, 관성]

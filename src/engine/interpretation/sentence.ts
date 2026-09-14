@@ -4,6 +4,7 @@
 
 import type { DetectedPattern, PatternSlot } from './types';
 import { PATTERN_REGISTRY } from './registry';
+import { conclusionFor } from './content';
 
 /** 강도 0~1 → 상담 등급 라벨 */
 export function strengthLabel(strength: number): string {
@@ -106,11 +107,20 @@ function flowIntro(p: DetectedPattern): string | null {
 }
 
 function relationIntro(p: DetectedPattern): string | null {
-  const [a, b] = p.slots ?? [];
+  const [a, b, c] = p.slots ?? [];
   const builder = RELATION_INTRO[p.key];
   if (builder) {
     if (!a || !b) return null;
     return builder(a, b);
+  }
+  // 삼합·방합 — slots [생지, 왕지(중지), 묘지(마침지)]
+  if (p.key === 'saju/relation/samhap' || p.key === 'saju/relation/banghap') {
+    if (!a || !b || !c) return null;
+    const name = p.key === 'saju/relation/samhap' ? '삼합' : '방합';
+    const guk = str(p, 'guk');
+    if (!guk) return null;
+    const glyphs = [a.glyph, b.glyph, c.glyph].join('');
+    return `${a.label}(${a.glyph})·${b.label}(${b.glyph})·${c.label}(${c.glyph})로 ${name} ${glyphs} ${guk}을(를) 이루어`;
   }
   // 천간합 5종 — slots [a, b]
   if (p.key.startsWith('saju/relation/gan-hap-') && a && b) {
@@ -236,12 +246,13 @@ function buildIntro(p: DetectedPattern): string | null {
 
 /**
  * 패턴 하나를 상담 등급 문장으로 조립한다.
+ * - 결론형: content DB(body.short) > 레지스트리 conclusion
  * - slots/figures가 충분하면: "{첫형}({짧은 제목}, 강도 {라벨}), {결론형}"
  * - 재료가 부족하면 기존 형식 "{제목}: {defaultText}"로 fallback
  */
 export function renderPattern(p: DetectedPattern): string {
   const meta = PATTERN_REGISTRY[p.key];
-  const conclusion = meta?.conclusion ?? '';
+  const conclusion = conclusionFor(p.key, meta?.conclusion ?? '');
   const intro = buildIntro(p);
   if (!intro || !conclusion) return `${p.title}: ${p.defaultText}`;
   const short = p.title.replace(/\(.*\)\s*$/, '');

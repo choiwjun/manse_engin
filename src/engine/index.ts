@@ -122,6 +122,10 @@ export {
   judgeOhaeng,
   buildTimingNarrative,
   assembleReport,
+  renderReportMarkdown,
+  getContentEntry,
+  contentEntryCount,
+  conclusionFor,
 } from './interpretation';
 export type {
   DetectedPattern,
@@ -142,4 +146,8 @@ export type {
   TimingNarrative,
   TimingVerdict,
   TimingVerdictInfo,
+  RenderReportOptions,
+  ContentEntry,
+  ContentBody,
+  ContentDb,
 } from './interpretation';

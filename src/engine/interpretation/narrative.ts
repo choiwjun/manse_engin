@@ -1,11 +1,11 @@
 // 시점 서사 — 대운(큰 판)×세운(연 판)×월운(조율 지점)을 결합한 문장을 만든다.
 // 상담사의 실전 기술을 시스템화하는 층: 과거 대운 구간은 "확인 질문"으로 표기해
-// 고객 응답으로 역검증할 수 있게 한다.
+// 고객 응답으로 역검증할 수 있게 한다. 세운은 일간 대비 십신까지 명시한다.
 
 import type { SajuResult } from '@/engine/types';
 import { isChildOf, isSanggeukOf } from './sipsin-groups';
-import { josa } from './sentence';
-import { getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';
+import { determineSipsin } from '@/engine/saju/sipsin';
+import { getOhaengForGan, getOhaengForJi, getKoreanForGan, getKoreanForJi } from '@/engine/adapter/hanja-mapper';
 
 /** 용신·기신 축 대비 판정. 대운 detector(timing.ts)와 같은 판정 기준 */
 export type TimingVerdict = 'fit' | 'tension' | 'neutral';
@@ -14,7 +14,7 @@ export interface TimingVerdictInfo {
   verdict: TimingVerdict;
   /** 판정 요약 ('용신 방향', '기신 방향', '중간 오행') */
   label: string;
-  /** 판에 대한 한 문장 */
+  /** 그 판의 성격을 읽는 한 문장 (라벨 제외) */
   line: string;
 }
 
@@ -34,10 +34,11 @@ export interface TimingNarrative {
     ohaeng: string;
     line: string;
   } | null;
-  /** 세운(현재 연 운) — result.seun 기준 */
+  /** 세운(현재 연 운) — result.seun 기준. sipsin = 일간 대비 세운 천간의 십신 */
   sewoon: {
     ganJi: string;
     ohaeng: string;
+    sipsin: string | null;
     verdict: TimingVerdict;
     line: string;
   } | null;
@@ -59,42 +60,33 @@ export function judgeOhaeng(result: SajuResult, ohaeng: string): TimingVerdictIn
   const yongsin = result.yongsin.ohaeng;
   const gisin = result.yongsin.gisin.split('(')[0].trim();
   if (ohaeng === yongsin) {
-    return {
-      verdict: 'fit',
-      label: '용신 방향',
-      line: `용신 ${yongsin} 방향 — 기회 확장·전환이 열리는 판입니다`,
-    };
+    return { verdict: 'fit', label: '용신 방향', line: '기회 확장·전환이 열리는 판입니다' };
   }
   if (ohaeng === gisin) {
-    return {
-      verdict: 'tension',
-      label: '기신 방향',
-      line: `기신 ${gisin} 방향 — 규모 조절과 기반 점검이 맞는 판입니다`,
-    };
+    return { verdict: 'tension', label: '기신 방향', line: '규모 조절과 기반 점검이 맞는 판입니다' };
   }
   if (isChildOf(ohaeng, yongsin) || isSanggeukOf(ohaeng, gisin)) {
-    return {
-      verdict: 'fit',
-      label: '준(準)용신 방향',
-      line: `용신 ${yongsin}${josa(yongsin, '을를')} 돕는 ${ohaeng} 오행 — 간접적으로 순풍이 나는 판입니다`,
-    };
+    return { verdict: 'fit', label: '준(準)용신 방향', line: '간접적으로 순풍이 나는 판입니다' };
   }
   if (isChildOf(ohaeng, gisin) || isSanggeukOf(ohaeng, yongsin)) {
-    return {
-      verdict: 'tension',
-      label: '준(準)기신 방향',
-      line: `기신 ${gisin}을(를) 돕는 ${ohaeng} 오행 — 소모가 늘기 쉬운 판입니다`,
-    };
+    return { verdict: 'tension', label: '준(準)기신 방향', line: '소모가 늘기 쉬운 판입니다' };
   }
   return {
     verdict: 'neutral',
     label: '중간 오행',
-    line: `중간 오행(${ohaeng}) — 판이 크게 열리거나 닫히지 않는 유지·정비 구간입니다`,
+    line: '크게 열리거나 닫히지 않는 유지·정비 구간입니다',
   };
 }
 
 function ohaengOfGanJi(gan: string, ji: string): string {
   return getOhaengForGan(gan) ?? getOhaengForJi(ji) ?? '';
+}
+
+/** 간지 한글 읽기 (예: 丙午 → '병오'). 조사 부착용 — Hanja에는 조사를 붙일 수 없다 */
+function koreanReading(gan: string, ji: string): string {
+  const kGan = getKoreanForGan(gan);
+  const kJi = getKoreanForJi(ji);
+  return kGan && kJi ? `${kGan}${kJi}` : '';
 }
 
 /** 과거 대운을 돌며 예측 사건 유형을 "확인 질문"으로 바꾼다 (상담 역검증 재료).
@@ -130,7 +122,7 @@ export function buildTimingNarrative(result: SajuResult): TimingNarrative {
         ganJi: `${current.gan}${current.ji}`,
         ohaeng: current.ohaeng,
         verdict: daeunInfo.verdict,
-        line: `${current.age}세 무렵 ${current.gan}${current.ji} 대운(${current.ohaeng})${josa(current.ohaeng, '은는')} ${daeunInfo.line}.`,
+        line: `${current.age}세 무렵 ${koreanReading(current.gan, current.ji) || `${current.gan}${current.ji}`}(${current.gan}${current.ji}) 대운은 ${daeunInfo.label} — ${daeunInfo.line}.`,
       }
     : null;
 
@@ -149,11 +141,15 @@ export function buildTimingNarrative(result: SajuResult): TimingNarrative {
     const seunOhaeng = ohaengOfGanJi(result.seun.gan, result.seun.ji);
     if (seunOhaeng) {
       const info = judgeOhaeng(result, seunOhaeng);
+      const sipsin = determineSipsin(result.palja.dayGan, result.seun.gan) || null;
+      const reading = koreanReading(result.seun.gan, result.seun.ji) || `${result.seun.gan}${result.seun.ji}`;
+      const sipsinPart = sipsin ? ` 일간 대비 ${sipsin} 운(${seunOhaeng}),` : '';
       sewoon = {
         ganJi: `${result.seun.gan}${result.seun.ji}`,
         ohaeng: seunOhaeng,
+        sipsin,
         verdict: info.verdict,
-        line: `올해 세운 ${result.seun.gan}${result.seun.ji}(${seunOhaeng})${josa(seunOhaeng, '은는')} ${info.line}.`,
+        line: `올해 ${reading}(${result.seun.gan}${result.seun.ji}) 세운은${sipsinPart} ${info.label} — ${info.line}.`,
       };
     }
   }
