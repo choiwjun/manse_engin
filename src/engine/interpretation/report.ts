@@ -178,6 +178,20 @@ function buildLoveSection(
   });
   lines.push(...renderList(relevant, 3));
 
+  // 강약·격국·대운 맥락 — 연애·배우자 운의 방향을 명식 전체 구조와 연결
+  const dayMasterWeak = meter.dayMaster.verdict === 'weak';
+  const dayMasterStrong = meter.dayMaster.verdict === 'strong';
+  const partnerLabel = opts.gender === 'male' ? '재성' : opts.gender === 'female' ? '관성' : '배우자성';
+  if (dayMasterWeak) {
+    lines.push(`신약한 일간이라 ${partnerLabel}의 자리가 커질수록 감당이 무거워집니다 — 관계가 깊어질수록 체력·시간·정서의 관리가 함께 필요합니다.`);
+  } else if (dayMasterStrong) {
+    lines.push(`신강한 일간이라 ${partnerLabel}의 자리를 감당할 힘이 있습니다 — 관계에서 주도권을 쥐되, 상대의 자리를 존중하는 균형이 중요합니다.`);
+  }
+  const daeunFit = patterns.find((p) => p.key === 'saju/timing/daeun-fit');
+  const daeunTension = patterns.find((p) => p.key === 'saju/timing/daeun-tension');
+  if (daeunFit) lines.push('현재 대운이 용신 방향이라 연애·배우자 관계에서도 순풍이 납니다 — 인연의 폭이 넓어지는 구간입니다.');
+  else if (daeunTension) lines.push('현재 대운이 기신 방향이라 연애·배우자 관계에서 속도 조절이 필요합니다 — 무리한 결정보다 기존 관계의 정비가 우선입니다.');
+
   const headline = `배우자궁 일지 ${dayJiSipsin ? `${dayJiSipsin}(${dayJiGlyph})` : dayJiGlyph} · ${dayJiRelations.length > 0 ? `지지 ${dayJiRelations[0].type} ${dayJiRelations.length}건` : '지지 관계 없음'}`;
   return { axis: 'love', title: AXIS_TITLES.love, headline, lines: dedupe(lines), patterns: relevant };
 }
@@ -299,8 +313,22 @@ function buildHealthSection(
   const gwansungGwada = patterns.find((p) => p.key === 'saju/imbalance/gwansung-gwada');
   if (gwansungGwada) lines.push(renderPattern(gwansungGwada));
 
+  // 강약·조후 맥락 — 체질 관리 방향을 명식 전체 구조와 연결
+  const dayMasterWeak = meter.dayMaster.verdict === 'weak';
+  const dayMasterStrong = meter.dayMaster.verdict === 'strong';
+  if (dayMasterWeak) {
+    lines.push('신약한 일간이라 체력·에너지의 기반이 얇습니다 — 과로·수면 부족·과음이 쌓이면 회복이 느려지므로, 정기적인 충전 루틴이 건강 관리의 핵심입니다.');
+  } else if (dayMasterStrong) {
+    lines.push('신강한 일간이라 체력·에너지의 기반이 두껍습니다 — 다만 과잉된 기운이 과로·과열로 번지기 쉬우니, 휴식과 절제가 건강 관리의 핵심입니다.');
+  }
+  const johuPressure = patterns.find((p) => p.key === 'saju/johu/season-pressure');
+  const johuSupport = patterns.find((p) => p.key === 'saju/johu/season-support');
+  if (johuPressure) lines.push('월지 계절이 일간을 극하는 구조라 환경적 스트레스가 체질에 직접 작용합니다 — 계절·기후 변화에 민감하게 대응하는 것이 좋습니다.');
+  else if (johuSupport) lines.push('월지 계절이 일간을 생하는 구조라 환경의 지원이 체질에 작용합니다 — 계절의 자원(햇빛·기후·음식)을 활용하면 회복이 빠릅니다.');
+
   const headline = `오행 최다 ${top.ohaeng} ${top.percent}%${missing.length > 0 ? ` · 결오행 ${missing.map((m) => m.ohaeng).join('·')}` : ''}`;
-  return { axis: 'health', title: AXIS_TITLES.health, headline, lines: dedupe(lines), patterns: gwansungGwada ? [gwansungGwada] : [] };
+  const healthPatterns = [gwansungGwada, johuPressure, johuSupport].filter((p): p is DetectedPattern => p !== undefined);
+  return { axis: 'health', title: AXIS_TITLES.health, headline, lines: dedupe(lines), patterns: healthPatterns };
 }
 
 function buildFamilySection(

@@ -20,9 +20,37 @@ export interface RenderReportOptions {
 
 const SECTION_ORDER = ['career', 'wealth', 'love', 'health', 'family'] as const;
 
-function patternBody(key: string, level: 'medium' | 'long'): string | null {
+/** content DB 문구의 {변수}를 이 명식의 실제 값으로 치환한다 */
+function fillTemplate(text: string, report: SajuReport): string {
+  const ctx = report.context;
+  if (!ctx) return text;
+  const paljaParts = report.paljaLabel.split(' ');
+  const [yearPillar, monthPillar, dayPillar, hourPillar] = paljaParts;
+  const vars: Record<string, string> = {
+    dayGan: dayPillar?.[0] ?? '',
+    dayJi: dayPillar?.[1] ?? '',
+    monthGan: monthPillar?.[0] ?? '',
+    monthJi: monthPillar?.[1] ?? '',
+    yearGan: yearPillar?.[0] ?? '',
+    yearJi: yearPillar?.[1] ?? '',
+    hourGan: hourPillar?.[0] ?? '',
+    hourJi: hourPillar?.[1] ?? '',
+    gyeokguk: ctx.gyeokguk,
+    gyeokgukGroup: ctx.gyeokgukGroup,
+    yongsin: ctx.yongsin,
+    yongsinGroup: ctx.yongsinGroup,
+    gisin: ctx.gisin,
+    dayMasterVerdict: ctx.dayMasterVerdict,
+    score: String(report.meter.dayMaster.score),
+  };
+  return text.replace(/\{(\w+)\}/g, (m, k: string) => vars[k] ?? m);
+}
+
+function patternBody(key: string, level: 'medium' | 'long', report?: SajuReport): string | null {
   const value = getContentEntry(key)?.body?.[level];
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+  if (typeof value !== 'string' || value.trim().length === 0) return null;
+  const trimmed = value.trim();
+  return report ? fillTemplate(trimmed, report) : trimmed;
 }
 
 /** 이 명식의 맥락 한 줄 — 같은 패턴이어도 격국·용신·강약이 다르면 다른 해석이 되도록 명식별 문장을 붙인다 */
@@ -51,8 +79,8 @@ function addPatternDetail(out: string[], pattern: NonNullable<SajuReport['patter
   out.push(`- 해석: ${renderPattern(pattern)}`);
   const line = contextLine(report, pattern);
   if (line) out.push(`- 이 명식에서: ${line}`);
-  const medium = patternBody(pattern.key, 'medium');
-  const long = includeLong ? patternBody(pattern.key, 'long') : null;
+  const medium = patternBody(pattern.key, 'medium', report);
+  const long = includeLong ? patternBody(pattern.key, 'long', report) : null;
   if (medium) out.push(`- 심층 해설: ${medium}`);
   if (long) out.push(`- 상담용 해설: ${long}`);
   out.push('');
@@ -122,7 +150,7 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
       out.push(`- ${line}`);
     }
     const deepParagraphs = section.patterns
-      .map((p) => ({ title: p.title, long: getContentEntry(p.key)?.body?.long }))
+      .map((p) => ({ title: p.title, long: patternBody(p.key, 'long', report) }))
       .filter((x): x is { title: string; long: string } => typeof x.long === 'string' && x.long.trim().length > 0);
     if (deepParagraphs.length > 0) {
       out.push('');
@@ -142,6 +170,14 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   if (report.timing.wolun) out.push(`### 월운\n\n- ${report.timing.wolun.line}`);
   if (report.timing.next) out.push(`### 다음 대운 전환\n\n- ${report.timing.next.line}`);
   if (report.timing.transition) out.push(`### 전환 시점\n\n- ${report.timing.transition.line}`);
+  if (report.timing.daeunFlow?.length > 0) {
+    out.push('');
+    out.push('### 대운 전체 흐름');
+    out.push('');
+    for (const d of report.timing.daeunFlow) {
+      out.push(`- ${d.line}`);
+    }
+  }
   if (report.timing.lines.length === 0) out.push('- 현재 운의 상세 시점 정보가 없습니다.');
   out.push('');
 

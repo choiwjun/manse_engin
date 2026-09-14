@@ -19,6 +19,15 @@ export interface TimingVerdictInfo {
 }
 
 export interface TimingNarrative {
+  /** 대운 전체 흐름 — 8단계 각각의 나이·간지·오행·판정·한 줄 서사 */
+  daeunFlow: {
+    age: number;
+    ganJi: string;
+    ohaeng: string;
+    verdict: TimingVerdict;
+    line: string;
+    isCurrent: boolean;
+  }[];
   /** 현재 대운 — daeun 중 isCurrent */
   daeun: {
     age: number;
@@ -231,9 +240,24 @@ export function buildTimingNarrative(result: SajuResult, now: Date = new Date())
       ? `큰 판(${daeun.ganJi} 대운, ${daeunInfo?.label}) 위에서 올해(${sewoon.ganJi})는 ${sewoon.verdict === 'fit' ? '순풍' : sewoon.verdict === 'tension' ? '역풍' : '잔잔한'} 구간 — 대운의 방향을 세운이 증폭하거나 누릅니다.`
       : null;
 
+  // 대운 전체 흐름 — 8단계 각각의 서사를 생성한다
+  const daeunFlow = result.daeun.map((d) => {
+    const info = judgeOhaeng(result, d.ohaeng);
+    const reading = koreanReading(d.gan, d.ji) || `${d.gan}${d.ji}`;
+    const currentMark = d.isCurrent ? ' ← 현재' : '';
+    return {
+      age: d.age,
+      ganJi: `${d.gan}${d.ji}`,
+      ohaeng: d.ohaeng,
+      verdict: info.verdict,
+      line: `${d.age}세 ${reading}(${d.gan}${d.ji}) 대운 — ${info.label}: ${info.line}${currentMark}`,
+      isCurrent: d.isCurrent,
+    };
+  });
+
   const lines = [daeun?.line, sewoon?.line, wolun?.line, transition?.line, nextEntry?.line, combined].filter(
     (s): s is string => typeof s === 'string',
   );
 
-  return { daeun, next: nextEntry, sewoon, wolun, transition, checkQuestions, combined, lines };
+  return { daeun, next: nextEntry, sewoon, wolun, transition, checkQuestions, combined, daeunFlow, lines };
 }
