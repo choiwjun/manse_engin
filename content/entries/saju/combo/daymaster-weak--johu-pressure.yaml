@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-weak--johu-pressure
+title: 신약×계절압박(身弱季節壓迫)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 종아격
+  yongsin: 토
+body:
+  short: 태어난 계절이 일간을 누르는 데다 힘마저 약한 구조라, 환경을 바꾸기보다 환경 안에서 버티는 전략이 먼저입니다.
+  medium: 월지 계절이 일간을 극하는데 일간이 신약한 명식입니다. 시기·환경의 압력이 구조적으로 작용하므로, 이를 밀어내려 하기보다 그 안에서 소모를 줄이는 쪽이 현실적입니다. 큰 변화는 계절이 바뀐 뒤로 미루고, 지금은 체력·재정·관계의 기초를 보존하는 데 집중하는 것이 좋습니다.
+tags: [조합, 신약, 조후]

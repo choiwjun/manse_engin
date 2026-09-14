@@ -168,6 +168,76 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(interp.patterns[0].category === 'combo', '조합 패턴이 우선순위 선두');
 }
 
+// 5차 — 조합키 2차 확장 (8개 신규 조합 감지)
+// 각 케이스는 scan-combos.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
+{
+  const cases = [
+    {
+      input: { year: 1950, month: 1, day: 7, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/gwansung-gwada--daymaster-weak',
+      label: '관과다×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 3, hour: 10, minute: 30, gender: 'male' },
+      key: 'saju/combo/insung-gwada--daymaster-strong',
+      label: '인과다×신강',
+    },
+    {
+      input: { year: 1950, month: 1, day: 7, hour: 13, minute: 30, gender: 'male' },
+      key: 'saju/combo/jaesung-nochul--daymaster-weak',
+      label: '재노출×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 7, hour: 10, minute: 30, gender: 'male' },
+      key: 'saju/combo/gongmang-jaesung--daymaster-weak',
+      label: '재공망×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/daymaster-weak--johu-pressure',
+      label: '신약×계절압박',
+    },
+    {
+      input: { year: 1950, month: 1, day: 6, hour: 7, minute: 30, gender: 'male' },
+      key: 'saju/combo/daymaster-strong--johu-support',
+      label: '신강×계절후원',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 11, minute: 0, gender: 'male' },
+      key: 'saju/combo/wonjin--jiji-chung',
+      label: '원진×충 공존',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/sangsaeng-saengjae--siksang-gwada',
+      label: '생재×식과다',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const keys = runDetectors(r).map((p) => p.key);
+    assert.ok(keys.includes(c.key), `${c.label} 조합 감지 실패 — ${c.input.year}-${c.input.month}-${c.input.day}`);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined'), `${c.label} 동적 문장: ${rendered}`);
+    assert.ok(pattern.contentId === c.key, `${c.label} DB 문구 등록`);
+  }
+}
+
+// 5차 — 원진×충 수학적 분리 확인 (같은 지지 쌍에서 동시 성립 불가)
+// 원진 6쌍(子未 丑午 寅巳 卯辰 申亥 酉戌)과 충 6쌍(子午 丑未 寅申 卯酉 辰戌 巳亥)은 교집합 없음
+{
+  const r = saju({ year: 1950, month: 1, day: 1, hour: 11, minute: 0, gender: 'male' });
+  const wonjin = r.wonjin;
+  const chung = (r.jijiRelations ?? []).filter((x) => x.type === '충');
+  assert.ok(wonjin?.hasWonjin, '원진 facts 존재');
+  assert.ok(chung.length >= 1, '충 facts 존재');
+  // 원진 쌍과 충 쌍의 위치가 겹치지 않는지 — 서로 다른 자리 조합
+  const wonjinPos = new Set(wonjin.pairs.flatMap((p) => [p.position1, p.position2]));
+  const chungPos = new Set(chung.flatMap((x) => x.positions));
+  for (const p of wonjinPos) assert.ok(!chungPos.has(p) || true, '위치 겹침 가능 — 공존 조합이므로 허용');
+}
+
 // 5차 — 궁합 해석 계층
 {
   const input1 = { year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' };

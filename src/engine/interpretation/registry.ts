@@ -481,6 +481,78 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'neutral',
     conclusion: '기반이 튼튼해 견디는 힘은 충분하나, 판과 부딪히는 확장은 손해가 크니 유지에 무게를 두세요.',
   },
+  'saju/combo/gwansung-gwada--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '관과다×신약(官多身弱)',
+    defaultText:
+      '과다한 관성(책임·압박)이 얇은 일간 축을 누르는 구조입니다. 번아웃 대비가 최우선이며, 책임을 나눌 통로를 만들어야 합니다.',
+    polarity: 'caution',
+    conclusion: '책임이 능력보다 빨리 커지는 구조로, 번아웃 대비와 책임 분담 통로가 최우선입니다.',
+  },
+  'saju/combo/insung-gwada--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '인과다×신강(印多身强)',
+    defaultText:
+      '넓은 인성의 배움이 두터운 기반 위에 더 쌓이는 구조입니다. 축적은 이미 충분하니, 이론을 실행과 산출로 바꾸는 전환이 성과를 결정합니다.',
+    polarity: 'neutral',
+    conclusion: '축적은 이미 충분하니, 배움을 실행·산출로 바꾸는 전환 속도가 성과를 결정합니다.',
+  },
+  'saju/combo/jaesung-nochul--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '재노출×신약(財露身弱)',
+    defaultText:
+      '노출된 재성이 얇은 기반 앞에 놓인 구조입니다. 기회는 많이 보이지만 감당하는 힘이 먼저 고갈되기 쉬워, 선택과 포기가 실력입니다.',
+    polarity: 'caution',
+    conclusion: '기회는 많이 보이지만 감당하는 힘이 먼저 고갈되기 쉬우니, 선택과 포기가 실력입니다.',
+  },
+  'saju/combo/gongmang-jaesung--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '재공망×신약(財空身弱)',
+    defaultText:
+      '공망으로 빈 재성 자리에 얇은 기반이 겹친 구조입니다. 재물에 대한 집착이 낮은 건 오히려 이득이고, 현금흐름 설계가 자산 설계보다 먼저입니다.',
+    polarity: 'neutral',
+    conclusion: '재물 집착이 낮은 건 이득이지만, 현금흐름 설계를 먼저 잡아두는 게 필요합니다.',
+  },
+  'saju/combo/daymaster-weak--johu-pressure': {
+    category: 'combo',
+    priority: 9,
+    title: '신약×계절압박(身弱季壓)',
+    defaultText:
+      '얇은 일간 축이 계절의 압박까지 겹친 구조입니다. 환경(직장·도시·관계) 선택이 곧 생존 전략이며, 불리한 환경에서 버티는 것보다 맞는 환경으로 옮기는 게 맞습니다.',
+    polarity: 'caution',
+    conclusion: '환경 선택이 곧 전략이 되는 구조로, 버티기보다 맞는 환경으로 옮기는 쪽이 맞습니다.',
+  },
+  'saju/combo/daymaster-strong--johu-support': {
+    category: 'combo',
+    priority: 9,
+    title: '신강×계절후원(身强季扶)',
+    defaultText:
+      '두터운 일간 축에 계절의 후원까지 겹친 구조입니다. 기반·환경이 모두 도와주니 남는 자원을 어디로 내보낼지가 설계의 전부입니다.',
+    polarity: 'plus',
+    conclusion: '기반과 환경이 모두 도와주니, 남는 자원을 어디로 내보낼지가 설계의 전부입니다.',
+  },
+  'saju/combo/wonjin--jiji-chung': {
+    category: 'combo',
+    priority: 9,
+    title: '원진×충(元辰沖)',
+    defaultText:
+      '원진과 충이 한 명식 안에 공존하는 구조입니다. 관계·영역의 마찰이 크고 작게 번갈아 옵니다. 큰 결단보다 주기적 점검과 거리 조절이 유지법입니다.',
+    polarity: 'caution',
+    conclusion: '마찰이 크고 작게 번갈아 오는 구조라, 큰 결단보다 주기적 점검과 거리 조절이 유지법입니다.',
+  },
+  'saju/combo/sangsaeng-saengjae--siksang-gwada': {
+    category: 'combo',
+    priority: 9,
+    title: '생재×식과다(生財食多)',
+    defaultText:
+      '생재의 흐름이 살아 있지만 식상이 과다해 관심사가 산으로 흩어집니다. 흐름 자체는 좋으니, 어느 기술 하나를 골라 깊게 파는지가 수입 규모를 정합니다.',
+    polarity: 'caution',
+    conclusion: '흐름 자체는 좋으니, 어느 기술 하나를 골라 깊게 파는지가 수입 규모를 정합니다.',
+  },
 
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {

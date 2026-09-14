@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-strong--johu-support
+title: 신강×계절후원(身强季節後援)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 6
+  hour: 7
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁辛壬
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 태어난 계절이 일간을 돕는 데다 힘도 넉넉한 구조라, 이 시기의 확장은 과감하게 가져가도 무리가 적습니다.
+  medium: 월지 계절이 일간을 생하고 일간이 신강한 명식입니다. 환경과 힘이 같은 방향으로 작용하는 구조라, 평소보다 큰 결정·확장·도전이 이 시기에는 버틸 만한 수준으로 들어옵니다. 다만 계절이 바뀌면 후원이 빠지므로, 이 구간의 성과를 다음 국면의 자산으로 옮겨 두는 설계가 좋습니다.
+tags: [조합, 신강, 조후]

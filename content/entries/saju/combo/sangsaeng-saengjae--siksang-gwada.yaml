@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-saengjae--siksang-gwada
+title: 생재×식과다(生財食傷過多)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 종아격
+  yongsin: 토
+body:
+  short: 재물을 만드는 흐름은 있는데 그 재료가 과다한 구조라, 만드는 양보다 걸러내는 기준을 세우는 것이 수익의 질을 가릅니다.
+  medium: 식상생재 구조가 있는데 식상이 과다한 명식입니다. 아이디어·표현·생산이 넘쳐 재물로 흐르는 파이프는 있으나, 재료가 많아 오히려 선택이 흐려지기 쉽습니다. 만드는 양을 늘리기보다 어떤 것을 재물로 연결할지 걸러내는 기준을 세우면, 이 구조의 생산성이 수익으로 이어집니다.
+tags: [조합, 식상, 재성]

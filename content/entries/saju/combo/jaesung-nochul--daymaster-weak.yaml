@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jaesung-nochul--daymaster-weak
+title: 재노출×신약(財露出身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 7
+  hour: 13
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁壬丁
+  gyeokguk: 정관격
+  yongsin: 금
+body:
+  short: 재물이 겉으로 드러나 있는데 감당할 힘이 부족한 구조라, 보이는 기회보다 감당 가능한 규모를 먼저 재는 것이 안전합니다.
+  medium: 재성이 천간에 노출되어 있는데 일간이 신약한 명식입니다. 돈·기회·욕심이 눈에 띄게 많아 보여도, 실제로 쥘 수 있는 힘이 따라가지 못합니다. 규모를 키우기보다 회수율과 보존을 먼저 설계하는 것이 이 구조의 현실적인 대응입니다.
+tags: [조합, 재성, 신약]
