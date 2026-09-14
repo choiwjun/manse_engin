@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-saengjae--daeun-fit
+title: 생재×용신운(生財用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 2
+  day: 7
+  hour: 13
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 庚戊庚癸
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 재물을 만드는 흐름이 살아 있는데 대운마저 용신 방향입니다. 흐름과 시기가 같은 방향을 가리키는 구간이라, 재물 쪽 결정은 이 구간에서 크게 가져가도 무리가 적습니다.
+  medium: 식상생재 구조가 있는데 현재 대운이 용신 방향인 명식입니다. 재물을 만드는 흐름과 시기가 같은 방향을 가리키는 구간이라, 재물 쪽 결정·확장·투자는 이 구간에서 크게 가져가도 버틸 만합니다. 다만 대운이 바뀌면 방향이 달라지므로, 이 구간의 성과를 다음 국면의 자산으로 옮겨 두는 설계가 좋습니다.
+tags: [조합, 재성, 대운, 용신]

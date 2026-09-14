@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-weak--seun-fit
+title: 신약×세운용신(身弱歲運用神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 28
+  hour: 22
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁庚丁
+  gyeokguk: 정인격
+  yongsin: 화
+body:
+  short: 일간이 약한데 세운이 용신 방향입니다. 약한 몸에 연운의 도움이 오는 구간이라, 올해의 결정은 평소보다 조금 크게 가져가도 버틸 만합니다.
+  medium: 일간이 신약한데 올해 세운이 용신 방향인 명식입니다. 약한 기반에 연운의 도움이 오는 구간이라, 올해의 결정·도전·확장은 평소보다 조금 크게 가져가도 버틸 만합니다. 다만 세운은 1년 단위이므로, 이 구간의 성과를 내년 이후의 자산으로 옮겨 두는 설계가 좋습니다.
+tags: [조합, 신약, 세운, 용신]

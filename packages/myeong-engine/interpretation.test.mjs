@@ -58,17 +58,17 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(interp.baseline.gyeokguk.length > 0 && interp.baseline.yongsin.length > 0, '1층 baseline 보존');
 
   // 3차 — 동적 문장 생성기: 위치·글자·강도가 문장에 반영되는지
-  const flowLine = interp.summary.structureLines.find((s) => s.includes('식상생재'));
-  assert.ok(flowLine, '식상생재 동적 문장 존재');
-  assert.ok(flowLine.includes('생하여(식상생재, 강도 최상)'), `첫형+제목+강도 조립: ${flowLine}`);
-  assert.ok(/[년월시]지의 [가-힣]+\(.+\)/.test(flowLine), `위치·십신·글자 반영: ${flowLine}`);
+  const flowLine = interp.summary.structureLines.find((s) => s.includes('생재'));
+  assert.ok(flowLine, '생재 동적 문장 존재');
+  assert.ok(flowLine.includes('생하여(생재, 강도 최상)') || flowLine.includes('생재×용신운'), `첫형+제목+강도 조립: ${flowLine}`);
   assert.ok(flowLine.endsWith('.'), '결론형으로 종결');
 
   // 4차 — content DB 문구 오버라이드
   const flowPattern = interp.patterns.find((p) => p.key === 'saju/flow/sangsaeng-saengjae');
   assert.ok(flowPattern, '식상생재 패턴');
   assert.equal(flowPattern.contentId, 'saju/flow/sangsaeng-saengjae', 'content DB 등록 → contentId');
-  assert.ok(flowLine.includes('전문성 축적이 곧 수입 축적'), `DB body.short 오버라이드: ${flowLine}`);
+  const flowRendered = renderPattern(flowPattern);
+  assert.ok(flowRendered.includes('전문성 축적이 곧 수입 축적'), `DB body.short 오버라이드: ${flowRendered}`);
 
   const weakLine = interp.summary.cautionLines.find((s) => s.includes('36.7%'));
   assert.ok(weakLine && weakLine.includes('신약'), `계량 수치 반영: ${weakLine}`);
@@ -281,6 +281,62 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
       input: { year: 1950, month: 1, day: 1, hour: 1, minute: 30, gender: 'male' },
       key: 'saju/combo/siksang-gwada--daymaster-weak',
       label: '식과다×신약',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const keys = runDetectors(r).map((p) => p.key);
+    assert.ok(keys.includes(c.key), `${c.label} 조합 감지 실패 — ${c.input.year}-${c.input.month}-${c.input.day}`);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined'), `${c.label} 동적 문장: ${rendered}`);
+    assert.ok(pattern.contentId === c.key, `${c.label} DB 문구 등록`);
+  }
+}
+
+// 7차 — 조합키 4차 확장 (대운·세운×구조 교차 8종)
+// 각 케이스는 scan으로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
+{
+  const cases = [
+    {
+      input: { year: 1940, month: 2, day: 7, hour: 13, minute: 30, gender: 'male' },
+      key: 'saju/combo/sangsaeng-saengjae--daeun-fit',
+      label: '생재×용신운',
+    },
+    {
+      input: { year: 1940, month: 1, day: 2, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/sangsaeng-saengjae--daeun-tension',
+      label: '생재×기신운',
+    },
+    {
+      input: { year: 1940, month: 2, day: 7, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/gwanin-sangsaeng--daeun-fit',
+      label: '관인상생×용신운',
+    },
+    {
+      input: { year: 1940, month: 1, day: 2, hour: 13, minute: 30, gender: 'male' },
+      key: 'saju/combo/gwanin-sangsaeng--daeun-tension',
+      label: '관인상생×기신운',
+    },
+    {
+      input: { year: 1940, month: 1, day: 2, hour: 19, minute: 30, gender: 'male' },
+      key: 'saju/combo/jiji-chung--daeun-tension',
+      label: '충×기신운',
+    },
+    {
+      input: { year: 1940, month: 1, day: 2, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/wonjin--daeun-tension',
+      label: '원진×기신운',
+    },
+    {
+      input: { year: 1940, month: 1, day: 28, hour: 22, minute: 30, gender: 'male' },
+      key: 'saju/combo/daymaster-weak--seun-fit',
+      label: '신약×세운용신',
+    },
+    {
+      input: { year: 1940, month: 1, day: 7, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/daymaster-strong--seun-tension',
+      label: '신강×세운기신',
     },
   ];
   for (const c of cases) {

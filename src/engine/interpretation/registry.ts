@@ -628,6 +628,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '만드는 양을 줄이고 완성도를 높이는 쪽이 균형입니다.',
   },
 
+  // ---------- combo 4차: 흐름×대운 / 관계×대운 / 강약×세운 ----------
+  'saju/combo/sangsaeng-saengjae--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '생재×용신운(生財用神運)',
+    defaultText:
+      '재물을 만드는 흐름이 살아 있는데 대운마저 용신 방향입니다. 흐름과 시기가 같은 방향을 가리키는 구간이라, 재물 쪽 결정은 이 구간에서 크게 가져가도 무리가 적습니다.',
+    polarity: 'plus',
+    conclusion: '흐름과 시기가 같은 방향을 가리키는 구간으로, 재물 쪽 결정은 크게 가져가도 무리가 적습니다.',
+  },
+  'saju/combo/sangsaeng-saengjae--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '생재×기신운(生財忌神運)',
+    defaultText:
+      '재물을 만드는 흐름은 있으나 대운이 기신 방향입니다. 흐름과 시기가 어긋나는 구간이라, 재물 쪽 확장은 보류하고 기존 흐름의 질을 다지는 것이 우선입니다.',
+    polarity: 'caution',
+    conclusion: '흐름과 시기가 어긋나는 구간으로, 재물 확장보다 기존 흐름의 질을 다지는 것이 우선입니다.',
+  },
+  'saju/combo/gwanin-sangsaeng--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '관인상생×용신운(官印相生用神運)',
+    defaultText:
+      '권위와 학습이 서로 돕는 흐름에 대운이 용신 방향입니다. 제도·조직·자격의 단계를 밟는 데 시기까지 맞물린 구간이라, 승진·자격·진학 같은 계단식 도전이 유리합니다.',
+    polarity: 'plus',
+    conclusion: '제도·조직·자격의 단계를 밟는 데 시기까지 맞물린 구간입니다.',
+  },
+  'saju/combo/gwanin-sangsaeng--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '관인상생×기신운(官印相生忌神運)',
+    defaultText:
+      '권위와 학습의 흐름은 있으나 대운이 기신 방향입니다. 제도·조직의 단계를 밟는 데 시기가 어긋나는 구간이라, 승진·자격 도전은 보류하고 실력 축적에 집중하는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '제도·조직의 단계를 밟는 데 시기가 어긋나는 구간으로, 실력 축적에 집중하는 것이 좋습니다.',
+  },
+  'saju/combo/jiji-chung--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '충×기신운(沖忌神運)',
+    defaultText:
+      '충의 마찰이 있는데 대운이 기신 방향입니다. 마찰이 무거운 시기에 겹치는 구간이라, 관계·영역의 충돌을 피하기보다 주기를 파악하고 미리 거리를 두는 것이 유지법입니다.',
+    polarity: 'caution',
+    conclusion: '마찰이 무거운 시기에 겹치는 구간으로, 주기를 파악하고 미리 거리를 두는 것이 유지법입니다.',
+  },
+  'saju/combo/wonjin--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '원진×기신운(怨嗔忌神運)',
+    defaultText:
+      '원진의 속마찰이 있는데 대운이 기신 방향입니다. 겉으로 드러나지 않는 마찰이 무거운 시기에 겹치는 구간이라, 관계의 큰 결단보다 정기적 점검과 거리 조절이 중요합니다.',
+    polarity: 'caution',
+    conclusion: '겉으로 드러나지 않는 마찰이 무거운 시기에 겹치는 구간입니다.',
+  },
+  'saju/combo/daymaster-weak--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '신약×세운용신(身弱歲運用神)',
+    defaultText:
+      '일간이 약한데 세운이 용신 방향입니다. 약한 몸에 연운의 도움이 오는 구간이라, 올해의 결정은 평소보다 조금 크게 가져가도 버틸 만합니다.',
+    polarity: 'plus',
+    conclusion: '약한 몸에 연운의 도움이 오는 구간으로, 올해의 결정은 평소보다 조금 크게 가져가도 됩니다.',
+  },
+  'saju/combo/daymaster-strong--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '신강×세운기신(身强歲運忌神)',
+    defaultText:
+      '일간이 강한데 세운이 기신 방향입니다. 강한 힘에 연운의 압박이 오는 구간이라, 올해는 확장보다 기존 것의 정리와 보존이 우선입니다.',
+    polarity: 'caution',
+    conclusion: '강한 힘에 연운의 압박이 오는 구간으로, 확장보다 정리와 보존이 우선입니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

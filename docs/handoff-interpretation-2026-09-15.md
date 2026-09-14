@@ -33,3 +33,16 @@
 - `packages/myeong-engine/scan-combos.mjs` — combo 발화 sampleBirth 탐색 도구 (재사용 가능)
 - `content/entries/saju/combo/` — YAML 16건 (기존 8 + 신규 8)
 - `src/engine/interpretation/detectors/combos.ts` — detector 간 결합 방지 원칙 유지 (원시 조건 직접 판정)
+
+## 7차 추가 — 조합키 3차 확장 (66→74키)
+
+- `jaesaeng-gwan--daymaster-weak` (재생관×신약)
+- `sangsaeng-jesal--daymaster-strong` (식상제살×신강)
+- `ohaeng-missing--daymaster-weak` (오행결핍×신약)
+- `jiji-chung--daymaster-weak` (충×신약)
+- `bigeop-gwada--daymaster-weak` (비겁과다×신약)
+- `gwanin-sangsaeng--daymaster-strong` (관인상생×신강)
+- `gongmang-gwansung--daymaster-weak` (관공망×신약)
+- `siksang-gwada--daymaster-weak` (식과다×신약)
+
+검증: `npm test` 전체 통과, `content:validate OK — 엔트리 74건 통과 (레지스트리 74키 중 미작성 0키)`

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-strong--seun-tension
+title: 신강×세운기신(身强歲運忌神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 7
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁己丙
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 일간이 강한데 세운이 기신 방향입니다. 강한 힘에 연운의 압박이 오는 구간이라, 올해는 확장보다 기존 것의 정리와 보존이 우선입니다.
+  medium: 일간이 신강한데 올해 세운이 기신 방향인 명식입니다. 강한 힘에 연운의 압박이 오는 구간이라, 올해는 새로운 확장·도전·규모 확대보다 기존 것의 정리·보존·점검이 우선입니다. 강한 힘을 압박이 오는 방향으로 쓰기보다, 그 힘을 기존 것을 지키는 쪽으로 돌리는 것이 이 구간의 활용입니다.
+tags: [조합, 신강, 세운, 기신]

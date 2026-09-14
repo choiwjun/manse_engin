@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gwanin-sangsaeng--daeun-tension
+title: 관인상생×기신운(官印相生忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 2
+  hour: 13
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙甲辛
+  gyeokguk: 정인격
+  yongsin: 금
+body:
+  short: 권위와 학습의 흐름은 있으나 대운이 기신 방향입니다. 제도·조직의 단계를 밟는 데 시기가 어긋나는 구간이라, 승진·자격 도전은 보류하고 실력 축적에 집중하는 것이 좋습니다.
+  medium: 관성과 인성이 서로를 돕는 흐름은 있으나 현재 대운이 기신 방향인 명식입니다. 제도·조직·자격의 단계를 밟는 데 시기가 어긋나는 구간입니다. 승진·자격·진학 같은 공식적인 도전은 보류하고, 실력·인맥·준비를 축적하는 쪽이 이 구간의 현실적인 대응입니다.
+tags: [조합, 관성, 인성, 대운, 기신]
