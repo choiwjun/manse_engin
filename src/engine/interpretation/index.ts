@@ -31,7 +31,7 @@ export { runAllDetectors, DETECTORS } from './detectors';
 export { renderPattern, strengthLabel, josa } from './sentence';
 export { judgeOhaeng, buildTimingNarrative } from './narrative';
 export { assembleReport } from './report';
-export { renderReportMarkdown, renderCompatibilityMarkdown, type RenderReportOptions } from './markdown';
+export { renderReportMarkdown, renderCompatibilityMarkdown, renderNamingMarkdown, renderTaekilMarkdown, type RenderReportOptions } from './markdown';
 export { getContentEntry, contentEntryCount, conclusionFor, type ContentEntry, type ContentBody, type ContentDb } from './content';
 export {
   interpretCompatibility,
@@ -39,3 +39,15 @@ export {
   type CompatibilityLine,
   type InterpretCompatibilityOptions,
 } from './compatibility';
+export {
+  interpretName,
+  interpretNaming,
+  type NamingInterpretation,
+  type NamingLine,
+  type InterpretNamingOptions,
+} from './naming';
+export {
+  interpretTaekil,
+  type TaekilInterpretation,
+  type TaekilLine,
+} from './taekil';

@@ -12,6 +12,12 @@ import {
   renderReportMarkdown,
   renderCompatibilityMarkdown,
   interpretCompatibility,
+  analyzeNames,
+  interpretNaming,
+  renderNamingMarkdown,
+  getCalendarDay,
+  interpretTaekil,
+  renderTaekilMarkdown,
   calculateCompatibility,
   PATTERN_REGISTRY,
 } from './dist/index.js';
@@ -366,6 +372,50 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const md = renderCompatibilityMarkdown(compat, n, { nameA: '남편', nameB: '아내' });
   assert.ok(md.startsWith('# 궁합 리포트 — 남편 × 아내'), '궁합 문서 헤더');
   assert.ok(md.includes('## 관계 구조') && md.includes('## 운영 가이드'), '궁합 문서 섹션');
+}
+
+// 5차-후속 — 작명 해석 계층
+{
+  const result = analyzeNames('김', ['민준', '서준', '도현']);
+  const narratives = interpretNaming(result);
+  assert.equal(narratives.length, 3, '후보 수만큼 해석 생성');
+  for (const n of narratives) {
+    assert.ok(n.headline.includes('점'), `작명 헤드라인에 점수: ${n.headline}`);
+    assert.ok(n.lines.length >= 3, `해석 라인 부족: ${n.headline}`);
+    assert.ok(n.lines.every((l) => l.label.length > 0 && l.text.length > 10), `빈 해석 라인: ${n.headline}`);
+    assert.ok(n.guidance.length >= 1, `가이드 없음: ${n.headline}`);
+    assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
+  }
+  const md = renderNamingMarkdown(result, narratives);
+  assert.ok(md.startsWith('# 작명 리포트'), '작명 문서 헤더');
+  assert.ok(md.includes('## 1. 김민준') && md.includes('**강점**'), '작명 문서 섹션');
+}
+
+// 5차-후속 — 택일 해석 계층
+{
+  const day = getCalendarDay(2026, 9, 15);
+  const n = interpretTaekil(day);
+  assert.ok(n.headline.includes('2026-09-15') && n.headline.includes('위일'), `택일 헤드라인: ${n.headline}`);
+  assert.ok(n.lines.some((l) => l.label === '십이직'), '십이직 라인');
+  assert.ok(n.lines.some((l) => l.label === '일진 오행'), '일진 오행 라인');
+  assert.ok(n.guidance.length >= 1, '가이드 생성');
+  assert.ok(n.avoid.length > 0, '흉일은 피할 일 목록');
+  assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
+  const md = renderTaekilMarkdown(day, n);
+  assert.ok(md.startsWith('# 택일 리포트'), '택일 문서 헤더');
+  assert.ok(md.includes('## 이 날에 피할 일') && md.includes('## 운영 가이드'), '택일 문서 섹션');
+
+  // 길일 케이스 — 십이직 순회로 길일 하나를 찾아 suited 목록 확인
+  let gilFound = false;
+  for (let d = 1; d <= 28 && !gilFound; d += 1) {
+    const dd = getCalendarDay(2026, 9, d);
+    if (dd.gilhyung === '길') {
+      const nn = interpretTaekil(dd);
+      assert.ok(nn.suited.length > 0, `길일 ${dd.solarDate}은 맞는 일 목록이 있어야 함`);
+      gilFound = true;
+    }
+  }
+  assert.ok(gilFound, '9월 내 길일 존재');
 }
 
 // 4) 계약 일관성 — 다양한 출생에서 (a) 모든 키가 레지스트리에 등록 (b) 강도 0~1 (c) 골든 문구 존재

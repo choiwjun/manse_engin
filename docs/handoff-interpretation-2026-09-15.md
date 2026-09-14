@@ -119,3 +119,22 @@
 **설계 메모** — 십신 쌍(식상×관성 상극, 재성×인성 상극)×강약, 삼합·파×대운, 공망×세운, 결핍×기신운까지 주요 조합 축을 대부분 소화했다. 이제 남은 건 `banghap×운`, `hyeong/hae/pa×세운`, 십신 쌍×운 등 점점 드문 조합 — 수익 체감 구간 진입. 다음 단계로 작명·택일 해석 계층 착수를 권한다.
 
 검증: `npm test` 전체 통과, `content:validate OK — 엔트리 114건 통과 (레지스트리 114키 중 미작성 0키)`
+
+## 13차 추가 — 작명·택일 해석 계층 착수 (MVP 3·4)
+
+조합키 114키까지 확장 후, 마스터 핸드오프 §5 우선순위 2·3번(작명·택일 해석)으로 전환.
+
+**작명 해석** (`src/engine/interpretation/naming.ts`)
+- `interpretName(analysis, surname)` — 단일 `NamingAnalysis` → `NamingInterpretation` (headline/lines/strengths/cautions/guidance)
+- `interpretNaming(result)` — `NamingResult` 후보 전체 → `NamingInterpretation[]`
+- 해석 축: 사격 흐름(원형이정 4격 길흉 분포), 오행 조화(발음오행 상생/상극), 수리오행(편중 여부), 총점 등급(상~하)
+- `renderNamingMarkdown` — 후보별 섹션(강점·주의·가이드)으로 마크다운 문서 생성
+
+**택일 해석** (`src/engine/interpretation/taekil.ts`)
+- `interpretTaekil(day)` — `CalendarDay` → `TaekilInterpretation` (headline/lines/suited/avoid/guidance)
+- 십이직 12종 상세 해석표(`SINSAL_DETAIL`) — 각 일의 맞는 일·피할 일·운영 노트
+- `renderTaekilMarkdown` — 날짜·십이직·택일·오행·절기 + 맞는 일/피할 일/운영 가이드 문서
+
+**설계 메모** — 궁합 해석의 패턴(lines/strengths·cautions/guidance → markdown)을 그대로 적용. 작명은 계산 결과(수리·오행·점수)를 해석 문장으로, 택일은 십이직·길흉·택일 정보를 운영 가이드로 확장. 조사 오류(`진를`→`진을`)는 `josa` 헬퍼로 해결.
+
+검증: `npm test` 전체 통과 (작명·택일 테스트 추가), `content:validate OK — 114키`
