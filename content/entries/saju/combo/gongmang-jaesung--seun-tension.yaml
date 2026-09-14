@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gongmang-jaesung--seun-tension
+title: 재공망×세운기신(財空亡歲運忌神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 2
+  day: 2
+  hour: 22
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁戊癸
+  gyeokguk: 겁재격
+  yongsin: 금
+body:
+  short: 재성 자리가 공망인데 세운이 기신 방향입니다. 재물의 실체가 비어 있는 구조에 연운이 어긋나는 해라, 올해는 재물 쪽 기대를 크게 낮추고 보이는 수치보다 실제 회수 가능성을 먼저 따지는 것이 좋습니다.
+  medium: 재성 자리에 공망이 걸린 명식에 올해 세운이 기신 방향입니다. 재물의 실체가 비어 있는 구조에 연운이 어긋나는 해라, 보이는 수치나 약속된 금액이 실제로는 비어 있기 쉽습니다. 올해는 재물 쪽 기대를 크게 낮추고, 장부상 숫자보다 실제 회수 가능성과 현금 유동성을 먼저 따지는 것이 유지법입니다.
+tags: [조합, 공망, 재성, 세운, 기신]

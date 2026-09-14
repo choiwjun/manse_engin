@@ -104,3 +104,18 @@
 **설계 메모** — 공망×운(재·관 자리 공망 + 기신운)과 지지 합·형·해×운, 강약×조후 잔여 축을 채웠다. 조합키가 늘며 골든 케이스에서 `당령`(johu) 라인이 `structureLines` 상한(6)을 또 밀려나는 문제가 재발해, 회귀 테스트를 summary 캡 단언에서 `interp.patterns` 직접 단언으로 바꿨다 — 캡과 무관하게 detector 발화 자체를 검증하는 쪽이 확장에 강하다.
 
 검증: `npm test` 전체 통과, `content:validate OK — 엔트리 106건 통과 (레지스트리 106키 중 미작성 0키)`
+
+## 12차 추가 — 조합키 8차 확장 (106→114키)
+
+- `siksang-gwansung--daymaster-strong` (식상제관×신강)
+- `jaesung-insung--daymaster-weak` (재인상극×신약)
+- `samhap--daeun-fit` (삼합×용신운)
+- `samhap--daeun-tension` (삼합×기신운)
+- `jiji-pa--daeun-tension` (파×기신운)
+- `gongmang-jaesung--seun-tension` (재공망×세운기신)
+- `gongmang-gwansung--seun-tension` (관공망×세운기신)
+- `ohaeng-missing--daeun-tension` (오행결핍×기신운)
+
+**설계 메모** — 십신 쌍(식상×관성 상극, 재성×인성 상극)×강약, 삼합·파×대운, 공망×세운, 결핍×기신운까지 주요 조합 축을 대부분 소화했다. 이제 남은 건 `banghap×운`, `hyeong/hae/pa×세운`, 십신 쌍×운 등 점점 드문 조합 — 수익 체감 구간 진입. 다음 단계로 작명·택일 해석 계층 착수를 권한다.
+
+검증: `npm test` 전체 통과, `content:validate OK — 엔트리 114건 통과 (레지스트리 114키 중 미작성 0키)`

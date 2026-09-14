@@ -880,5 +880,142 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     });
   }
 
+  // ---------- 8차 확장: 십신 쌍×강약 / 삼합·방합·파×운 / 공망×세운 / 결핍×기신운 ----------
+
+  // 식상제관×신강 — 식상이 관성을 극하는 구조인데 일간이 강함
+  if (counts.siksang >= 1 && counts.gwansung >= 1 && strong) {
+    patterns.push({
+      key: 'saju/combo/siksang-gwansung--daymaster-strong',
+      strength: 0.6,
+      evidence: [...meterEvidence, `식상 ${counts.siksang}·관성 ${counts.gwansung} + 신강`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: [
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang'),
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'gwansung'),
+      ].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 재인상극×신약 — 재성·인성이 공존하는데 일간이 약함 (재성이 인성을 극함)
+  if (counts.jaesung >= 1 && counts.insung >= 1 && weak) {
+    patterns.push({
+      key: 'saju/combo/jaesung-insung--daymaster-weak',
+      strength: 0.6,
+      evidence: [...meterEvidence, `재성 ${counts.jaesung}·인성 ${counts.insung} + 신약`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: [
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'jaesung'),
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'insung'),
+      ].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  const samhapRelations = (result.jijiRelations ?? []).filter((r) => r.type === '삼합');
+  const paRelations = (result.jijiRelations ?? []).filter((r) => r.type === '파');
+
+  // 삼합×용신운 — 삼합이 있는데 대운이 용신
+  if (samhapRelations.length > 0 && daeunFit) {
+    patterns.push({
+      key: 'saju/combo/samhap--daeun-fit',
+      strength: 0.65,
+      evidence: [
+        ...meterEvidence,
+        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 용신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: samhapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 삼합×기신운 — 삼합이 있는데 대운이 기신
+  if (samhapRelations.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/samhap--daeun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: samhapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 파×기신운 — 지지 파가 있는데 대운이 기신
+  if (paRelations.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-pa--daeun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `파 ${paRelations.length}건 — ${paRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: paRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 재공망×세운기신 — 재성 자리 공망인데 세운이 기신
+  if (gongmangJaeSlots.length > 0 && seunTension) {
+    patterns.push({
+      key: 'saju/combo/gongmang-jaesung--seun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `공망 ${result.gongmang!.join('·')} — 재성 자리 ${gongmangJaeSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: gongmangJaeSlots.map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 관공망×세운기신 — 관성 자리 공망인데 세운이 기신
+  if (gongmangGwanSlots.length > 0 && seunTension) {
+    patterns.push({
+      key: 'saju/combo/gongmang-gwansung--seun-tension',
+      strength: 0.55,
+      evidence: [
+        ...meterEvidence,
+        `공망 ${result.gongmang!.join('·')} — 관성 자리 ${gongmangGwanSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: gongmangGwanSlots.map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 오행결핍×기신운 — 결핍 오행이 있는데 대운이 기신
+  if (missingOhaeng.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/ohaeng-missing--daeun-tension',
+      strength: 0.6,
+      evidence: [...meterEvidence, `결핍 오행 ${missingOhaeng.join('·')} + 기신 대운`],
+      figures: { dayMasterScore: meter.dayMaster.score, missing: missingOhaeng.join('·') },
+    });
+  }
+
   return patterns;
 }

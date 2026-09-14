@@ -924,6 +924,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '강한 힘에 계절의 제동이 걸리는 구조로, 환경이 허락하는 범위 안에서 움직이는 것이 맞습니다.',
   },
 
+  // ---------- combo 8차: 십신 쌍×강약 / 삼합·파×운 / 공망×세운 / 결핍×기신운 ----------
+  'saju/combo/siksang-gwansung--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '식상제관×신강(食傷制官身强)',
+    defaultText:
+      '식상이 관성을 제어하는 구조인데 일간이 강합니다. 규범·권위를 실력으로 다루는 힘이 있는 구조라, 조직 안에서도 자기 방식으로 결과를 내기 쉽습니다. 다만 관성을 너무 누르면 제도권의 지지를 잃을 수 있으니 적정선을 지키는 것이 좋습니다.',
+    polarity: 'plus',
+    conclusion: '규범을 실력으로 다루는 힘이 있는 구조로, 관성을 너무 누르지 않는 적정선이 중요합니다.',
+  },
+  'saju/combo/jaesung-insung--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '재인상극×신약(財印相剋身弱)',
+    defaultText:
+      '재성과 인성이 공존하는데 일간이 약합니다. 재물을 좇으면 배움이 흔들리고, 배움에 머물면 재물이 멀어지는 구조라, 둘을 동시에 잡으려 하기보다 시기를 나눠 번갈아 가는 것이 현실적입니다.',
+    polarity: 'caution',
+    conclusion: '재물과 배움이 서로를 극하는 구조로, 동시에 잡기보다 시기를 나누는 것이 현실적입니다.',
+  },
+  'saju/combo/samhap--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '삼합×용신운(三合用神運)',
+    defaultText:
+      '삼합의 결속이 있는데 대운이 용신 방향입니다. 세 자리가 한 방향으로 묶인 힘이 시기의 도움을 받는 구간이라, 팀·조직·연합처럼 여럿이 묶이는 결정이 이 시기에 크게 작동합니다.',
+    polarity: 'plus',
+    conclusion: '세 자리의 결속이 시기의 도움을 받는 구간으로, 여럿이 묶이는 결정이 크게 작동합니다.',
+  },
+  'saju/combo/samhap--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '삼합×기신운(三合忌神運)',
+    defaultText:
+      '삼합의 결속이 있는데 대운이 기신 방향입니다. 세 자리가 한 방향으로 묶인 힘이 시기와 어긋나는 구간이라, 팀·조직·연합의 결속이 오히려 기신 쪽으로 기울기 쉬우니 묶인 판의 방향을 점검하는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '세 자리의 결속이 시기와 어긋나는 구간으로, 묶인 판의 방향을 점검하는 것이 좋습니다.',
+  },
+  'saju/combo/jiji-pa--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '파×기신운(破忌神運)',
+    defaultText:
+      '지지 파가 있는데 대운이 기신 방향입니다. 깨짐·파열의 마찰이 시기의 무게와 겹치는 구간이라, 관계·자리·약속이 갑자기 깨지기 쉬우니 중요한 결합은 이 시기를 피하거나 이탈 조항을 미리 정해두는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '깨짐의 마찰이 시기의 무게와 겹치는 구간으로, 중요한 결합은 이탈 조항을 미리 정해두는 것이 좋습니다.',
+  },
+  'saju/combo/gongmang-jaesung--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '재공망×세운기신(財空亡歲運忌神)',
+    defaultText:
+      '재성 자리가 공망인데 세운이 기신 방향입니다. 재물의 실체가 비어 있는 구조에 연운이 어긋나는 해라, 올해는 재물 쪽 기대를 크게 낮추고 보이는 수치보다 실제 회수 가능성을 먼저 따지는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '재물의 실체가 비어 있는 구조에 연운이 어긋나는 해로, 실제 회수 가능성을 먼저 따집니다.',
+  },
+  'saju/combo/gongmang-gwansung--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '관공망×세운기신(官空亡歲運忌神)',
+    defaultText:
+      '관성 자리가 공망인데 세운이 기신 방향입니다. 지위·규범의 자리가 비어 있는 구조에 연운이 어긋나는 해라, 올해는 명분·직책·조직의 약속이 실체 없이 흐르기 쉬우니 문서로 확인받는 것이 우선입니다.',
+    polarity: 'caution',
+    conclusion: '지위의 자리가 비어 있는 구조에 연운이 어긋나는 해로, 문서 확인이 우선입니다.',
+  },
+  'saju/combo/ohaeng-missing--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '오행결핍×기신운(五行缺乏忌神運)',
+    defaultText:
+      '오행 분포에 결핍이 있는데 대운이 기신 방향입니다. 비어 있는 축을 기신운이 더 비우는 구간이라, 결핍 오행에 해당하는 영역(관계·재물·지위·배움)에서 공백이 커지기 쉬우니 그 축을 의식적으로 보완하는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '비어 있는 축을 기신운이 더 비우는 구간으로, 결핍 영역을 의식적으로 보완하는 것이 좋습니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

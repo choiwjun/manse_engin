@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jaesung-insung--daymaster-weak
+title: 재인상극×신약(財印相剋身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙庚
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 재성과 인성이 공존하는데 일간이 약합니다. 재물을 좇으면 배움이 흔들리고, 배움에 머물면 재물이 멀어지는 구조라, 둘을 동시에 잡으려 하기보다 시기를 나눠 번갈아 가는 것이 현실적입니다.
+  medium: 재성과 인성이 함께 있는데 일간이 약한 명식입니다. 재성이 인성을 극하는 재인상극의 구조라, 재물을 좇으면 배움·건강·후원이 흔들리고 배움에 머물면 재물이 멀어지기 쉽습니다. 약한 몸으로 둘을 동시에 잡으려 하기보다, 시기를 나눠 재물의 해와 배움의 해를 번갈아 가는 것이 현실적입니다.
+tags: [조합, 재성, 인성, 신약]
