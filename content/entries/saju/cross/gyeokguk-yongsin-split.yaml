@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/cross/gyeokguk-yongsin-split
 title: 격국·용신 이축(格用異軸)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 본업(격)과 사이드(용)를 나눠 운영하는 이중 구조가 안정형입니다.
+  short: 뼈대(격)와 활용점(용)을 모두 관리하는 이중 구조라, 본업과 사이드를 나눠 운영하는 것이 안정형입니다.
   medium: 사회적 뼈대(격)와 개인적 활용점(용)이 갈라져 있어 한쪽에 몰빵하면 균형이 깨집니다. 본업(격)에 사이드(용)를 붙이는 이중 구조가 이 명식의 안정형입니다.
 tags: [격국, 용신]

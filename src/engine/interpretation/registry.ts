@@ -408,6 +408,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '열정·산출이 많지만 축전(貯電)이 필요한 조후로, 회복과 비축의 루틴이 함께 가야 합니다.',
   },
 
+  // ---------- combo: 두 구조 조건의 교차 (전문가가 만세력에서 하나하나 조합하는 깊이) ----------
+  'saju/combo/sangsaeng-saengjae--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '생재×신약(生財身弱)',
+    defaultText:
+      '기술로 돈을 버는 흐름이 있으나 일간 축이 얇습니다. 혼자 다 하기보다 시스템·파트너와 함께 굴리는 확장이 안전합니다.',
+    polarity: 'neutral',
+    conclusion: '버는 라인은 분명하나 체력·기반이 따라가야 하니, 파트너·시스템을 붙인 확장이 안전합니다.',
+  },
+  'saju/combo/sangsaeng-saengjae--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '생재×신강(生財身强)',
+    defaultText:
+      '만드는 힘과 벌리는 힘이 모두 갖춰진 구조입니다. 산출(식상)과 수입(재성)을 같이 키우는 것이 명식의 최적 동선입니다.',
+    polarity: 'plus',
+    conclusion: '만드는 힘과 벌리는 힘이 모두 갖춰져, 산출과 수입을 같이 키우는 것이 최적 동선입니다.',
+  },
+  'saju/combo/jaesung-nochul--bigeop-gwada': {
+    category: 'combo',
+    priority: 9,
+    title: '재노출×비겁(財露比劫)',
+    defaultText:
+      '노출된 재성에 몰려든 비겁 — 보이는 수입에 경쟁자·나눠야 할 손이 많은 구조입니다. 서면화와 분배 규칙이 곧 방어입니다.',
+    polarity: 'caution',
+    conclusion: '보이는 수입에 나눠야 할 손이 많은 구조라, 서면화와 분배 규칙이 곧 방어입니다.',
+  },
+  'saju/combo/gwanin-sangsaeng--insung-gwada': {
+    category: 'combo',
+    priority: 9,
+    title: '관인×인과다(官印印多)',
+    defaultText:
+      '성장 라인(관인상생) 위에 과다한 인성이 쌓여, 준비와 자격 취득이 길어지기 쉽습니다. 배움을 곧바로 산출로 전환하는 통로를 열어두세요.',
+    polarity: 'caution',
+    conclusion: '배움의 통로가 넓은 만큼 끝없이 준비하게 되기 쉬우니, 배운 것을 곧 산출로 전환하는 규칙이 필요합니다.',
+  },
+  'saju/combo/daymaster-weak--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '신약×용신운(身弱用神運)',
+    defaultText:
+      '얇은 일간 축이 용신 대운의 도움을 받는 구간입니다. 평소라면 무리인 확장도 이 시기에는 허용 범위가 넓어집니다.',
+    polarity: 'plus',
+    conclusion: '평소라면 무리인 확장도 이 구간에는 허용 범위가 넓어지니, 이 시기를 놓치지 않는 설계가 좋습니다.',
+  },
+  'saju/combo/daymaster-weak--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '신약×기신운(身弱忌神運)',
+    defaultText:
+      '얇은 일간 축이 기신 대운의 무게를 맞은 구간입니다. 소모 관리가 최우선이며, 무리한 단독 결행은 비용이 큽니다.',
+    polarity: 'caution',
+    conclusion: '소모 관리가 최우선인 구간으로, 무리한 단독 결행은 비용이 크니 협력과 복기를 선택하세요.',
+  },
+  'saju/combo/daymaster-strong--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '신강×용신운(身强用神運)',
+    defaultText:
+      '두터운 일간 축이 용신 대운과 힘을 합한 구간입니다. 기반이 판의 도움까지 얻어, 공격적 확장의 조건이 갖춰졌습니다.',
+    polarity: 'plus',
+    conclusion: '기반과 판의 도움이 겹친 구간으로, 준비된 확장이라면 조건이 가장 좋을 때입니다.',
+  },
+  'saju/combo/daymaster-strong--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '신강×기신운(身强忌神運)',
+    defaultText:
+      '두터운 일간 축이 기신 대운과 마주 선 구간입니다. 기반은 튼튼해 손실 자체는 견디지만, 확장 욕심이 판과 부딪히기 쉽습니다.',
+    polarity: 'neutral',
+    conclusion: '기반이 튼튼해 견디는 힘은 충분하나, 판과 부딪히는 확장은 손해가 크니 유지에 무게를 두세요.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

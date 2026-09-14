@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-saengjae--daymaster-weak
+title: 생재×신약(生財身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 버는 라인은 분명하나 체력·기반이 따라가야 하니, 파트너·시스템을 붙인 확장이 안전합니다.
+  medium: 기술로 돈을 버는 흐름이 있는데 일간 축이 얇아, 혼자 다 감당하면 소모가 커집니다. 실행은 자신이 하되 운영·회수는 시스템과 파트너에게 나누는 구조가 이 조합의 안정형입니다.
+tags: [조합, 생재, 신약]

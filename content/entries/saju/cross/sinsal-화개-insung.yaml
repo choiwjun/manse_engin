@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/cross/sinsal-화개-insung
 title: 화개+인성(華蓋印星)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 화개에 인성 — 학문·연구·정신 탐구의 재능 표적입니다.
+  short: 학문·연구·정신적 탐구에 깊은 재능의 표적입니다.
   medium: 깊이 파고드는 기운(화개)이 수용·학습(인성)과 만나 연구·기획·철학 영역에서 두각을 보입니다. 혼자 깊이 일하는 시간이 성과의 원천입니다.
 tags: [신살, 화개, 인성]

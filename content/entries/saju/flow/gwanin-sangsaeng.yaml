@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/flow/gwanin-sangsaeng
 title: 관인상생(官印相生)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,7 +16,7 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 관성이 인성을 살리는 구조 — 조직·자격·학문에서 안정 궤도로 성장합니다.
+  short: 조직·자격·학문 쪽에서 체계적인 성장이 잘 붙고, 안정 궤도의 성취가 이어지는 라인입니다.
   medium: 질서와 책임(관성)이 학습·수용(인성)으로 이어져, 체계를 따라 성장하는 동안 명성과 신뢰가 같이 쌓입니다. 자격·학위·공직·대조직 경력이 잘 맞는 라인입니다.
   long: 관인상생은 전통적으로 귀(貴)의 구조로 읽습니다. 조직이 주는 틀 안에서 인정을 받고, 그 인정이 다시 배움의 기회로 돌아오는 선순환입니다. 다만 이 구조는 조직 밖 단독 활동보다 조직 안 전문성에서 힘이 실리므로, 커리어 선택 시 플랫폼의 품격이 중요합니다.
 tags: [커리어, 관성, 인성]

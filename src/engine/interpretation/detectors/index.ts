@@ -9,11 +9,14 @@ import { detectGanHap, detectJijiRelations, detectWonjin } from './relations';
 import { detectSamhapBanghap } from './sanbang';
 import { detectGongmangCross, detectGyeokgukYongsin, detectSinsalSipsin } from './crossings';
 import { detectJohu } from './johu';
+import { detectCombos } from './combos';
 import { detectDaeunYongsin, detectDaeunSeunCross } from './timing';
 
 export type DetectorFn = (result: SajuResult) => RawPattern[];
 
 export const DETECTORS: DetectorFn[] = [
+  // combo (두 구조 조건의 교차 — 우선순위 최상)
+  detectCombos,
   // flow
   detectSangsaengSaengjae,
   detectGwaninSangsaeng,

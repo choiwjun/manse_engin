@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/timing/daeun-neutral
 title: 중립 대운(中立大運)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 중립 대운 — 크게 열리거나 닫히지 않는 유지·정비 구간입니다.
+  short: 판이 크게 열리거나 닫히기보다 유지·정비의 구간으로, 성패는 세운 활용이 좌우합니다.
   medium: 대운이 용신·기신 어느 쪽도 아니어서 판의 등락이 완만합니다. 구조 개선·준비·실험을 해두기 좋은 구간이며, 성패는 이 구간의 세운 활용이 좌우합니다.
 tags: [대운, 중립]

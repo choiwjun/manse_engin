@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/imbalance/jaesung-nochul
 title: 재성 노출(財星露出)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 재성 노출 — 기회가 눈에 보이는 만큼 지키는 기술이 필요합니다.
+  short: 재물 기회가 눈에 띄는 만큼 지키는 기술(분산·서면화)이 함께 필요합니다.
   medium: 천간에 재성이 드러나 재물 기회에 접근이 빠릅니다. 다만 노출된 재성은 눈에 띄는 만큼 지출·분쟁에도 열려 있으니 분산·서면화 같은 방어가 세트입니다.
 tags: [재물, 리스크]

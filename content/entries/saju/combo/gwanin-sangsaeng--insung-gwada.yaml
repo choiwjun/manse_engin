@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gwanin-sangsaeng--insung-gwada
+title: 관인×인과다(官印印多)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 배움의 통로가 넓은 만큼 끝없이 준비하게 되기 쉬우니, 배운 것을 곧 산출로 전환하는 규칙이 필요합니다.
+  medium: 조직 성장 라인(관인상생)이 좋은데 인성이 과다해 자격·공부가 계속 추가되기 쉽습니다. 학습 마감 조건을 미리 정해두고, 배운 것을 발표·문서·제품으로 내보내는 주기가 성과를 결정합니다.
+tags: [조합, 관인, 인성]

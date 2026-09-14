@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/relation/gan-hap-jeongim
 title: 정임합(丁壬合)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 丁壬 천간합 — 감정이 움직이는 결이 만들어집니다.
+  short: 은근한 끌림과 열정이 결합해 깊은 유대가 형성되지만, 감정과 판단의 시점을 분리하는 게 좋습니다.
   medium: 은근한 끌림과 열정이 결합되는 합입니다. 인간관계에서 깊은 유대가 형성되지만 감정 흐름에 따라 결이 흔들릴 수 있으니, 감정과 판단의 시점을 분리하는 게 좋습니다.
 tags: [천간합, 관계]

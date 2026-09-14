@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/imbalance/insung-gwada
 title: 인성 과다(印星過多)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 인성 과다 — 생각이 실행보다 앞서는 구조, 산출 비중을 키우는 게 좋습니다.
+  short: 생각·학습·수용이 많아 실행보다 준비가 길어지기 쉬우니, 산출물로 내보내는 비중을 키우는 게 좋습니다.
   medium: 수용·학습·관찰이 많아 준비는 빠르게 완성되는데 마지막 발표·출시·실행이 길어지기 쉽습니다. 인성의 깊이를 식상의 표현으로 내보내는 균형점을 잡는 게 관건입니다.
 tags: [인성, 실행]

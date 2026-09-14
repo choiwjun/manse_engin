@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/cross/sinsal-도화-jaesung
 title: 도화+재성(桃花財星)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 도화에 재성 — 매력·인기가 수입 경로가 됩니다.
+  short: 매력·인기가 수입 경로가 되는 조합이라, 평판 관리가 곧 자산 관리입니다.
   medium: 사람을 끌어당기는 기운이 재성과 만나 고객 접점·대면 영업·브랜딩에서 유리합니다. 인기가 곧 매출로 이어지는 구조라, 평판 관리가 곧 자산 관리입니다.
 tags: [신살, 도화, 재성]

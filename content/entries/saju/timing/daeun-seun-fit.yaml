@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/timing/daeun-seun-fit
 title: 대운·세운 동향(大運歲運同向)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 대운·세운 동향 — 큰 판과 연 판이 같은 방향을 가리킵니다.
+  short: 큰 판과 연 판이 같은 방향을 가리켜 기회가 중첩되고, 이 해의 결정이 대운 방향을 고정할 수 있습니다.
   medium: 용신 대운 위에 용신 세운이 겹친 구간으로, 기회가 중첩되어 증폭됩니다. 이 해의 결정이 대운 10년의 방향을 고정할 수 있으니 준비된 확장이라면 최적의 시기입니다.
 tags: [대운, 세운, 용신]

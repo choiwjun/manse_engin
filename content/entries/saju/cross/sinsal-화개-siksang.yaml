@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/cross/sinsal-화개-siksang
 title: 화개+식상(華蓋食傷)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 화개에 식상 — 창작·예술·기술의 감각이 강합니다.
+  short: 예술·콘텐츠·기술 창작 쪽 감각이 강하고, 대중성보다 완성도로 승부하는 타입입니다.
   medium: 고독한 몰입(화개)이 표현·기술(식상)으로 이어져 독창적인 산출물이 나오는 조합입니다. 대중성보다 완성도로 승부하는 타입입니다.
 tags: [신살, 화개, 식상]

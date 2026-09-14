@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/relation/gan-hap-byeongsin
 title: 병신합(丙辛合)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 丙辛 천간합 — 매력과 신뢰가 맞물리는 연결입니다.
+  short: 밝은 기운과 차분한 기운이 맞물려 사람을 끌어당기는 힘이 생기고, 주도권이 상황에 따라 바뀝니다.
   medium: 밝은 기운과 차분한 기운이 결합해 사람을 끌어당기는 힘이 생깁니다. 관계의 주도권이 상황에 따라 바뀌므로, 합의 조건을 서면·명시로 두면 안정적입니다.
 tags: [천간합, 관계]

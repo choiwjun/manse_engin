@@ -226,9 +226,22 @@ function johuIntro(p: DetectedPattern): string | null {
   return builder(p);
 }
 
-/** 패턴의 첫형(위치·흐름 절) — 재료가 부족하면 null로 fallback */
+/** 조합 패턴 — 두 구조 조건의 교차. 키별 고정 첫형 */
+const COMBO_INTRO: Record<string, string> = {
+  'saju/combo/sangsaeng-saengjae--daymaster-weak': '식상생재의 흐름 위에 얇은 일간 축이 얹혀',
+  'saju/combo/sangsaeng-saengjae--daymaster-strong': '식상생재의 흐름에 두터운 일간 축이 더해져',
+  'saju/combo/jaesung-nochul--bigeop-gwada': '천간에 드러난 재성 옆에 몰려든 비겁이 서서',
+  'saju/combo/gwanin-sangsaeng--insung-gwada': '관인상생의 성장 라인 위에 과다한 인성이 쌓여',
+  'saju/combo/daymaster-weak--daeun-fit': '얇은 일간 축이 용신 대운의 도움을 받아',
+  'saju/combo/daymaster-weak--daeun-tension': '얇은 일간 축이 기신 대운의 무게를 맞아',
+  'saju/combo/daymaster-strong--daeun-fit': '두터운 일간 축이 용신 대운과 힘을 합해',
+  'saju/combo/daymaster-strong--daeun-tension': '두터운 일간 축이 기신 대운과 마주 서서',
+};
+
 function buildIntro(p: DetectedPattern): string | null {
   switch (p.category) {
+    case 'combo':
+      return COMBO_INTRO[p.key] ?? null;
     case 'flow':
       return flowIntro(p);
     case 'relation':

@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/flow/jaesaeng-gwan
 title: 재생관(財生官)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,7 +16,7 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 자원이 지위를 떠받치는 구조 — 운용력이 명분과 위치로 이어집니다.
+  short: 자원 운용 능력이 지위와 명분으로 이어지며, 규모를 키울수록 책임도 같이 무거워집니다.
   medium: 재성(자원·거래)이 관성(지위·책임)을 생합니다. 돈과 물건을 다루는 능력이 곧 신뢰가 되고, 맡은 바가 커질수록 위치도 같이 올라가는 형태입니다.
   long: 재생관은 실무형 리더의 구조입니다. 재무·운영·총무·구매처럼 자원을 관리해 조직을 지탱하는 자리에서 평가가 높고, 규모가 커져도 그 체감이 빠릅니다. 다만 재성이 관성을 밀어붙이는 만큼, 책임 범위 관리를 함께 하지 않으면 과부하가 옵니다.
 tags: [재물, 커리어]

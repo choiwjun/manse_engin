@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-weak--daeun-fit
+title: 신약×용신운(身弱用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 평소라면 무리인 확장도 이 구간에는 허용 범위가 넓어지니, 이 시기를 놓치지 않는 설계가 좋습니다.
+  medium: 얇은 기반을 가진 명식이 용신 대운의 도움을 받는 구간입니다. 에너지 보충이 판에서 이뤄지므로, 평소엔 부담인 규모의 도전도 이 시기에 선택적 감행이 가능합니다.
+tags: [조합, 신약, 대운]

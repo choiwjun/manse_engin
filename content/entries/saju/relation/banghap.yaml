@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/relation/banghap
 title: 방합(方合)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 방합 — 같은 방향의 세 지지가 기운을 한 방향으로 쏠립니다.
+  short: 계절의 힘이 원국 안에서 재현되어 해당 오행 영역이 인생의 무게를 크게 차지합니다.
   medium: 계절의 힘이 원국 안에서 재현되는 구조로, 해당 오행 영역이 인생의 무게를 크게 차지합니다. 방향이 명확한 만큼, 그 오행을 어디에 쓰는지가 커리어 설계의 핵심이 됩니다.
 tags: [방합, 방향]

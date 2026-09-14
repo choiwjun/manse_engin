@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/flow/sangsaeng-jesal
 title: 식상제살(食傷制殺)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,7 +16,7 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 식상이 편관을 다스리는 구조 — 압박을 기술로 돌파합니다.
+  short: 압박 상황을 기술·표현으로 돌파하는 재주가 있어, 위기 구간일수록 가치가 올라갑니다.
   medium: 압박·규제(편관)가 강하게 들어오는 명식이지만, 표현·기술(식상)이 그 압박을 제어합니다. 위기 상황에서 오히려 능력이 드러나는 유형입니다.
   long: 식상제살은 스트레스를 성과로 바꾸는 구조입니다. 규제 산업, 경쟁이 치열한 시장, 난제가 많은 현장일수록 이 구조의 가치가 올라갑니다. 평소에는 편관의 압박이 고역으로 느껴질 수 있으나, 그 압박이 식상의 단련재가 된다는 점에서 장기적으로 강해지는 명식입니다.
 tags: [스트레스, 기술, 위기]

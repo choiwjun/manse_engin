@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-weak--daeun-tension
+title: 신약×기신운(身弱忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 소모 관리가 최우선인 구간으로, 무리한 단독 결행은 비용이 크니 협력과 복기를 선택하세요.
+  medium: 기반이 얇은 상태에서 기신 대운이 겹쳐, 같은 일을 해도 소모가 배가됩니다. 이 구간의 성과는 버티는 것 자체이며, 체력·현금·관계의 복구가 다음 대운의 자산이 됩니다.
+tags: [조합, 신약, 대운]

@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/johu/season-pressure
 title: 계절 압박(季節壓迫)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 계절 압박 — 환경이 일간을 누르는 구조입니다.
+  short: 태생 기질보다 환경 적응이 먼저 과제로 떠오르니, 환경 선택이 곧 실력입니다.
   medium: 왕한 오행이 일간을 극해 환경 적응이 먼저 과제로 옵니다. 환경(직장·도시·관계)을 잘 고르면 태생 능력이 안정적으로 발휘되는 구조입니다.
 tags: [조후, 계절]

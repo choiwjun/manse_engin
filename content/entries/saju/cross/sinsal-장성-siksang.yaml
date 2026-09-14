@@ -1,8 +1,8 @@
-# 한글 신살명 키 검증용 샘플 (골든 케이스 기준 — 일지 酉 장성 + 식신)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/cross/sinsal-장성-siksang
 title: 장성+식상(將星食傷)
 audience: counselor
-status: draft
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,5 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 전문 분야에서 머리로서 인정받는 조합.
+  short: 기술·전문 분야에서 머리로서 인정받는 조합입니다.
+  medium: 조직의 중심 자리(장성)에 기술·표현(식상)이 겹쳐, 전문 분야에서 머리로서 인정받는 조합입니다. 실무 명성이 쌓이는 속도가 빠릅니다.
 tags: [신살, 장성, 식상]

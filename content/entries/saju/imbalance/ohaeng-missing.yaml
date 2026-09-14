@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/imbalance/ohaeng-missing
 title: 결오행(缺五行)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 결오행 — 없는 오행 영역은 채워가는 주제로 읽습니다.
+  short: 해당 영역은 타고난 경보가 약하다는 뜻이지 불가는 아니며, 환경·습관으로 채워갑니다.
   medium: 명식에 아예 없는 오행이 있습니다. 해당 영역은 타고난 경보가 약하다는 뜻이지 불가가 아닙니다. 환경(사람·장소·도구)으로 보완하면 충분히 운영 가능합니다.
 tags: [오행, 보완]

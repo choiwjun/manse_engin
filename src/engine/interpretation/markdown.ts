@@ -3,6 +3,8 @@
 // content DB에 body.long이 있으면 섹션 깊은 곳에 심층 문단으로 붙인다.
 
 import type { SajuReport } from './report';
+import type { CompatibilityInterpretation } from './compatibility';
+import type { CompatibilityResult } from '@/engine/compatibility/types';
 import { getContentEntry } from './content';
 
 export interface RenderReportOptions {
@@ -88,4 +90,67 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push('본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.');
 
   return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+/** CompatibilityResult + 해석 → 궁합 상담 문서 (마크다운) */
+export function renderCompatibilityMarkdown(
+  compat: CompatibilityResult,
+  narrative: CompatibilityInterpretation,
+  opts: { nameA?: string; nameB?: string } = {},
+): string {
+  const nameA = opts.nameA ?? 'A';
+  const nameB = opts.nameB ?? 'B';
+  const out: string[] = [];
+
+  out.push(`# 궁합 리포트 — ${nameA} × ${nameB}`);
+  out.push('');
+  out.push(`**${narrative.headline}**`);
+  out.push('');
+  out.push(compat.summary);
+  out.push('');
+  out.push(`원국: ${nameA} ${paljaOfCompat(compat, 1)} · ${nameB} ${paljaOfCompat(compat, 2)}`);
+  out.push('');
+
+  out.push('## 관계 구조');
+  out.push('');
+  for (const line of narrative.lines) {
+    out.push(`- **${line.label}** ${line.text}`);
+  }
+  out.push('');
+
+  out.push('## 점수 구성');
+  out.push('');
+  for (const cat of compat.categories) {
+    out.push(`- ${cat.name}: ${cat.score}/${cat.maxScore} — ${cat.description}`);
+  }
+  out.push('');
+
+  out.push('## 강점');
+  out.push('');
+  for (const s of narrative.strengths) out.push(`- ${s}`);
+  out.push('');
+
+  if (narrative.frictions.length > 0) {
+    out.push('## 주의 축');
+    out.push('');
+    for (const f of narrative.frictions) out.push(`- ${f}`);
+    out.push('');
+  }
+
+  out.push('## 운영 가이드');
+  out.push('');
+  for (const g of narrative.guidance) out.push(`- ${g}`);
+  out.push('');
+
+  out.push('---');
+  out.push('');
+  out.push('본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.');
+
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+function paljaOfCompat(compat: CompatibilityResult, person: 1 | 2): string {
+  const p = person === 1 ? compat.person1Palja : compat.person2Palja;
+  const hour = p.hourGan && p.hourJi ? `${p.hourGan}${p.hourJi}` : '(시각 미상)';
+  return `${p.yearGan}${p.yearJi} ${p.monthGan}${p.monthJi} ${p.dayGan}${p.dayJi} ${hour}`;
 }

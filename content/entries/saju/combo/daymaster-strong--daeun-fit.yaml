@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-strong--daeun-fit
+title: 신강×용신운(身强用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 기반과 판의 도움이 겹친 구간으로, 준비된 확장이라면 조건이 가장 좋을 때입니다.
+  medium: 두터운 기반 위에 용신 대운이 더해져 확장의 두 조건(체력·기회)이 동시에 충족됩니다. 다만 신강 특유의 과추진이 발동하기 쉬우니, 확장 목록의 우선순위를 미리 정해두는 편이 안전합니다.
+tags: [조합, 신강, 대운]

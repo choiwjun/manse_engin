@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/johu/season-drain
 title: 계절 배출(季節排出)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 계절 배출 — 일간이 계절에 기운을 흘려보냅니다.
+  short: 열정·산출이 많지만 축전이 필요하니, 회복·비축의 루틴을 시스템화하세요.
   medium: 열정·산출이 많지만 축전이 필요한 구조입니다. 쏟아내는 만큼 회복·비축의 루틴이 없으면 조기 소진이 오기 쉬우니, 충전 계획을 시스템화하세요.
 tags: [조후, 계절]

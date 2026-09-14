@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/timing/daeun-tension
 title: 기신 대운(忌神大運)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 기신 대운 — 규모 조절과 기반 점검이 맞는 구간입니다.
+  short: 기본기 점검과 규모 축소 관리가 맞는 구간으로, 이 시기의 인내가 다음 대운의 밑천이 됩니다.
   medium: 현재 대운이 기신 방향이라 판이 무겁습니다. 확장보다 리스크 정리, 체력 관리, 기본기 복기가 이 구간의 성과입니다. 이 시기의 인내가 다음 대운의 밑천이 됩니다.
 tags: [대운, 기신]

@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/imbalance/siksang-gwada
 title: 식상 과다(食傷過多)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 식상 과다 — 폭은 넓지만 흩어지기 쉬워, 한 방향 모으기가 성과를 좌우합니다.
+  short: 표현·활동 폭이 넓지만 산으로 흩어지기 쉬워, 시기별로 한 방향을 정해 몰아주는 절제가 성과를 좌우합니다.
   medium: 표현·활동·관심사가 많아 시작은 빠릅니다. 다만 동시에 여러 일을 벌이면 산출이 분산되므로, 시기별로 한 축을 정해 몰아주는 절제가 필요합니다.
 tags: [식상, 집중]

@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/johu/season-command
 title: 당령 일간(當令日干)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 당령 일간 — 일간이 계절의 권을 쥐고 태어났습니다.
+  short: 시기적 주체성이 강해 주도권을 쥐는 자리에서 힘이 나고, 따르는 자리에서는 답답해하기 쉽습니다.
   medium: 일간과 같은 오행이 계절을 지배해 시기적 주체성이 강합니다. 주도권을 쥐는 자리에서 힘이 나고, 따르는 자리에서는 오히려 답답해하기 쉽습니다.
 tags: [조후, 계절]

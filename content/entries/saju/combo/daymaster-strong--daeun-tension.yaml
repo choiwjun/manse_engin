@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-strong--daeun-tension
+title: 신강×기신운(身强忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 기반이 튼튼해 견디는 힘은 충분하나, 판과 부딪히는 확장은 손해가 크니 유지에 무게를 두세요.
+  medium: 기반은 좋지만 판이 기신 방향이라 밀어붙일수록 마찰이 커집니다. 이 구간은 축적을 지키고 구조를 정비하는 쪽이 이기며, 욕심은 다음 대운의 재료로 남겨두는 게 맞습니다.
+tags: [조합, 신강, 대운]

@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/imbalance/gwansung-gwada
 title: 관성 과다(官星過多)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 관성 과다 — 책임과 압박을 짊어지는 구조, 건강·스케줄 관리가 과제입니다.
+  short: 책임과 압박을 짊어지는 구조로, 건강·스케줄 관리가 실질 과제입니다.
   medium: 규율·책임의 축이 커서 맡은 바가 자꾸 커집니다. 성취도 크지만 체력·수면·일정 관리가 뒷받침되지 않으면 번아웃 위험이 있으니 용량 관리가 필수입니다.
 tags: [관성, 건강]

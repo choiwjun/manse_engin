@@ -10,6 +10,9 @@ import {
   buildTimingNarrative,
   renderPattern,
   renderReportMarkdown,
+  renderCompatibilityMarkdown,
+  interpretCompatibility,
+  calculateCompatibility,
   PATTERN_REGISTRY,
 } from './dist/index.js';
 
@@ -145,6 +148,42 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const banghap = runDetectors(r2).find((p) => p.key === 'saju/relation/banghap');
   assert.ok(banghap, '방합 감지 (巳午未 화국)');
   assert.ok(renderPattern(banghap).includes('화국'), '방합 문장에 국 오행');
+}
+
+// 5차 — 조합키 (두 구조 조건의 교차)
+{
+  const r = saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' });
+  const combos = runDetectors(r).filter((p) => p.key.startsWith('saju/combo/'));
+  const comboKeys = combos.map((p) => p.key);
+  assert.ok(comboKeys.includes('saju/combo/sangsaeng-saengjae--daymaster-weak'), '생재×신약 조합 감지');
+  assert.ok(comboKeys.includes('saju/combo/daymaster-weak--daeun-fit'), '신약×용신운 조합 감지');
+  for (const c of combos) {
+    const rendered = renderPattern(c);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined'), `조합 문장: ${rendered}`);
+    assert.ok(c.contentId === c.key, `조합 DB 문구 등록: ${c.key}`);
+    assert.equal(PATTERN_REGISTRY[c.key].category, 'combo', 'combo 카테고리');
+  }
+  // 조합이 최우선순위(priority 9)로 정렬되는지 — 패턴 목록 선두 확인
+  const interp = interpretSaju(r);
+  assert.ok(interp.patterns[0].category === 'combo', '조합 패턴이 우선순위 선두');
+}
+
+// 5차 — 궁합 해석 계층
+{
+  const input1 = { year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' };
+  const input2 = { year: 1988, month: 11, day: 3, hour: 10, minute: 0, gender: 'female' };
+  const a = saju(input1);
+  const b = saju(input2);
+  const compat = calculateCompatibility({ person1: { ...input1, birthPlace: null }, person2: { ...input2, birthPlace: null } });
+  const n = interpretCompatibility(a, b, compat, { nameA: '남편', nameB: '아내' });
+  assert.ok(n.headline.includes('등급') && n.headline.includes('점'), `궁합 헤드라인: ${n.headline}`);
+  assert.ok(n.lines.some((l) => l.label === '일간 십신' && l.text.includes('정재')), '십신 상호 인식 (己×壬 = 정재)');
+  assert.ok(!n.lines.some((l) => l.text.includes('남편는')), '이름 조사 오류 방지');
+  assert.ok(n.lines.some((l) => l.label === '강약 대비'), '강약 대비');
+  assert.ok(n.lines.every((l) => !l.text.includes('undefined') && !l.text.includes('null')), '누수 방지');
+  const md = renderCompatibilityMarkdown(compat, n, { nameA: '남편', nameB: '아내' });
+  assert.ok(md.startsWith('# 궁합 리포트 — 남편 × 아내'), '궁합 문서 헤더');
+  assert.ok(md.includes('## 관계 구조') && md.includes('## 운영 가이드'), '궁합 문서 섹션');
 }
 
 // 4) 계약 일관성 — 다양한 출생에서 (a) 모든 키가 레지스트리에 등록 (b) 강도 0~1 (c) 골든 문구 존재

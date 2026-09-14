@@ -4,7 +4,7 @@
 
 import type { OhaengMeter } from './meter';
 
-export type PatternCategory = 'flow' | 'imbalance' | 'relation' | 'cross' | 'timing' | 'johu';
+export type PatternCategory = 'flow' | 'imbalance' | 'relation' | 'cross' | 'combo' | 'timing' | 'johu';
 
 export type PatternPolarity = 'plus' | 'caution' | 'neutral';
 

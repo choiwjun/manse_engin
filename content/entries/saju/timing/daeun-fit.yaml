@@ -1,8 +1,8 @@
-# 골든 케이스(1985-01-10 16:45 남, 38세 辛巳 용신 대운) 기준
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/timing/daeun-fit
 title: 용신 대운(用神大運)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 지금 들어선 대운이 명식의 활용점을 데려온 구간입니다.
+  short: 명식의 활용점이 작동하는 구간으로, 이 시기의 세운 방향성이 크게 증폭됩니다.
   medium: 현재 대운이 용신 오행을 따라가는 구간으로, 명식이 원래 잘하는 방향이 밖에서도 통하는 시기입니다. 이 구간의 세운은 작은 판이 아니라 대운 방향을 증폭하거나 누르는 레버로 작동합니다.
-tags: [대운, 용신, 시점]
+tags: [대운, 용신]

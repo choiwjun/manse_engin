@@ -181,7 +181,12 @@ function buildWealthSection(
     lines.push(`재성 자리가 뚜렷하지 않습니다(${jaePercent}%) — 재물은 흐름(식상→재성 구조)과 시점으로 만드는 명식입니다.`);
   }
 
-  const flowPatterns = patternByKeys(patterns, ['saju/flow/sangsaeng-saengjae', 'saju/flow/jaesaeng-gwan']);
+  const flowPatterns = patternByKeys(patterns, [
+    'saju/flow/sangsaeng-saengjae',
+    'saju/flow/jaesaeng-gwan',
+    'saju/combo/sangsaeng-saengjae--daymaster-weak',
+    'saju/combo/sangsaeng-saengjae--daymaster-strong',
+  ]);
   lines.push(...renderList(flowPatterns, 2));
 
   const riskPatterns = patternByKeys(patterns, [
@@ -189,6 +194,7 @@ function buildWealthSection(
     'saju/cross/gongmang-jaesung',
     'saju/cross/sinsal-도화-jaesung',
     'saju/cross/sinsal-역마-jaesung',
+    'saju/combo/jaesung-nochul--bigeop-gwada',
   ]);
   lines.push(...renderList(riskPatterns, 2));
 
@@ -220,7 +226,12 @@ function buildCareerSection(
   lines.push(`격국은 ${result.gyeokguk.name} — ${result.gyeokguk.description}`);
   lines.push(`관성(조직·질서) ${gwanPercent}% · 식상(기술·표현) ${sikPercent}%의 비율로, ${sikPercent > gwanPercent ? '조직 안에서도 자기 기술을 파는 쪽이 맞습니다' : gwanPercent > sikPercent ? '체계와 질서 안에서 성취하는 쪽이 맞습니다' : '조직과 자기 영역의 균형 잡힌 구조입니다'}.`);
 
-  const flowPatterns = patternByKeys(patterns, ['saju/flow/gwanin-sangsaeng', 'saju/flow/sangsaeng-jesal', 'saju/flow/sangsaeng-saengjae']);
+  const flowPatterns = patternByKeys(patterns, [
+    'saju/flow/gwanin-sangsaeng',
+    'saju/flow/sangsaeng-jesal',
+    'saju/flow/sangsaeng-saengjae',
+    'saju/combo/gwanin-sangsaeng--insung-gwada',
+  ]);
   lines.push(...renderList(flowPatterns, 2));
 
   const crossPatterns = patternByKeys(patterns, [

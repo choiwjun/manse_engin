@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/cross/gongmang-gwansung
 title: 관성 공망(官星空亡)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 관성 공망 — 지위보다 실질 성과에 동기가 기웁니다.
+  short: 직함·서열보다 실질 성과에 동기가 기울고, 자율성 높은 전문직·프로젝트형 자리가 잘 맞습니다.
   medium: 직함·서열보다 일의 실질이 동기가 되는 구조입니다. 조직 소속 자체가 부담으로 느껴질 수 있으니, 자율성이 높은 전문직·프로젝트형 자리가 잘 맞습니다.
 tags: [공망, 관성]

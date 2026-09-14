@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jaesung-nochul--bigeop-gwada
+title: 재노출×비겁(財露比劫)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 보이는 수입에 나눠야 할 손이 많은 구조라, 서면화와 분배 규칙이 곧 방어입니다.
+  medium: 재성이 천간에 노출된 데다 비겁까지 몰려, 보이는 기회에 경쟁자·동업자가 빠르게 붙습니다. 수익 구조를 처음부터 서면으로 나눠두는 사람이 이 조합에서 현금을 지킵니다.
+tags: [조합, 재물, 비겁]

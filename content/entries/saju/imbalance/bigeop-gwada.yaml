@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/imbalance/bigeop-gwada
 title: 비겁 편중(比劫偏重)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 비겁 편중 — 독립심이 강한 대신 분배·협력에서 마찰이 생기기 쉽습니다.
+  short: 독립심이 강한 대신 자원 분배와 협력에서 마찰이 생기기 쉬워, 역할·분배의 경계를 서면으로 정해두는 게 안전합니다.
   medium: 자아·경쟁의 축이 커서 단독으로 밀고 나가는 힘이 강합니다. 이익 분배와 역할 경계를 서면으로 미리 정해두면 관계 마찰의 대부분이 줄어듭니다.
 tags: [비겁, 협력]

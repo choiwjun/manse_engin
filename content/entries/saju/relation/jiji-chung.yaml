@@ -1,8 +1,8 @@
-# 전문가 등급 해석 문구 (status: linted — 사람 검수 전)
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
 id: saju/relation/jiji-chung
 title: 지지 충(支沖)
 audience: counselor
-status: linted
+status: reviewed
 sampleBirth:
   year: 1985
   month: 1
@@ -16,6 +16,6 @@ assert:
   gyeokguk: 비견격
   yongsin: 금
 body:
-  short: 지지충 — 해당 자리의 변동·이동이 주기적으로 일어납니다.
+  short: 해당 자리의 변동·이동·정리가 주기적으로 일어나는 성향으로, 정체를 깨는 힘이기도 합니다.
   medium: 충은 부정이 아니라 깨는 힘입니다. 정체된 상황을 틀어주는 역할을 하지만, 그 자리가 배우자궁·건강처럼 안정이 필요한 영역이면 주기적 재정비 비용을 고려해야 합니다.
 tags: [지지충, 변동]
