@@ -21,6 +21,8 @@ const GYEOKGUK_GROUP_BY_PREFIX: Record<string, SipsinGroup> = {
 const GYEOKGUK_GROUP_BY_FULL: Record<string, SipsinGroup> = {
   '비견격': 'bigeop',
   '겁재격': 'bigeop',
+  '건록격': 'bigeop',
+  '양인격': 'bigeop',
   '식신격': 'siksang',
   '상관격': 'siksang',
   '편재격': 'jaesung',
@@ -29,6 +31,11 @@ const GYEOKGUK_GROUP_BY_FULL: Record<string, SipsinGroup> = {
   '정관격': 'gwansung',
   '편인격': 'insung',
   '정인격': 'insung',
+  // 특수격 — 일간이 극강/극약하여 따르는 격
+  '종강격': 'bigeop',
+  '종재격': 'jaesung',
+  '종살격': 'gwansung',
+  '종아격': 'insung',
 };
 
 function gyeokgukGroup(result: SajuResult): SipsinGroup | null {
@@ -177,7 +184,7 @@ const KNOWN_SINSAL_CROSS = new Set<string>([
   'saju/cross/sinsal-화개-insung',
   'saju/cross/sinsal-화개-siksang',
   'saju/cross/sinsal-화개-bigeop',
-  'saju/cross/sinsal-도화-jaesung',
+  'saju/cross/sinsal-연살-jaesung',
   'saju/cross/sinsal-역마-jaesung',
   'saju/cross/sinsal-역마-siksang',
 ]);

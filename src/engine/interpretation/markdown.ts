@@ -25,7 +25,23 @@ function patternBody(key: string, level: 'medium' | 'long'): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
-function addPatternDetail(out: string[], pattern: NonNullable<SajuReport['patterns']>[number], includeLong = true): void {
+/** 이 명식의 맥락 한 줄 — 같은 패턴이어도 격국·용신·강약이 다르면 다른 해석이 되도록 명식별 문장을 붙인다 */
+function contextLine(report: SajuReport, pattern: NonNullable<SajuReport['patterns']>[number]): string {
+  const ctx = report.context;
+  if (!ctx) return '';
+  const fit = ctx.gyeokgukGroup === ctx.yongsinGroup;
+  const axis = fit
+    ? `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 같은 축이라 이 패턴이 곧 명식의 주 라인이 됩니다.`
+    : `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 다른 축이라, 이 패턴은 본업과 활용점 사이의 다리 역할을 합니다.`;
+  const strength = ctx.dayMasterVerdict.includes('신약')
+    ? '신약한 일간이 이 구조를 감당하려면 기반(인성·비겁) 보강이 선행되어야 합니다.'
+    : ctx.dayMasterVerdict.includes('신강')
+      ? '신강한 일간이라 이 구조를 밀고 나가는 힘이 있습니다.'
+      : '중화된 일간이라 이 구조를 양방향으로 활용할 수 있습니다.';
+  return `${axis} ${strength}`;
+}
+
+function addPatternDetail(out: string[], pattern: NonNullable<SajuReport['patterns']>[number], report: SajuReport, includeLong = true): void {
   out.push(`### ${pattern.title}`);
   out.push('');
   out.push(`**${pattern.title}**`);
@@ -33,6 +49,8 @@ function addPatternDetail(out: string[], pattern: NonNullable<SajuReport['patter
   out.push(`- 강도: ${strengthLabel(pattern.strength)} (${Math.round(pattern.strength * 100)}%)`);
   if (pattern.evidence?.length > 0) out.push(`- 근거: ${pattern.evidence.join(' · ')}`);
   out.push(`- 해석: ${renderPattern(pattern)}`);
+  const line = contextLine(report, pattern);
+  if (line) out.push(`- 이 명식에서: ${line}`);
   const medium = patternBody(pattern.key, 'medium');
   const long = includeLong ? patternBody(pattern.key, 'long') : null;
   if (medium) out.push(`- 심층 해설: ${medium}`);
@@ -149,7 +167,7 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push(`감지 패턴 ${patterns.length}건`);
 
   out.push('');
-  for (const pattern of patterns) addPatternDetail(out, pattern);
+  for (const pattern of patterns) addPatternDetail(out, pattern, report);
 
   out.push('---');
   out.push('');

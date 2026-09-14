@@ -140,6 +140,41 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     gender: 'female',
   });
   assert.ok(Object.values(repNoHour.sections).every((sec) => sec.lines.length >= 1), '시각 미상 섹션 조립');
+
+  // QA — 시각 미상 시 시주·자녀궁을 언급하는 문장이 나오면 안 된다
+  const noHourFamily = repNoHour.sections.family.lines;
+  assert.ok(noHourFamily.some((l) => l.includes('시각 미상')), '시각 미상 안내 문장 존재');
+  assert.ok(!noHourFamily.some((l) => l.includes('시주(자녀·말년궁)') && !l.includes('시각 미상')), '시주 언급 누출 없음');
+
+  // QA — 특수격(종강격)에서 격국×용신 cross 패턴이 발화되어야 한다
+  const rJonggang = saju({ year: 1947, month: 12, day: 22, hour: 0, minute: 57, gender: 'male' });
+  assert.equal(rJonggang.gyeokguk.name, '종강격', '종강격 판정');
+  const keysJonggang = runDetectors(rJonggang).map((p) => p.key);
+  assert.ok(keysJonggang.includes('saju/cross/gyeokguk-yongsin-fit'), '종강격 격국·용신 동심(fit) 발화');
+
+  // QA — 연살(도화)+재성 cross 패턴이 발화되어야 한다
+  const rDohwa = saju({ year: 1996, month: 10, day: 6, hour: 2, minute: 5, gender: 'male' });
+  const keysDohwa = runDetectors(rDohwa).map((p) => p.key);
+  assert.ok(keysDohwa.includes('saju/cross/sinsal-연살-jaesung'), '연살+재성 cross 발화');
+
+  // QA — 재노출×비겁 과다 조합 패턴 발화
+  const rJaeNochul = saju({ year: 2009, month: 9, day: 10, hour: 19, minute: 30, gender: 'female' });
+  const keysJaeNochul = runDetectors(rJaeNochul).map((p) => p.key);
+  assert.ok(keysJaeNochul.includes('saju/combo/jaesung-nochul--bigeop-gwada'), '재노출×비겁 과다 발화');
+
+  // QA — 재공망×세운기신 조합 패턴 발화
+  const rGongmang = saju({ year: 1990, month: 9, day: 25, hour: 19, minute: 50, gender: 'male' });
+  const keysGongmang = runDetectors(rGongmang).map((p) => p.key);
+  assert.ok(keysGongmang.includes('saju/combo/gongmang-jaesung--seun-tension'), '재공망×세운기신 발화');
+
+  // QA — 같은 패턴이라도 명식 맥락(격국·용신·강약)이 다르면 다른 문장이 나와야 한다
+  const repA = assembleReport(saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' }), { gender: 'male' });
+  const repB = assembleReport(saju({ year: 1993, month: 2, day: 4, hour: 14, minute: 40, gender: 'male' }), { gender: 'male' });
+  const mdA = renderReportMarkdown(repA);
+  const mdB = renderReportMarkdown(repB);
+  const ctxA = mdA.split('\n').find((l) => l.includes('이 명식에서'));
+  const ctxB = mdB.split('\n').find((l) => l.includes('이 명식에서'));
+  assert.ok(ctxA && ctxB && ctxA !== ctxB, '명식별 맥락 문장이 다름');
 }
 
 // 2) 관인상생 케이스 — 1990-05-15 14:30 남 (庚午 辛巳 庚辰 癸未: 관 2·인 2)

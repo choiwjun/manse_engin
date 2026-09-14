@@ -336,7 +336,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'neutral',
     conclusion: '혼자 파는 학문·기술의 독립 재능입니다.',
   },
-  'saju/cross/sinsal-도화-jaesung': {
+  'saju/cross/sinsal-연살-jaesung': {
     category: 'cross',
     priority: 13,
     title: '도화+재성(桃花財星)',

@@ -7,8 +7,9 @@ import type { DetectedPattern, SipsinGroup } from './types';
 import { runDetectors } from './assemble';
 import { measureOhaeng, type OhaengMeter } from './meter';
 import { renderPattern } from './sentence';
-import { groupLabel, groupOfSlot, posLabel, sipsinNameOfSlot, dayGanOhaeng, SIPSIN_SLOTS, type SipsinSlot } from './sipsin-groups';
+import { groupLabel, groupOfSlot, groupFromOhaeng, posLabel, sipsinNameOfSlot, dayGanOhaeng, SIPSIN_SLOTS, type SipsinSlot } from './sipsin-groups';
 import { josa } from './sentence';
+import { getOhaengForJi } from '@/engine/adapter/hanja-mapper';
 import { buildTimingNarrative, type TimingNarrative } from './narrative';
 
 export type ReportAxis = 'love' | 'wealth' | 'career' | 'health' | 'family';
@@ -37,6 +38,21 @@ export interface SajuReport {
   timing: TimingNarrative;
   /** 감지된 전체 패턴 (우선순위·강도 정렬) — '전체 해설' 섹션 렌더용. 구형 리포트에는 없을 수 있다. */
   patterns?: DetectedPattern[];
+  /** 이 명식의 고유 맥락 — 같은 패턴이라도 명식에 따라 다른 해석을 만들기 위한 재료 */
+  context: {
+    /** 격국 이름 (예: '비견격') */
+    gyeokguk: string;
+    /** 격국이 속한 십신 묶음 라벨 (예: '비겁') */
+    gyeokgukGroup: string;
+    /** 용신 오행 (예: '금') */
+    yongsin: string;
+    /** 용신이 속한 십신 묶음 라벨 (예: '식상') */
+    yongsinGroup: string;
+    /** 기신 오행 (예: '화') */
+    gisin: string;
+    /** 일간 강약 라벨 (예: '신약(身弱)') */
+    dayMasterVerdict: string;
+  };
 }
 
 export interface AssembleReportOptions {
@@ -153,7 +169,7 @@ function buildLoveSection(
 
   // 축 관련 감지 패턴 — 일지가 걸린 관계 패턴 + 도화 교차 + 배우자성 공망
   const relevant = patterns.filter((p) => {
-    if (p.key.startsWith('saju/cross/sinsal-도화')) return true;
+    if (p.key.startsWith('saju/cross/sinsal-연살')) return true;
     if (p.key.startsWith('saju/relation/') && patternSlotsLabels(p).includes('일지')) return true;
     if (opts.gender === 'male' && p.key === 'saju/cross/gongmang-jaesung') return true;
     if (opts.gender === 'female' && p.key === 'saju/cross/gongmang-gwansung') return true;
@@ -196,7 +212,7 @@ function buildWealthSection(
   const riskPatterns = patternByKeys(patterns, [
     'saju/imbalance/jaesung-nochul',
     'saju/cross/gongmang-jaesung',
-    'saju/cross/sinsal-도화-jaesung',
+    'saju/cross/sinsal-연살-jaesung',
     'saju/cross/sinsal-역마-jaesung',
     'saju/combo/jaesung-nochul--bigeop-gwada',
   ]);
@@ -295,12 +311,17 @@ function buildFamilySection(
 ): ReportSection {
   const lines: string[] = [];
 
+  const hasHour = Boolean(result.palja.hourGan && result.palja.hourJi);
   for (const pillar of PILLAR_REALM) {
+    if (!hasHour && pillar.label === '시주') continue; // 시각 미상 — 시주 궁역 문장 제외
     const groups = pillar.slots.map((s) => groupOfSlot(result, s)).filter((g): g is SipsinGroup => g !== null);
     const glyphs = pillar.slots.map((s) => sipsinAt(result, s)).filter(Boolean);
     if (glyphs.length === 0) continue;
     const summary = [...new Set(groups)].map((g) => groupLabel(g)).join('+');
     lines.push(`${pillar.label}(${pillar.realm}) — ${summary || '십신 비어 있음'} (${glyphs.join('·')})`);
+  }
+  if (!hasHour) {
+    lines.push('시각 미상 — 시주(자녀·말년궁)는 판별하지 않으며, 해당 영역은 대운·세운으로 보완합니다.');
   }
 
   // 육친성 — 형제(비겁), 자녀(남명 식상/여명 관성)
@@ -309,7 +330,11 @@ function buildFamilySection(
   const childGroup: SipsinGroup | null = opts.gender === 'male' ? 'siksang' : opts.gender === 'female' ? 'gwansung' : null;
   if (childGroup) {
     const childLabel = groupLabel(childGroup);
-    lines.push(`자녀 축(${childLabel}) ${counts[childGroup]}% — 시주(자녀궁)와 함께 읽으면 자녀 연의 결이 보입니다.`);
+    lines.push(
+      hasHour
+        ? `자녀 축(${childLabel}) ${counts[childGroup]}% — 시주(자녀궁)와 함께 읽으면 자녀 연의 결이 보입니다.`
+        : `자녀 축(${childLabel}) ${counts[childGroup]}% — 시각 미상으로 자녀궁은 세운·대운의 임시 자리로 읽습니다.`,
+    );
   }
 
   const relationPatterns = patterns.filter((p) => p.key.startsWith('saju/relation/') && p.key !== 'saju/relation/wonjin');
@@ -335,6 +360,19 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
   const hourPillar = palja.hourGan && palja.hourJi ? `${palja.hourGan}${palja.hourJi}` : null;
   const paljaLabel = `${palja.yearGan}${palja.yearJi} ${palja.monthGan}${palja.monthJi} ${palja.dayGan}${palja.dayJi} ${hourPillar ?? '(시각 미상)'}`;
 
+  // 명식 맥락 — 같은 패턴이라도 격국·용신·강약이 다르면 다른 해석이 나오도록 하는 재료
+  const gyeokgukGroup = groupFromOhaeng(result, getOhaengForJi(result.palja.monthJi) ?? '') ?? 'bigeop';
+  const yongsinGroup = groupFromOhaeng(result, result.yongsin.ohaeng) ?? 'siksang';
+  const gisin = result.yongsin.gisin.split('(')[0].trim();
+  const context = {
+    gyeokguk: result.gyeokguk.name,
+    gyeokgukGroup: groupLabel(gyeokgukGroup),
+    yongsin: result.yongsin.ohaeng,
+    yongsinGroup: groupLabel(yongsinGroup),
+    gisin,
+    dayMasterVerdict: meter.dayMaster.verdictLabel,
+  };
+
   return {
     headline,
     paljaLabel,
@@ -348,5 +386,6 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     },
     timing,
     patterns,
+    context,
   };
 }
