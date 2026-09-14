@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gongmang-gwansung--daymaster-weak
+title: 관공망×신약(官空亡身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 7
+  hour: 7
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁壬甲
+  gyeokguk: 정관격
+  yongsin: 금
+body:
+  short: 지위·규범의 자리가 비어 있는데 일간마저 약한 구조라, 실체 없는 규범보다 실질적인 역할을 먼저 잡는 것이 중요합니다.
+  medium: 관성 자리에 공망이 걸려 있고 일간이 신약한 명식입니다. 지위·규범·명예가 허상으로 보이거나 실체 없이 흐르기 쉬운 구조입니다. 관성의 허상에 휘둘리지 않으려면, 겉으로 보이는 지위보다 실질적인 역할과 책임을 먼저 잡는 것이 이 구조의 현실적인 대응입니다.
+tags: [조합, 관성, 공망, 신약]

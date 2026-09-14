@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-chung--daymaster-weak
+title: 충×신약(沖身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙庚
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 충의 마찰이 있는데 일간이 약해 휘둘리기 쉬운 구조라, 충의 주기를 파악하고 미리 거리를 두는 것이 유지법입니다.
+  medium: 지지 충이 있는데 일간이 신약한 명식입니다. 마찰이 일어나는 자리의 관계·영역에서 휘둘리기 쉬우므로, 충이 일어나는 주기를 파악하고 미리 거리를 두는 것이 유지법입니다. 충을 피하기보다 그 파장을 예측하고 대비하는 쪽이 이 구조의 현실적인 대응입니다.
+tags: [조합, 충, 신약]

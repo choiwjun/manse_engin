@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/siksang-gwada--daymaster-weak
+title: 식과다×신약(食過多身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 종아격
+  yongsin: 토
+body:
+  short: 표현·생산이 과다한데 일간이 약한 구조라, 만드는 양을 줄이고 완성도를 높이는 쪽이 균형입니다.
+  medium: 식상이 과다한데 일간이 신약한 명식입니다. 아이디어·표현·생산은 넘치나 감당할 힘이 부족한 구조입니다. 만드는 양을 줄이고 완성도를 높이는 쪽이 균형이며, 하나를 끝까지 밀고 나가는 것이 이 구조의 장점을 살리는 방법입니다.
+tags: [조합, 식상, 신약]

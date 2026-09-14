@@ -70,8 +70,8 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.equal(flowPattern.contentId, 'saju/flow/sangsaeng-saengjae', 'content DB 등록 → contentId');
   assert.ok(flowLine.includes('전문성 축적이 곧 수입 축적'), `DB body.short 오버라이드: ${flowLine}`);
 
-  const weakLine = interp.summary.cautionLines.find((s) => s.includes('신약'));
-  assert.ok(weakLine && weakLine.includes('36.7%'), `계량 수치 반영: ${weakLine}`);
+  const weakLine = interp.summary.cautionLines.find((s) => s.includes('36.7%'));
+  assert.ok(weakLine && weakLine.includes('신약'), `계량 수치 반영: ${weakLine}`);
   assert.ok(
     interp.summary.structureLines.some((s) => s.includes('당령')),
     '조후 detector — 丑월(토왕) × 己(토) 일간 = 당령 일간',
@@ -236,6 +236,62 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const wonjinPos = new Set(wonjin.pairs.flatMap((p) => [p.position1, p.position2]));
   const chungPos = new Set(chung.flatMap((x) => x.positions));
   for (const p of wonjinPos) assert.ok(!chungPos.has(p) || true, '위치 겹침 가능 — 공존 조합이므로 허용');
+}
+
+// 6차 — 조합키 3차 확장 (8개 신규 조합 감지)
+// 각 케이스는 scan-combos3.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
+{
+  const cases = [
+    {
+      input: { year: 1950, month: 1, day: 5, hour: 16, minute: 30, gender: 'male' },
+      key: 'saju/combo/jaesaeng-gwan--daymaster-weak',
+      label: '재생관×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 13, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/sangsaeng-jesal--daymaster-strong',
+      label: '식상제살×신강',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/ohaeng-missing--daymaster-weak',
+      label: '오행결핍×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/jiji-chung--daymaster-weak',
+      label: '충×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 11, hour: 10, minute: 30, gender: 'male' },
+      key: 'saju/combo/bigeop-gwada--daymaster-weak',
+      label: '비겁과다×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 4, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/gwanin-sangsaeng--daymaster-strong',
+      label: '관인상생×신강',
+    },
+    {
+      input: { year: 1950, month: 1, day: 7, hour: 7, minute: 30, gender: 'male' },
+      key: 'saju/combo/gongmang-gwansung--daymaster-weak',
+      label: '관공망×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/siksang-gwada--daymaster-weak',
+      label: '식과다×신약',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const keys = runDetectors(r).map((p) => p.key);
+    assert.ok(keys.includes(c.key), `${c.label} 조합 감지 실패 — ${c.input.year}-${c.input.month}-${c.input.day}`);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined'), `${c.label} 동적 문장: ${rendered}`);
+    assert.ok(pattern.contentId === c.key, `${c.label} DB 문구 등록`);
+  }
 }
 
 // 5차 — 궁합 해석 계층

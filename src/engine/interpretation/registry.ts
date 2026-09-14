@@ -554,6 +554,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '흐름 자체는 좋으니, 어느 기술 하나를 골라 깊게 파는지가 수입 규모를 정합니다.',
   },
 
+  // ---------- combo 3차: 흐름×강약 / 결핍×강약 / 관계×강약 ----------
+  'saju/combo/jaesaeng-gwan--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '재생관×신약(財生官身弱)',
+    defaultText:
+      '자원이 지위를 떠받치는 구조는 있으나 일간이 약해 그 흐름을 감당하기 어렵습니다. 지위를 먼저 키우기보다 기반을 먼저 다지는 것이 순서입니다.',
+    polarity: 'caution',
+    conclusion: '지위를 먼저 키우기보다 기반을 먼저 다지는 것이 순서입니다.',
+  },
+  'saju/combo/sangsaeng-jesal--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '식상제살×신강(食傷制殺身强)',
+    defaultText:
+      '압박을 제압할 힘이 충분한 구조입니다. 식상의 제압력이 일간의 강함과 맞물려, 어려운 국면을 오히려 실력으로 돌파하는 힘이 있습니다.',
+    polarity: 'plus',
+    conclusion: '압박을 실력으로 돌파하는 힘이 있으니, 어려운 국면을 피하기보다 정면으로 나서는 것이 이 구조의 활용법입니다.',
+  },
+  'saju/combo/ohaeng-missing--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '오행결핍×신약(五行缺身弱)',
+    defaultText:
+      '오행이 결핍된 데다 일간마저 약한 구조입니다. 균형도 없고 힘도 부족하니, 무리한 보충보다 결핍의 영역을 인정하고 최소 동작으로 버티는 것이 먼저입니다.',
+    polarity: 'caution',
+    conclusion: '무리한 보충보다 결핍을 인정하고 최소 동작으로 버티는 것이 먼저입니다.',
+  },
+  'saju/combo/jiji-chung--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '충×신약(沖身弱)',
+    defaultText:
+      '충의 마찰이 있는데 일간이 약해 휘둘리기 쉬운 구조입니다. 충이 일어나는 자리의 관계·영역을 피하기보다, 충의 주기를 파악하고 미리 거리를 두는 것이 유지법입니다.',
+    polarity: 'caution',
+    conclusion: '충의 주기를 파악하고 미리 거리를 두는 것이 유지법입니다.',
+  },
+  'saju/combo/bigeop-gwada--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '비겁과다×신약(比劫過多身弱)',
+    defaultText:
+      '자기 세력이 많은데도 일간이 약한 구조입니다. 경쟁만 치열하고 실속은 없는 상태이니, 세력을 늘리기보다 기존 세력 안에서 실질을 챙기는 것이 중요합니다.',
+    polarity: 'caution',
+    conclusion: '세력을 늘리기보다 기존 세력 안에서 실질을 챙기는 것이 중요합니다.',
+  },
+  'saju/combo/gwanin-sangsaeng--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '관인상생×신강(官印相生生强)',
+    defaultText:
+      '권위와 학습의 흐름이 살아 있고 일간도 강한 구조입니다. 제도·조직·자격의 단계를 밟는 데 유리하니, 흐름을 타고 올라가는 것이 이 구조의 활용입니다.',
+    polarity: 'plus',
+    conclusion: '제도·조직·자격의 단계를 밟는 데 유리하니, 흐름을 타고 올라가는 것이 활용법입니다.',
+  },
+  'saju/combo/gongmang-gwansung--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '관공망×신약(官空亡身弱)',
+    defaultText:
+      '지위·규범의 자리가 비어 있는데 일간마저 약한 구조입니다. 관성의 허상에 휘둘리지 않으려면, 실체 없는 규범보다 실질적인 역할을 먼저 잡는 것이 중요합니다.',
+    polarity: 'caution',
+    conclusion: '실체 없는 규범보다 실질적인 역할을 먼저 잡는 것이 중요합니다.',
+  },
+  'saju/combo/siksang-gwada--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '식과다×신약(食過多身弱)',
+    defaultText:
+      '표현·생산이 과다한데 일간이 약한 구조입니다. 아이디어는 넘치나 감당할 힘이 부족하니, 만드는 양을 줄이고 완성도를 높이는 쪽이 이 구조의 균형입니다.',
+    polarity: 'caution',
+    conclusion: '만드는 양을 줄이고 완성도를 높이는 쪽이 균형입니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

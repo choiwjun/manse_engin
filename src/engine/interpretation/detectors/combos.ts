@@ -12,6 +12,7 @@ import {
   isChildOf,
   isSanggeukOf,
   posLabel,
+  sipsinNameOfSlot,
   SIPSIN_SLOTS,
   toPatternSlot,
 } from '../sipsin-groups';
@@ -233,5 +234,128 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       ),
     });
   }
+
+  // ---------- 3차 확장: 흐름×강약 / 결핍×강약 / 관계×강약 ----------
+
+  // 재생관×신약 — 재성·관성이 천간에 드러난 흐름이 있는데 일간이 약함
+  const jaeGan = SIPSIN_SLOTS.filter(
+    (s) => s.endsWith('Gan') && groupOfSlot(result, s) === 'jaesung',
+  );
+  const gwanGan = SIPSIN_SLOTS.filter(
+    (s) => s.endsWith('Gan') && groupOfSlot(result, s) === 'gwansung',
+  );
+  if (jaeGan.length >= 1 && gwanGan.length >= 1 && weak) {
+    patterns.push({
+      key: 'saju/combo/jaesaeng-gwan--daymaster-weak',
+      strength: 0.6,
+      evidence: [...meterEvidence, `천간 재성 ${jaeGan.length}·관성 ${gwanGan.length} + 신약`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: [...jaeGan, ...gwanGan].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 식상제살×신강 — 편관 2+·식상 1+ 구조가 있는데 일간이 강함
+  const pyeongwan = SIPSIN_SLOTS.filter((s) => sipsinNameOfSlot(result, s) === '편관');
+  if (counts.siksang >= 1 && pyeongwan.length >= 2 && strong) {
+    patterns.push({
+      key: 'saju/combo/sangsaeng-jesal--daymaster-strong',
+      strength: 0.65,
+      evidence: [...meterEvidence, `편관 ${pyeongwan.length}·식상 ${counts.siksang} + 신강`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: [...pyeongwan, ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang')].map(
+        (s) => toPatternSlot(result, s),
+      ),
+    });
+  }
+
+  // 오행결핍×신약 — 오행 분포에 결핍이 있는데 일간이 약함
+  const missingOhaeng = meter.distribution.filter((d) => d.percent < 5).map((d) => d.ohaeng);
+  if (missingOhaeng.length > 0 && weak) {
+    patterns.push({
+      key: 'saju/combo/ohaeng-missing--daymaster-weak',
+      strength: 0.65,
+      evidence: [...meterEvidence, `결핍 오행 ${missingOhaeng.join('·')} + 신약`],
+      figures: { dayMasterScore: meter.dayMaster.score, missing: missingOhaeng.join('·') },
+    });
+  }
+
+  // 충×신약 — 지지 충이 있는데 일간이 약함
+  const chungRelations = (result.jijiRelations ?? []).filter((r) => r.type === '충');
+  if (chungRelations.length > 0 && weak) {
+    patterns.push({
+      key: 'saju/combo/jiji-chung--daymaster-weak',
+      strength: 0.65,
+      evidence: [
+        ...meterEvidence,
+        `충 ${chungRelations.length}건 — ${chungRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 신약`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: chungRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 비겁과다×신약 — 비겁이 과다한데 일간이 약함 (경쟁만 치열)
+  if (bigeopGwada && weak) {
+    patterns.push({
+      key: 'saju/combo/bigeop-gwada--daymaster-weak',
+      strength: 0.6,
+      evidence: [...meterEvidence, `비겁 ${counts.bigeop} + 신약`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'bigeop').map((s) =>
+        toPatternSlot(result, s),
+      ),
+    });
+  }
+
+  // 관인상생×신강 — 관성·인성이 모두 있는데 일간이 강함
+  if (hasGwaninSangsaeng(result) && strong) {
+    patterns.push({
+      key: 'saju/combo/gwanin-sangsaeng--daymaster-strong',
+      strength: 0.6,
+      evidence: [...meterEvidence, `관성 ${counts.gwansung}·인성 ${counts.insung} + 신강`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: [
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'gwansung'),
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'insung'),
+      ].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 관공망×신약 — 관성 자리에 공망이 걸려 있는데 일간이 약함
+  const gongmangGwanSlots = gongmangSlotsByGroup(result, 'gwansung');
+  if (gongmangGwanSlots.length > 0 && weak) {
+    patterns.push({
+      key: 'saju/combo/gongmang-gwansung--daymaster-weak',
+      strength: 0.65,
+      evidence: [
+        ...meterEvidence,
+        `공망 ${result.gongmang!.join('·')} — 관성 자리 ${gongmangGwanSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 신약`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: gongmangGwanSlots.map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 식과다×신약 — 식상이 과다한데 일간이 약함
+  if (siksangGwada && weak) {
+    patterns.push({
+      key: 'saju/combo/siksang-gwada--daymaster-weak',
+      strength: 0.6,
+      evidence: [...meterEvidence, `식상 ${counts.siksang} + 신약`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang').map((s) =>
+        toPatternSlot(result, s),
+      ),
+    });
+  }
+
   return patterns;
 }
