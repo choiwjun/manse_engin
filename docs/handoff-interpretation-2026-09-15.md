@@ -46,3 +46,16 @@
 - `siksang-gwada--daymaster-weak` (식과다×신약)
 
 검증: `npm test` 전체 통과, `content:validate OK — 엔트리 74건 통과 (레지스트리 74키 중 미작성 0키)`
+
+## 8차 추가 — 조합키 4차 확장 (74→82키)
+
+- `sangsaeng-saengjae--daeun-fit` (생재×용신운)
+- `sangsaeng-saengjae--daeun-tension` (생재×기신운)
+- `gwanin-sangsaeng--daeun-fit` (관인상생×용신운)
+- `gwanin-sangsaeng--daeun-tension` (관인상생×기신운)
+- `jiji-chung--daeun-tension` (충×기신운)
+- `wonjin--daeun-tension` (원진×기신운)
+- `daymaster-weak--seun-fit` (신약×세운용신)
+- `daymaster-strong--seun-tension` (신강×세운기신)
+
+검증: `npm test` 전체 통과, `content:validate OK — 엔트리 82건 통과 (레지스트리 82키 중 미작성 0키)`
