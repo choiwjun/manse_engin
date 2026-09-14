@@ -40,6 +40,8 @@ export interface SajuReport {
 export interface AssembleReportOptions {
   /** 성별 — 배우자성(남명 재성/여명 관성)·자녀성 판정에 쓴다. 미지정 시 양쪽을 나열 */
   gender?: 'male' | 'female';
+  /** 기준 시각 — 대운 전환 임박 판정에 쓴다 (기본: 현재 시각) */
+  now?: Date;
 }
 
 const AXIS_TITLES: Record<ReportAxis, string> = {
@@ -323,7 +325,7 @@ function dedupe(lines: string[]): string[] {
 export function assembleReport(result: SajuResult, opts: AssembleReportOptions = {}): SajuReport {
   const patterns = runDetectors(result);
   const meter = measureOhaeng(result);
-  const timing = buildTimingNarrative(result);
+  const timing = buildTimingNarrative(result, opts.now);
 
   const headline = `${result.gyeokguk.name} · 일간 ${meter.dayMaster.verdictLabel} ${meter.dayMaster.score}% · 용신 ${result.yongsin.ohaeng}`;
 

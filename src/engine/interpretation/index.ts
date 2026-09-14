@@ -42,6 +42,8 @@ export {
 export {
   interpretName,
   interpretNaming,
+  interpretNameWithSaju,
+  interpretNamingWithSaju,
   type NamingInterpretation,
   type NamingLine,
   type InterpretNamingOptions,

@@ -2,7 +2,8 @@
 // 사주·궁합 해석 계층과 같은 품질 규칙: 근거는 1층 facts(수리·오행·길흉),
 // 문장은 이름을 단정하지 않는 운영 가이드 톤.
 
-import type { NamingAnalysis, NamingResult } from '@/engine/types';
+import type { NamingAnalysis, NamingResult, SajuResult } from '@/engine/types';
+import { measureOhaeng } from './meter';
 
 export interface NamingLine {
   /** 해석 축 라벨 ('사격 흐름', '오행 조화', '수리 길흉', '발음오행') */
@@ -133,4 +134,94 @@ export function interpretName(analysis: NamingAnalysis, surname: string): Naming
 export function interpretNaming(result: NamingResult, opts: InterpretNamingOptions = {}): NamingInterpretation[] {
   const surname = opts.surnameLabel ?? result.surname;
   return result.candidates.map((c) => interpretName(c, surname));
+}
+
+// ---------- 사주 교차 — 이름 오행이 사주의 빈 곳/용신과 맞물리는지 ----------
+
+/** 이름의 대표 오행 — 수리오행 다수결, 동률이면 발음오행 첫 글자 */
+function dominantOhaeng(a: NamingAnalysis): string | null {
+  const freq = new Map<string, number>();
+  for (const o of a.suriOhaeng) freq.set(o, (freq.get(o) ?? 0) + 1);
+  let best: string | null = null;
+  let bestN = 0;
+  for (const [o, n] of freq) {
+    if (n > bestN) { best = o; bestN = n; }
+  }
+  return best ?? a.balumOhaeng[0] ?? null;
+}
+
+/** 사주와 이름의 오행 교차 해석 — 이름이 사주의 결핍·용신을 메우는지, 기신을 키우는지 */
+export function interpretNameWithSaju(
+  analysis: NamingAnalysis,
+  surname: string,
+  saju: SajuResult,
+): NamingInterpretation {
+  const base = interpretName(analysis, surname);
+  const meter = measureOhaeng(saju);
+  const nameOhaeng = dominantOhaeng(analysis);
+  const yongsin = saju.yongsin.ohaeng;
+  const gisin = saju.yongsin.gisin.split('(')[0].trim();
+  const missing = meter.distribution.filter((d) => d.percent < 5).map((d) => d.ohaeng);
+
+  if (!nameOhaeng) return base;
+
+  const lines = [...base.lines];
+  const strengths = [...base.strengths];
+  const cautions = [...base.cautions];
+  const guidance = [...base.guidance];
+
+  // 이름 오행이 사주 결핍 축을 메우는지
+  if (missing.includes(nameOhaeng)) {
+    lines.push({
+      label: '사주 보완',
+      text: `이름의 대표 오행 ${nameOhaeng}이(가) 사주에서 비어 있는 축(${missing.join('·')})을 메웁니다. 이름이 사주의 빈 곳을 보완하는 구조라, 부를 때마다 결핍 축이 채워지는 효과가 있습니다.`,
+    });
+    strengths.push(`이름 오행 ${nameOhaeng}이(가) 사주의 결핍 축(${missing.join('·')})을 메웁니다.`);
+    guidance.push('이 이름은 사주의 빈 곳을 메우는 보완형 이름입니다. 결핍 축의 영역(관계·재물·지위·배움 중 해당하는 쪽)에서 보완 효과를 기대할 수 있습니다.');
+  } else if (nameOhaeng === yongsin) {
+    lines.push({
+      label: '사주 보완',
+      text: `이름의 대표 오행 ${nameOhaeng}이(가) 사주의 용신 오행과 같습니다. 이름이 용신 방향을 돕는 구조라, 부를 때마다 용신 기운이 더해지는 효과가 있습니다.`,
+    });
+    strengths.push(`이름 오행 ${nameOhaeng}이(가) 용신 오행과 같아 용신 방향을 돕습니다.`);
+    guidance.push('이 이름은 용신 방향을 돕는 이름입니다. 사주의 활용점을 이름이 한 번 더 받쳐주는 구조입니다.');
+  } else if (nameOhaeng === gisin) {
+    lines.push({
+      label: '사주 보완',
+      text: `이름의 대표 오행 ${nameOhaeng}이(가) 사주의 기신 오행과 같습니다. 이름이 기신 방향을 키우는 구조라, 사주의 균형을 깨뜨릴 수 있으니 다른 오행의 후보를 우선 고려하는 것이 좋습니다.`,
+    });
+    cautions.push(`이름 오행 ${nameOhaeng}이(가) 기신 오행과 같아 기신 방향을 키웁니다.`);
+    guidance.push('이 이름은 기신 방향을 키우는 이름입니다. 사주 균형을 위해 용신 또는 결핍 축의 오행을 가진 후보를 우선 고려하는 것이 좋습니다.');
+  } else {
+    lines.push({
+      label: '사주 보완',
+      text: `이름의 대표 오행 ${nameOhaeng}은(는) 사주의 용신·기신·결핍 축과 직접 맞물리지 않는 중간 오행입니다. 이름이 사주 균형을 크게 돕지도 해치지도 않는 중립 구조입니다.`,
+    });
+  }
+
+  const headlineSuffix = missing.includes(nameOhaeng)
+    ? ' · 사주 결핍 보완'
+    : nameOhaeng === yongsin
+      ? ' · 용신 방향'
+      : nameOhaeng === gisin
+        ? ' · 기신 방향'
+        : '';
+
+  return {
+    headline: base.headline + headlineSuffix,
+    lines,
+    strengths,
+    cautions,
+    guidance,
+  };
+}
+
+/** 사주 교차 포함 여러 후보 비교 */
+export function interpretNamingWithSaju(
+  result: NamingResult,
+  saju: SajuResult,
+  opts: InterpretNamingOptions = {},
+): NamingInterpretation[] {
+  const surname = opts.surnameLabel ?? result.surname;
+  return result.candidates.map((c) => interpretNameWithSaju(c, surname, saju));
 }

@@ -107,6 +107,8 @@ export function calculateDaeun(
       ohaeng,
       isCurrent,
       startAgeMonths,
+      startsAt,
+      endsAt,
     });
   }
 

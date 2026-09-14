@@ -14,6 +14,7 @@ import {
   interpretCompatibility,
   analyzeNames,
   interpretNaming,
+  interpretNamingWithSaju,
   renderNamingMarkdown,
   getCalendarDay,
   interpretTaekil,
@@ -416,6 +417,39 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     }
   }
   assert.ok(gilFound, '9월 내 길일 존재');
+}
+
+// 5차-후속2 — 작명×사주 교차
+{
+  const r = saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' });
+  const names = analyzeNames('김', ['민준', '수아', '지호']);
+  const ns = interpretNamingWithSaju(names, r);
+  assert.equal(ns.length, 3, '사주 교차 해석 수');
+  for (const n of ns) {
+    assert.ok(n.lines.some((l) => l.label === '사주 보완'), `사주 보완 라인: ${n.headline}`);
+    assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
+  }
+  // 용신(금) 오행 이름은 '용신 방향' 또는 '결핍 보완' 접미어를 가져야 한다
+  const minjun = ns.find((n) => n.headline.startsWith('김민준'));
+  assert.ok(minjun && /용신 방향|결핍 보완/.test(minjun.headline), `용신/보완 접미: ${minjun?.headline}`);
+}
+
+// 5차-후속3 — 시점 서사 2단계 (월운×세운 교차, 대운 전환 서사)
+{
+  const r = saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' });
+  const tn = buildTimingNarrative(r, new Date('2026-09-13T12:00:00+09:00'));
+  assert.ok(tn.wolun, '월운 존재');
+  assert.ok(tn.wolun.verdict && tn.wolun.cross, `월운 판정·교차: ${tn.wolun.line}`);
+  assert.ok(tn.wolun.line.includes('세운'), '월운×세운 교차 문구');
+
+  // 대운 전환 임박 — 2033-03 종료이므로 2032-10은 임박 구간
+  const tn2 = buildTimingNarrative(r, new Date('2032-10-01T12:00:00+09:00'));
+  assert.ok(tn2.transition && tn2.transition.imminent, `전환 임박: ${tn2.transition?.line}`);
+  assert.ok(tn2.transition.line.includes('壬午'), '다음 대운 명시');
+
+  // 전환 12개월 전 — 다가오는 구간
+  const tn3 = buildTimingNarrative(r, new Date('2032-04-01T12:00:00+09:00'));
+  assert.ok(tn3.transition && !tn3.transition.imminent, `전환 다가옴: ${tn3.transition?.line}`);
 }
 
 // 4) 계약 일관성 — 다양한 출생에서 (a) 모든 키가 레지스트리에 등록 (b) 강도 0~1 (c) 골든 문구 존재

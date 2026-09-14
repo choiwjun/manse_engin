@@ -49,6 +49,10 @@ export interface Daeun {
   isCurrent: boolean;
   /** 소수 개월 포함. 정수 개월은 달력 가산, 나머지는 1개월=30일로 환산. */
   startAgeMonths?: number;
+  /** 이 대운 구간의 실제 시작 시각 (epoch ms). 대운 전환 서사의 기준. */
+  startsAt?: number;
+  /** 이 대운 구간의 실제 종료 시각 (epoch ms) — 다음 대운의 startsAt과 같다. */
+  endsAt?: number;
 }
 
 export interface Sinsal {

@@ -129,6 +129,8 @@ export {
   interpretCompatibility,
   interpretName,
   interpretNaming,
+  interpretNameWithSaju,
+  interpretNamingWithSaju,
   interpretTaekil,
   getContentEntry,
   contentEntryCount,

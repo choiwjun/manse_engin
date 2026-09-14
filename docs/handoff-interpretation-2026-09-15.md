@@ -138,3 +138,19 @@
 **설계 메모** — 궁합 해석의 패턴(lines/strengths·cautions/guidance → markdown)을 그대로 적용. 작명은 계산 결과(수리·오행·점수)를 해석 문장으로, 택일은 십이직·길흉·택일 정보를 운영 가이드로 확장. 조사 오류(`진를`→`진을`)는 `josa` 헬퍼로 해결.
 
 검증: `npm test` 전체 통과 (작명·택일 테스트 추가), `content:validate OK — 114키`
+
+## 14차 추가 — 작명×사주 교차 + 시점 서사 2단계
+
+**작명×사주 교차** (`interpretation/naming.ts`)
+- `interpretNameWithSaju(analysis, surname, saju)` — 이름 해석 + 사주 용신/기신/결핍 교차
+- `interpretNamingWithSaju(result, saju)` — 후보 전체 사주 교차
+- 이름의 대표 오행(수리오행 다수결)이 사주의 결핍 축을 메우는지('결핍 보완'), 용신과 같은지('용신 방향'), 기신과 같은지('기신 방향')를 headline 접미어 + '사주 보완' 라인으로 판정
+
+**시점 서사 2단계** (`interpretation/narrative.ts`)
+- 월운×세운 교차 — 월운을 용신/기신 축으로 판정(verdict)하고 세운과의 방향 교차('같은 방향'/'엇갈림'/'세운 중립')를 `cross`로 명시. 월운 라인에 교차 문구 자동 삽입
+- 대운 전환 서사 — `Daeun`에 `startsAt`/`endsAt`(epoch ms) 필드 추가(계산 시 실제 구간 시각 보존). `buildTimingNarrative(result, now)`가 현재 대운 종료까지 남은 실제 개월로 '다가오는 전환'(≤12개월)/'임박 전환'(≤6개월)을 판정해 `transition` 서사 생성
+- `assembleReport(result, { now })` — now를 서사까지 전달
+
+**설계 메모** — 대운 전환의 '6개월 전'은 나이 추정이 아닌 실제 구간 시각(endsAt - now)으로 판정. 이를 위해 `Daeun` 타입에 `startsAt`/`endsAt` epoch 필드를 추가했다(하위호환 — optional).
+
+검증: `npm test` 전체 통과 (작명×사주 교차·월운×세운·대운 전환 테스트 추가), `content:validate OK — 114키`

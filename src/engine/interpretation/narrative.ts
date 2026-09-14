@@ -42,9 +42,20 @@ export interface TimingNarrative {
     verdict: TimingVerdict;
     line: string;
   } | null;
-  /** 월운 — 제공된 경우 */
+  /** 월운 — 제공된 경우. verdict = 용신/기신 축 판정, cross = 세운과의 교차 */
   wolun: {
     ganJi: string;
+    ohaeng: string;
+    sipsin: string | null;
+    verdict: TimingVerdict;
+    line: string;
+    /** 세운과 월운의 방향 교차 — '같은 방향', '엇갈림', '세운 중립' */
+    cross: string | null;
+  } | null;
+  /** 대운 전환 임박 — 현재 대운 말기(전환 6개월 전후)일 때 서사 */
+  transition: {
+    /** 현재 대운 말기 여부 */
+    imminent: boolean;
     line: string;
   } | null;
   /** 역검증 확인 질문 — 과거 대운 구간에서 예측되는 사건 유형 */
@@ -109,8 +120,8 @@ function buildCheckQuestions(result: SajuResult): string[] {
   return questions.slice(-3);
 }
 
-/** SajuResult → 대운×세운×월운 결합 서사 */
-export function buildTimingNarrative(result: SajuResult): TimingNarrative {
+/** SajuResult → 대운×세운×월운 결합 서사. now를 넘기면 대운 전환 임박을 실제 시각으로 판정 */
+export function buildTimingNarrative(result: SajuResult, now: Date = new Date()): TimingNarrative {
   const current = result.daeun.find((d) => d.isCurrent) ?? null;
   const currentIdx = result.daeun.findIndex((d) => d.isCurrent);
   const next = currentIdx >= 0 ? result.daeun[currentIdx + 1] ?? null : null;
@@ -156,10 +167,61 @@ export function buildTimingNarrative(result: SajuResult): TimingNarrative {
 
   let wolun: TimingNarrative['wolun'] = null;
   if (result.wolun?.gan) {
-    wolun = {
-      ganJi: `${result.wolun.gan}${result.wolun.ji}`,
-      line: `이번 달 월운 ${result.wolun.gan}${result.wolun.ji} — 세운 방향 안에서 달·주 단위 조율 지점입니다.`,
-    };
+    const wolunOhaeng = ohaengOfGanJi(result.wolun.gan, result.wolun.ji);
+    if (wolunOhaeng) {
+      const info = judgeOhaeng(result, wolunOhaeng);
+      const sipsin = determineSipsin(result.palja.dayGan, result.wolun.gan) || null;
+      const reading = koreanReading(result.wolun.gan, result.wolun.ji) || `${result.wolun.gan}${result.wolun.ji}`;
+      const sipsinPart = sipsin ? ` 일간 대비 ${sipsin} 운(${wolunOhaeng}),` : '';
+
+      // 세운×월운 교차 — 세운이 용신/기신일 때 월운이 같은 방향인지 엇갈리는지
+      let cross: string | null = null;
+      if (sewoon) {
+        if (sewoon.verdict === info.verdict) {
+          cross = '같은 방향';
+        } else if (sewoon.verdict === 'neutral' || info.verdict === 'neutral') {
+          cross = '세운 중립';
+        } else {
+          cross = '엇갈림';
+        }
+      }
+      const crossText =
+        cross === '같은 방향'
+          ? ' 세운과 같은 방향이라 이 달의 조율이 연운을 증폭합니다.'
+          : cross === '엇갈림'
+            ? ' 세운과 엇갈리는 방향이라 이 달의 조율이 연운을 누르거나 되돌립니다.'
+            : '';
+      wolun = {
+        ganJi: `${result.wolun.gan}${result.wolun.ji}`,
+        ohaeng: wolunOhaeng,
+        sipsin,
+        verdict: info.verdict,
+        line: `이번 달 월운 ${reading}(${result.wolun.gan}${result.wolun.ji})은${sipsinPart} ${info.label} — ${info.line}.${crossText}`,
+        cross,
+      };
+    }
+  }
+
+  // 대운 전환 임박 — 현재 대운 종료(endsAt)까지 남은 실제 기간으로 판정.
+  // 전환 12개월 전부터 '다가오는 전환', 6개월 전부터 '임박'으로 서사를 세분한다.
+  let transition: TimingNarrative['transition'] = null;
+  if (current && next && current.endsAt != null) {
+    const monthsLeft = (current.endsAt - now.getTime()) / (1000 * 60 * 60 * 24 * 30.44);
+    if (monthsLeft <= 12 && monthsLeft > 0) {
+      const nextInfo2 = judgeOhaeng(result, next.ohaeng);
+      const direction =
+        nextInfo2.verdict === 'fit'
+          ? '용신 방향으로 열리는'
+          : nextInfo2.verdict === 'tension'
+            ? '기신 방향으로 무거워지는'
+            : '중간 오행으로 바뀌는';
+      const phase = monthsLeft <= 6 ? '임박' : '다가오는';
+      const monthText = monthsLeft <= 1 ? '한 달 안쪽' : `약 ${Math.round(monthsLeft)}개월`;
+      transition = {
+        imminent: monthsLeft <= 6,
+        line: `대운 ${phase} 전환기입니다 — ${current.gan}${current.ji} 대운이 ${monthText} 후 ${next.gan}${next.ji} 대운(${next.ohaeng})으로 바뀝니다. 판이 ${direction} 구간이라, 큰 결정은 다음 대운 방향에 맞춰 미리 배치하는 것이 좋습니다.`,
+      };
+    }
   }
 
   const checkQuestions = buildCheckQuestions(result);
@@ -169,9 +231,9 @@ export function buildTimingNarrative(result: SajuResult): TimingNarrative {
       ? `큰 판(${daeun.ganJi} 대운, ${daeunInfo?.label}) 위에서 올해(${sewoon.ganJi})는 ${sewoon.verdict === 'fit' ? '순풍' : sewoon.verdict === 'tension' ? '역풍' : '잔잔한'} 구간 — 대운의 방향을 세운이 증폭하거나 누릅니다.`
       : null;
 
-  const lines = [daeun?.line, sewoon?.line, wolun?.line, nextEntry?.line, combined].filter(
+  const lines = [daeun?.line, sewoon?.line, wolun?.line, transition?.line, nextEntry?.line, combined].filter(
     (s): s is string => typeof s === 'string',
   );
 
-  return { daeun, next: nextEntry, sewoon, wolun, checkQuestions, combined, lines };
+  return { daeun, next: nextEntry, sewoon, wolun, transition, checkQuestions, combined, lines };
 }
