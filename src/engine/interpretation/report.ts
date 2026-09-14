@@ -35,6 +35,8 @@ export interface SajuReport {
   sections: Record<ReportAxis, ReportSection>;
   /** 대운×세운×월운 시점 서사 */
   timing: TimingNarrative;
+  /** 감지된 전체 패턴 (우선순위·강도 정렬) — '전체 해설' 섹션 렌더용. 구형 리포트에는 없을 수 있다. */
+  patterns?: DetectedPattern[];
 }
 
 export interface AssembleReportOptions {
@@ -345,5 +347,6 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
       family: buildFamilySection(result, patterns, meter, opts),
     },
     timing,
+    patterns,
   };
 }

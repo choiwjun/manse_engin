@@ -9,6 +9,7 @@ import type { TaekilInterpretation } from './taekil';
 import type { CompatibilityResult } from '@/engine/compatibility/types';
 import type { NamingResult, CalendarDay } from '@/engine/types';
 import { getContentEntry } from './content';
+import { renderPattern, strengthLabel } from './sentence';
 
 export interface RenderReportOptions {
   /** 문서 제목 (기본: '사주 풀이 리포트') */
@@ -19,10 +20,31 @@ export interface RenderReportOptions {
 
 const SECTION_ORDER = ['career', 'wealth', 'love', 'health', 'family'] as const;
 
+function patternBody(key: string, level: 'medium' | 'long'): string | null {
+  const value = getContentEntry(key)?.body?.[level];
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+}
+
+function addPatternDetail(out: string[], pattern: NonNullable<SajuReport['patterns']>[number], includeLong = true): void {
+  out.push(`### ${pattern.title}`);
+  out.push('');
+  out.push(`**${pattern.title}**`);
+  out.push('');
+  out.push(`- 강도: ${strengthLabel(pattern.strength)} (${Math.round(pattern.strength * 100)}%)`);
+  if (pattern.evidence?.length > 0) out.push(`- 근거: ${pattern.evidence.join(' · ')}`);
+  out.push(`- 해석: ${renderPattern(pattern)}`);
+  const medium = patternBody(pattern.key, 'medium');
+  const long = includeLong ? patternBody(pattern.key, 'long') : null;
+  if (medium) out.push(`- 심층 해설: ${medium}`);
+  if (long) out.push(`- 상담용 해설: ${long}`);
+  out.push('');
+}
+
 /** SajuReport → 마크다운 상담 문서 */
 export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptions = {}): string {
   const title = opts.title ?? '사주 풀이 리포트';
   const includeQuestions = opts.includeCheckQuestions ?? true;
+  const patterns = report.patterns ?? [];
   const out: string[] = [];
 
   out.push(`# ${title}`);
@@ -30,6 +52,24 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push(`**${report.headline}**`);
   out.push('');
   out.push(`원국: ${report.paljaLabel}`);
+  out.push('');
+
+  // 핵심 내용 — 전체 구조를 먼저 읽는 상담용 요약
+  out.push('## 핵심 내용');
+  out.push('');
+  out.push(`- 전체 구조: ${report.headline}`);
+  out.push(`- 일간 강약: ${report.meter.dayMaster.verdictLabel} ${report.meter.dayMaster.score}% — 비겁 ${report.meter.groupPercents.bigeop}%, 인성 ${report.meter.groupPercents.insung}%`);
+  out.push(`- 격국·용신: ${report.headline.split(' · ').slice(0, 1)[0]} · 용신 ${report.headline.split('용신 ').slice(1)[0] ?? '확인 필요'}`);
+  const keyPatterns = patterns.slice(0, 5);
+  if (keyPatterns.length > 0) {
+    out.push('- 핵심 패턴:');
+    for (const pattern of keyPatterns) out.push(`  - ${pattern.title}: ${renderPattern(pattern)}`);
+  }
+  const plus = patterns.filter((p) => p.polarity === 'plus').slice(0, 2);
+  const caution = patterns.filter((p) => p.polarity === 'caution').slice(0, 2);
+  if (plus.length > 0) out.push(`- 주요 강점: ${plus.map((p) => p.title).join(' · ')}`);
+  if (caution.length > 0) out.push(`- 주요 주의점: ${caution.map((p) => p.title).join(' · ')}`);
+  out.push(`- 우선 방향: ${report.timing.daeun?.line ?? '현재 대운 정보를 기준으로 기반과 방향을 점검하세요.'}`);
   out.push('');
 
   // 계량 요약
@@ -48,21 +88,24 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   );
   out.push('');
 
+  // 분야별 전체 풀이 — 기존 축별 문장을 모두 보존하고, 선택된 패턴의 심층 문구를 붙인다.
+  out.push('## 분야별 전체 풀이');
+  out.push('');
+
   // 축별 섹션 — 상담 목차 순서: 적성 → 재물 → 연애 → 건강 → 육친
   for (const axis of SECTION_ORDER) {
     const section = report.sections[axis];
     out.push('');
-    out.push(`## ${section.title}`);
+    out.push(`### ${section.title}`);
     out.push('');
     out.push(`*${section.headline}*`);
     out.push('');
     for (const line of section.lines) {
       out.push(`- ${line}`);
     }
-    // 심층 문단 — content DB body.long이 있는 패턴만
     const deepParagraphs = section.patterns
       .map((p) => ({ title: p.title, long: getContentEntry(p.key)?.body?.long }))
-      .filter((x): x is { title: string; long: string } => typeof x.long === 'string');
+      .filter((x): x is { title: string; long: string } => typeof x.long === 'string' && x.long.trim().length > 0);
     if (deepParagraphs.length > 0) {
       out.push('');
       for (const { title: patternTitle, long } of deepParagraphs) {
@@ -72,8 +115,19 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
     }
   }
 
-  // 시점 서사
+  // 운의 흐름 — 대운·세운·월운·전환점을 별도 목차로 보존한다.
   out.push('');
+  out.push('## 운의 흐름');
+  out.push('');
+  if (report.timing.daeun) out.push(`### 대운\n\n- ${report.timing.daeun.line}`);
+  if (report.timing.sewoon) out.push(`### 세운\n\n- ${report.timing.sewoon.line}`);
+  if (report.timing.wolun) out.push(`### 월운\n\n- ${report.timing.wolun.line}`);
+  if (report.timing.next) out.push(`### 다음 대운 전환\n\n- ${report.timing.next.line}`);
+  if (report.timing.transition) out.push(`### 전환 시점\n\n- ${report.timing.transition.line}`);
+  if (report.timing.lines.length === 0) out.push('- 현재 운의 상세 시점 정보가 없습니다.');
+  out.push('');
+
+  // 기존 제목은 제거하고, 상세 운의 흐름 안에 확인 질문을 함께 둔다.
   out.push('## 시점 서사');
   out.push('');
   for (const line of report.timing.lines) {
@@ -87,7 +141,16 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
       out.push(`- ${q}`);
     }
   }
+
+  // 전체 구조 해설 — 축별 필터에서 제외된 패턴도 모두 출력한다.
   out.push('');
+  out.push('## 전체 구조 해설');
+  out.push('');
+  out.push(`감지 패턴 ${patterns.length}건`);
+
+  out.push('');
+  for (const pattern of patterns) addPatternDetail(out, pattern);
+
   out.push('---');
   out.push('');
   out.push('본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.');

@@ -119,6 +119,20 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     assert.ok(md.includes(header), `문서 섹션 헤더: ${header}`);
   }
   assert.ok(md.includes('**식상생재(食傷生財)**'), 'DB body.long 심층 문단 삽입');
+  assert.ok(md.includes('## 핵심 내용'), '핵심 내용 섹션');
+  assert.ok(md.includes('## 분야별 전체 풀이'), '분야별 전체 풀이 섹션');
+  assert.ok(md.includes('## 운의 흐름'), '운의 흐름 섹션');
+  assert.ok(md.includes('## 전체 구조 해설'), '전체 구조 해설 섹션');
+  assert.ok(md.includes(`감지 패턴 ${rep.patterns.length}건`), '전체 감지 패턴 수 표기');
+  assert.ok(rep.patterns.length > rep.sections.love.patterns.length, '전체 패턴이 축별 선별 목록보다 많음');
+  const firstPattern = rep.patterns[0];
+  assert.ok(firstPattern && md.includes(firstPattern.title), '전체 구조 해설에 우선 패턴 제목 출력');
+  assert.ok(firstPattern && firstPattern.evidence.some((e) => md.includes(e)), '전체 구조 해설에 패턴 근거 출력');
+  for (const pattern of rep.patterns) {
+    assert.ok(md.includes(`### ${pattern.title}`), `전체 패턴 제목 출력: ${pattern.key}`);
+    assert.ok(md.includes(`- 해석: ${renderPattern(pattern)}`), `전체 패턴 동적 해석 출력: ${pattern.key}`);
+    for (const evidence of pattern.evidence) assert.ok(md.includes(evidence), `전체 패턴 근거 출력: ${pattern.key}`);
+  }
   assert.ok(!md.includes('undefined') && !md.includes('null'), '렌더 누수 방지');
 
   // 3차 — 시각 미상에서도 리포트가 예외 없이 조립되어야 한다
