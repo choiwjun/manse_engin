@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/wonjin--seun-tension
+title: 원진×세운기신(怨嗔歲運忌神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 13
+  hour: 22
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁戊癸
+  gyeokguk: 겁재격
+  yongsin: 금
+body:
+  short: 원진의 속마찰이 있는데 세운이 기신 방향입니다. 올해는 겉으로 드러나지 않던 미움이 연운의 무게와 겹치는 구간이라, 오래된 관계의 불만이 불거질 수 있으니 감정 정리를 미리 해두는 것이 좋습니다.
+  medium: 원진이 있는데 올해 세운이 기신 방향인 명식입니다. 겉으로 드러나지 않던 속마찰이 연운의 무게와 겹치는 해라, 오래된 관계의 불만·서운함이 불거지기 쉽습니다. 상대를 바꾸기보다 원진 자리의 기대치를 낮추고, 감정이 쌓이기 전에 정리해두는 것이 이 해의 관계 유지법입니다.
+tags: [조합, 원진, 세운, 기신]

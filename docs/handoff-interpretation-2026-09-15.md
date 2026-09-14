@@ -59,3 +59,18 @@
 - `daymaster-strong--seun-tension` (신강×세운기신)
 
 검증: `npm test` 전체 통과, `content:validate OK — 엔트리 82건 통과 (레지스트리 82키 중 미작성 0키)`
+
+## 9차 추가 — 조합키 5차 확장 (82→90키)
+
+- `sangsaeng-saengjae--seun-fit` (생재×세운용신)
+- `sangsaeng-saengjae--seun-tension` (생재×세운기신)
+- `gwanin-sangsaeng--seun-fit` (관인상생×세운용신)
+- `gwanin-sangsaeng--seun-tension` (관인상생×세운기신)
+- `jiji-chung--seun-tension` (충×세운기신)
+- `wonjin--seun-tension` (원진×세운기신)
+- `jaesaeng-gwan--daeun-fit` (재생관×용신운)
+- `sangsaeng-jesal--daeun-fit` (식상제살×용신운)
+
+**설계 메모** — 흐름×세운·관계×세운·흐름×대운 잔여 축을 채웠다. `seunFit`/`seunTension`은 8차에 도입된 세운 오행 판정(천간 우선·비면 지지)을 그대로 재사용. 조합키가 늘어나며 `interpretSaju`의 `structureLines` 상한 5가 골든 케이스에서 당령 라인을 밀어내는 문제가 발생해 상한을 6/5로 상향(`assemble.ts`).
+
+검증: `npm test` 전체 통과, `content:validate OK — 엔트리 90건 통과 (레지스트리 90키 중 미작성 0키)`

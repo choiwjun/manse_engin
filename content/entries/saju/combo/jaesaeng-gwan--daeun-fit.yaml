@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jaesaeng-gwan--daeun-fit
+title: 재생관×용신운(財生官用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 5
+  hour: 16
+  minute: 30
+  gender: female
+  isLunar: false
+assert:
+  palja: 己丙庚甲
+  gyeokguk: 상관격
+  yongsin: 목
+body:
+  short: 재성과 관성이 천간에 드러난 흐름에 대운이 용신 방향입니다. 재물이 지위로 이어지는 길이 시기와 맞물린 구간이라, 사업 확장·직위 상승·공식 지위 취득을 이 시기에 추진하기 좋습니다.
+  medium: 천간에 재성과 관성이 함께 드러난 명식에 대운이 용신 방향으로 들어온 구간입니다. 재물이 지위로 이어지는 재생관의 길이 시기와 맞물려 있어, 사업 확장·직위 상승·공식 지위 취득 같은 '재물→지위' 전환이 유리합니다. 이 구간에는 번 것을 지위나 자격으로 고정하는 결정을 두면 흐름을 타기 쉽습니다.
+tags: [조합, 재생관, 대운, 용신]

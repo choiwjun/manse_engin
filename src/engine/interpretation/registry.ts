@@ -702,6 +702,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '강한 힘에 연운의 압박이 오는 구간으로, 확장보다 정리와 보존이 우선입니다.',
   },
 
+  // ---------- combo 5차: 흐름×세운 / 관계×세운 / 흐름×대운 잔여 ----------
+  'saju/combo/sangsaeng-saengjae--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '생재×세운용신(生財歲運用神)',
+    defaultText:
+      '재물을 만드는 흐름이 있는데 세운이 용신 방향입니다. 올해는 재물 쪽 흐름이 연운의 도움을 받는 구간이라, 수입·투자·계약의 결정을 이 해에 두면 흐름을 타기 쉽습니다.',
+    polarity: 'plus',
+    conclusion: '재물 흐름이 연운의 도움을 받는 해로, 수입·투자·계약의 결정을 이 해에 두기 좋습니다.',
+  },
+  'saju/combo/sangsaeng-saengjae--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '생재×세운기신(生財歲運忌神)',
+    defaultText:
+      '재물을 만드는 흐름은 있으나 세운이 기신 방향입니다. 올해는 재물 쪽 확장이 연운과 어긋나는 구간이라, 새 투자보다 기존 수입원의 방어와 정리가 우선입니다.',
+    polarity: 'caution',
+    conclusion: '재물 확장이 연운과 어긋나는 해로, 새 투자보다 기존 수입원의 방어가 우선입니다.',
+  },
+  'saju/combo/gwanin-sangsaeng--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '관인상생×세운용신(官印相生歲運用神)',
+    defaultText:
+      '권위와 학습이 서로 돕는 흐름에 세운이 용신 방향입니다. 올해는 승진·자격·진학 같은 계단식 도전이 연운의 지지를 받는 구간이라, 서류·시험·심사 쪽 결정을 이 해에 두기 좋습니다.',
+    polarity: 'plus',
+    conclusion: '계단식 도전이 연운의 지지를 받는 해로, 서류·시험·심사 쪽 결정을 이 해에 두기 좋습니다.',
+  },
+  'saju/combo/gwanin-sangsaeng--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '관인상생×세운기신(官印相生歲運忌神)',
+    defaultText:
+      '권위와 학습의 흐름은 있으나 세운이 기신 방향입니다. 올해는 제도·조직의 단계를 밟는 데 연운이 어긋나는 구간이라, 승진·자격 도전은 내년을 노리고 실력 축적에 집중하는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '제도·조직의 단계를 밟는 데 연운이 어긋나는 해로, 실력 축적에 집중하는 것이 좋습니다.',
+  },
+  'saju/combo/jiji-chung--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '충×세운기신(沖歲運忌神)',
+    defaultText:
+      '충의 마찰이 있는데 세운이 기신 방향입니다. 올해는 마찰이 연운의 무게와 겹치는 구간이라, 관계·영역의 충돌이 표면으로 터지기 쉬우니 이사·이직·관계 단절 같은 큰 결단은 신중해야 합니다.',
+    polarity: 'caution',
+    conclusion: '마찰이 연운의 무게와 겹치는 해로, 이사·이직·관계 단절 같은 큰 결단은 신중해야 합니다.',
+  },
+  'saju/combo/wonjin--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '원진×세운기신(怨嗔歲運忌神)',
+    defaultText:
+      '원진의 속마찰이 있는데 세운이 기신 방향입니다. 올해는 겉으로 드러나지 않던 미움이 연운의 무게와 겹치는 구간이라, 오래된 관계의 불만이 불거질 수 있으니 감정 정리를 미리 해두는 것이 좋습니다.',
+    polarity: 'caution',
+    conclusion: '겉으로 드러나지 않던 미움이 연운의 무게와 겹치는 해로, 감정 정리를 미리 해두는 것이 좋습니다.',
+  },
+  'saju/combo/jaesaeng-gwan--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '재생관×용신운(財生官用神運)',
+    defaultText:
+      '재성과 관성이 천간에 드러난 흐름에 대운이 용신 방향입니다. 재물이 지위로 이어지는 길이 시기와 맞물린 구간이라, 사업 확장·직위 상승·공식 지위 취득을 이 시기에 추진하기 좋습니다.',
+    polarity: 'plus',
+    conclusion: '재물이 지위로 이어지는 길이 시기와 맞물린 구간으로, 지위 취득을 이 시기에 추진하기 좋습니다.',
+  },
+  'saju/combo/sangsaeng-jesal--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '식상제살×용신운(食傷制殺用神運)',
+    defaultText:
+      '편관을 식상이 제어하는 구조에 대운이 용신 방향입니다. 압박을 실력으로 다루는 능력이 시기와 맞물린 구간이라, 경쟁·심사·도전적인 자리에서 실력을 발휘하기 좋습니다.',
+    polarity: 'plus',
+    conclusion: '압박을 실력으로 다루는 능력이 시기와 맞물린 구간으로, 경쟁·심사에서 실력을 발휘하기 좋습니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

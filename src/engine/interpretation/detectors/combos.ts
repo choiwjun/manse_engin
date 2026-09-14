@@ -492,5 +492,126 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     });
   }
 
+  // ---------- 5차 확장: 흐름×세운 / 관계×세운 / 흐름×대운 잔여 ----------
+
+  // 생재×세운용신 — 식상생재 흐름이 있는데 세운이 용신
+  if (hasSangsaengSaengjae(result) && seunFit) {
+    patterns.push({
+      key: 'saju/combo/sangsaeng-saengjae--seun-fit',
+      strength: 0.65,
+      evidence: [...meterEvidence, `식상생재 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: [
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang'),
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'jaesung'),
+      ].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 생재×세운기신 — 식상생재 흐름이 있는데 세운이 기신
+  if (hasSangsaengSaengjae(result) && seunTension) {
+    patterns.push({
+      key: 'saju/combo/sangsaeng-saengjae--seun-tension',
+      strength: 0.6,
+      evidence: [...meterEvidence, `식상생재 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: [
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang'),
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'jaesung'),
+      ].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 관인상생×세운용신 — 관성·인성 흐름이 있는데 세운이 용신
+  if (hasGwaninSangsaeng(result) && seunFit) {
+    patterns.push({
+      key: 'saju/combo/gwanin-sangsaeng--seun-fit',
+      strength: 0.65,
+      evidence: [...meterEvidence, `관인상생 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: [
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'gwansung'),
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'insung'),
+      ].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 관인상생×세운기신 — 관성·인성 흐름이 있는데 세운이 기신
+  if (hasGwaninSangsaeng(result) && seunTension) {
+    patterns.push({
+      key: 'saju/combo/gwanin-sangsaeng--seun-tension',
+      strength: 0.6,
+      evidence: [...meterEvidence, `관인상생 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: [
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'gwansung'),
+        ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'insung'),
+      ].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 충×세운기신 — 지지 충이 있는데 세운이 기신
+  if (chungRelations.length > 0 && seunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-chung--seun-tension',
+      strength: 0.65,
+      evidence: [
+        ...meterEvidence,
+        `충 ${chungRelations.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: chungRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 원진×세운기신 — 원진이 있는데 세운이 기신
+  if (wonjin?.hasWonjin && seunTension) {
+    patterns.push({
+      key: 'saju/combo/wonjin--seun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `원진 ${wonjin.pairs.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: wonjin.pairs.flatMap((p) => [
+        { slot: p.branch1, label: p.position1, glyph: p.branch1, sipsin: null, group: null },
+        { slot: p.branch2, label: p.position2, glyph: p.branch2, sipsin: null, group: null },
+      ]),
+    });
+  }
+
+  // 재생관×용신운 — 천간 재성·관성 흐름이 있는데 대운이 용신
+  if (jaeGan.length >= 1 && gwanGan.length >= 1 && daeunFit) {
+    patterns.push({
+      key: 'saju/combo/jaesaeng-gwan--daeun-fit',
+      strength: 0.65,
+      evidence: [...meterEvidence, `천간 재성 ${jaeGan.length}·관성 ${gwanGan.length} + 용신 대운`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: [...jaeGan, ...gwanGan].map((s) => toPatternSlot(result, s)),
+    });
+  }
+
+  // 식상제살×용신운 — 편관 2+·식상 1+ 구조가 있는데 대운이 용신
+  if (counts.siksang >= 1 && pyeongwan.length >= 2 && daeunFit) {
+    patterns.push({
+      key: 'saju/combo/sangsaeng-jesal--daeun-fit',
+      strength: 0.65,
+      evidence: [...meterEvidence, `편관 ${pyeongwan.length}·식상 ${counts.siksang} + 용신 대운`],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: [...pyeongwan, ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang')].map(
+        (s) => toPatternSlot(result, s),
+      ),
+    });
+  }
+
   return patterns;
 }

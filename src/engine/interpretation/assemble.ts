@@ -54,8 +54,9 @@ export function interpretSaju(result: SajuResult): SajuInterpretation {
     patterns,
     summary: {
       headline,
-      structureLines: structureLines.slice(0, 5),
-      cautionLines: cautionLines.slice(0, 4),
+      // 조합키가 늘수록 plus/caution 라인이 늘어나므로 상한을 넉넉히 둔다 (헤드라인 섹션 과밀 방지용)
+      structureLines: structureLines.slice(0, 6),
+      cautionLines: cautionLines.slice(0, 5),
     },
     baseline: {
       gyeokguk: result.gyeokguk.description,

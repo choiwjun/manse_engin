@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-jesal--daeun-fit
+title: 식상제살×용신운(食傷制殺用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 5
+  hour: 10
+  minute: 30
+  gender: female
+  isLunar: false
+assert:
+  palja: 己丙庚辛
+  gyeokguk: 상관격
+  yongsin: 목
+body:
+  short: 편관을 식상이 제어하는 구조에 대운이 용신 방향입니다. 압박을 실력으로 다루는 능력이 시기와 맞물린 구간이라, 경쟁·심사·도전적인 자리에서 실력을 발휘하기 좋습니다.
+  medium: 편관이 있고 식상이 이를 제어하는 식상제살 구조에 대운이 용신 방향으로 들어온 명식입니다. 압박을 실력으로 다루는 능력이 시기와 맞물린 구간이라, 경쟁·심사·평가·도전적인 자리에서 실력을 발휘하기 좋습니다. 이 시기에는 피하지 말고 정면으로 실력을 겨루는 자리를 택하는 것이 구조를 살리는 길입니다.
+tags: [조합, 식상제살, 대운, 용신]
