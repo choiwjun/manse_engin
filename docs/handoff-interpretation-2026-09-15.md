@@ -171,3 +171,28 @@
 **검증기 완화** — `validate-content.mjs`의 레지스트리 등록·sampleBirth/assert 대조를 `saju/*` 키에만 적용. `naming/*`·`taekil/*`는 id=경로·status·audience·body.short·금칙어만 검사. `content/README.md`에 네임스페이스 표 추가.
 
 검증: `npm test` 전체 통과, `content:validate OK — 엔트리 137건 통과 (레지스트리 114키 중 미작성 0키)`
+
+## 16차 추가 — 조합키 9차 확장 (114→122키) + HTML 출력 렌더러
+
+**조합키 9차 확장** (`combos.ts` 9차 블록)
+- `samhap--seun-fit` / `samhap--seun-tension` (삼합×세운용신/기신)
+- `banghap--daeun-fit` / `banghap--daeun-tension` (방합×대운용신/기신)
+- `jiji-hap--seun-fit` / `jiji-hap--seun-tension` (합×세운용신/기신)
+- `jiji-hyeong--seun-tension` (형×세운기신)
+- `jiji-hae--seun-tension` (해×세운기신)
+
+**설계 메모** — 방합은 `jijiRelations type==='방합'`으로 직접 판정 (sanbang의 findSet 재사용 불필요 — 이미 facts에 존재). 세운 변형은 `seunFit`/`seunTension`(천간 우선·비면 지지) 재사용. 골든 케이스(1985-01-10)에서 `jiji-hap--seun-tension`이 신규 발화해 `cautionLines` 상위를 밀어냈고, 신약 계량 assert를 summary 캡 의존에서 패턴 직접 단언(`saju/imbalance/daymaster-weak`)으로 변경 — 조후와 동일한 '캡과 무관하게 detector 발화 자체를 검증' 패턴.
+
+**HTML 출력 렌더러** (`interpretation/html.ts`)
+- `renderReportHtml(report, opts)` — `SajuReport` → standalone HTML 문서
+- 마크다운을 거치지 않고 `SajuReport`를 직접 렌더 (데이터→HTML 직접 변환으로 잡음 제거)
+- 인쇄·PDF 대응: `@media print` + `@page` 여백 규칙, 패턴 카드 `page-break-inside: avoid`
+- 상담사 브랜드 프리앰블: `counselor: {name, contact, tagline}` → 헤더 상단 + 푸터
+- 외부 의존성·스크립트 없는 단일 HTML 파일 — 브라우저에서 열어 '인쇄 → PDF로 저장'
+- `RenderReportHtmlOptions {title?, includeCheckQuestions?, counselor?}`
+- `CounselorBrand {name, contact?, tagline?}`
+- export: `interpretation/index.ts` + `engine/index.ts` + `packages/myeong-engine/src/index.ts` 모두 추가
+
+**스캔 도구** — `scan-combos-13.mjs` (1950~2010년 범위로 확장, 407개 명식에서 8/8 발화)
+
+검증: `npm test` 전체 통과 (회귀 36 + interpretation + HTML 렌더 검증 추가), `content:validate OK — 엔트리 145건 통과 (레지스트리 122키 중 미작성 0키)`
