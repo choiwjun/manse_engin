@@ -80,13 +80,13 @@ export function judgeOhaeng(result: SajuResult, ohaeng: string): TimingVerdictIn
   const yongsin = result.yongsin.ohaeng;
   const gisin = result.yongsin.gisin.split('(')[0].trim();
   if (ohaeng === yongsin) {
-    return { verdict: 'fit', label: '용신 방향', line: '기회 확장·전환이 열리는 판입니다' };
+    return { verdict: 'fit', label: '용신 방향', line: '확장·전환 가능성을 참고할 수 있는 판입니다' };
   }
   if (ohaeng === gisin) {
     return { verdict: 'tension', label: '기신 방향', line: '규모 조절과 기반 점검이 맞는 판입니다' };
   }
   if (isChildOf(ohaeng, yongsin) || isSanggeukOf(ohaeng, gisin)) {
-    return { verdict: 'fit', label: '준(準)용신 방향', line: '간접적으로 순풍이 나는 판입니다' };
+    return { verdict: 'fit', label: '준(準)용신 방향', line: '간접적인 도움 가능성을 참고할 수 있는 판입니다' };
   }
   if (isChildOf(ohaeng, gisin) || isSanggeukOf(ohaeng, yongsin)) {
     return { verdict: 'tension', label: '준(準)기신 방향', line: '소모가 늘기 쉬운 판입니다' };
@@ -121,9 +121,9 @@ function buildCheckQuestions(result: SajuResult): string[] {
     const ganJi = `${d.gan}${d.ji}`;
     const info = judgeOhaeng(result, d.ohaeng);
     if (info.verdict === 'tension') {
-      questions.push(`${range} ${ganJi} 대운(기신 축) — 이 시기에 축소·정리·건강 이슈가 있었는지 확인 질문으로 던지세요.`);
+      questions.push(`${range} ${ganJi} 대운(기신 축) — 이 구간에 축소·정리나 생활 리듬 변화로 느낀 일이 있었는지 확인하는 질문입니다. 운세가 원인이나 결과를 정한다고 보지는 않습니다.`);
     } else if (info.verdict === 'fit') {
-      questions.push(`${range} ${ganJi} 대운(용신 축) — 이 시기에 기회 확장(이직·창업·결실)이 있었는지 확인 질문으로 던지세요.`);
+      questions.push(`${range} ${ganJi} 대운(용신 축) — 이 구간에 이직·창업·결실처럼 변화로 느낀 일이 있었는지 확인하는 질문입니다. 운세가 원인이나 결과를 정한다고 보지는 않습니다.`);
     }
   }
   return questions.slice(-3);
@@ -228,7 +228,7 @@ export function buildTimingNarrative(result: SajuResult, now: Date = new Date())
       const monthText = monthsLeft <= 1 ? '한 달 안쪽' : `약 ${Math.round(monthsLeft)}개월`;
       transition = {
         imminent: monthsLeft <= 6,
-        line: `대운 ${phase} 전환기입니다 — ${current.gan}${current.ji} 대운이 ${monthText} 후 ${next.gan}${next.ji} 대운(${next.ohaeng})으로 바뀝니다. 판이 ${direction} 구간이라, 큰 결정은 다음 대운 방향에 맞춰 미리 배치하는 것이 좋습니다.`,
+        line: `대운 ${phase} 전환기입니다 — ${current.gan}${current.ji} 대운이 ${monthText} 후 ${next.gan}${next.ji} 대운(${next.ohaeng})으로 바뀝니다. 판이 ${direction} 구간으로 읽히므로, 큰 결정은 다음 대운의 해석과 현실 조건을 함께 검토합니다. `,
       };
     }
   }
@@ -237,7 +237,7 @@ export function buildTimingNarrative(result: SajuResult, now: Date = new Date())
 
   const combined =
     daeun && sewoon
-      ? `큰 판(${daeun.ganJi} 대운, ${daeunInfo?.label}) 위에서 올해(${sewoon.ganJi})는 ${sewoon.verdict === 'fit' ? '순풍' : sewoon.verdict === 'tension' ? '역풍' : '잔잔한'} 구간 — 대운의 방향을 세운이 증폭하거나 누릅니다.`
+      ? `큰 판(${daeun.ganJi} 대운, ${daeunInfo?.label}) 위에서 올해(${sewoon.ganJi})는 ${sewoon.verdict === 'fit' ? '도움 가능성' : sewoon.verdict === 'tension' ? '점검 필요성' : '중립적인'} 구간으로 참고할 수 있습니다 — 대운의 방향과 세운의 관계를 함께 살핍니다.`
       : null;
 
   // 대운 전체 흐름 — 8단계 각각의 서사를 생성한다

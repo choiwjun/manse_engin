@@ -62,21 +62,27 @@ function contextLine(report: SajuReport, pattern: NonNullable<SajuReport['patter
     ? `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 같은 축이라 이 패턴이 곧 명식의 주 라인이 됩니다.`
     : `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 다른 축이라, 이 패턴은 본업과 활용점 사이의 다리 역할을 합니다.`;
   const strength = ctx.dayMasterVerdict.includes('신약')
-    ? '신약한 일간이 이 구조를 감당하려면 기반(인성·비겁) 보강이 선행되어야 합니다.'
+    ? '신약한 일간이 이 구조를 감당할 때 기반(인성·비겁) 보강 가능성을 먼저 살펴볼 수 있습니다.'
     : ctx.dayMasterVerdict.includes('신강')
       ? '신강한 일간이라 이 구조를 밀고 나가는 힘이 있습니다.'
       : '중화된 일간이라 이 구조를 양방향으로 활용할 수 있습니다.';
   return `${axis} ${strength}`;
 }
 
-function addPatternDetail(out: string[], pattern: NonNullable<SajuReport['patterns']>[number], report: SajuReport, includeLong = true): void {
+function addPatternDetail(
+  out: string[],
+  pattern: NonNullable<SajuReport['patterns']>[number],
+  report: SajuReport,
+  includeLong = true,
+  includeInterpretation = true,
+): void {
   out.push(`### ${pattern.title}`);
   out.push('');
   out.push(`**${pattern.title}**`);
   out.push('');
   out.push(`- 강도: ${strengthLabel(pattern.strength)} (${Math.round(pattern.strength * 100)}%)`);
   if (pattern.evidence?.length > 0) out.push(`- 근거: ${pattern.evidence.join(' · ')}`);
-  out.push(`- 해석: ${renderPattern(pattern)}`);
+  if (includeInterpretation) out.push(`- 해석: ${renderPattern(pattern)}`);
   const line = contextLine(report, pattern);
   if (line) out.push(`- 이 명식에서: ${line}`);
   const medium = patternBody(pattern.key, 'medium', report);
@@ -106,10 +112,13 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push(`- 전체 구조: ${report.headline}`);
   out.push(`- 일간 강약: ${report.meter.dayMaster.verdictLabel} ${report.meter.dayMaster.score}% — 비겁 ${report.meter.groupPercents.bigeop}%, 인성 ${report.meter.groupPercents.insung}%`);
   out.push(`- 격국·용신: ${report.headline.split(' · ').slice(0, 1)[0]} · 용신 ${report.headline.split('용신 ').slice(1)[0] ?? '확인 필요'}`);
+  if (report.context?.yongsinReasoning) {
+    out.push(`- 용신 근거(${report.context.yongsinSchool}): ${report.context.yongsinReasoning}`);
+  }
   const keyPatterns = patterns.slice(0, 5);
   if (keyPatterns.length > 0) {
     out.push('- 핵심 패턴:');
-    for (const pattern of keyPatterns) out.push(`  - ${pattern.title}: ${renderPattern(pattern)}`);
+    for (const pattern of keyPatterns) out.push(`  - ${pattern.title}`);
   }
   const plus = patterns.filter((p) => p.polarity === 'plus').slice(0, 2);
   const caution = patterns.filter((p) => p.polarity === 'caution').slice(0, 2);
@@ -139,6 +148,8 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push('');
 
   // 축별 섹션 — 상담 목차 순서: 적성 → 재물 → 연애 → 건강 → 육친
+  // 여러 축에 걸린 동일 패턴의 동적 문장은 문서 전체에서 첫 한 번만 표시한다.
+  const renderedSectionLines = new Set<string>();
   for (const axis of SECTION_ORDER) {
     const section = report.sections[axis];
     out.push('');
@@ -147,17 +158,9 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
     out.push(`*${section.headline}*`);
     out.push('');
     for (const line of section.lines) {
+      if (renderedSectionLines.has(line)) continue;
+      renderedSectionLines.add(line);
       out.push(`- ${line}`);
-    }
-    const deepParagraphs = section.patterns
-      .map((p) => ({ title: p.title, long: patternBody(p.key, 'long', report) }))
-      .filter((x): x is { title: string; long: string } => typeof x.long === 'string' && x.long.trim().length > 0);
-    if (deepParagraphs.length > 0) {
-      out.push('');
-      for (const { title: patternTitle, long } of deepParagraphs) {
-        out.push(`**${patternTitle}** ${long}`);
-        out.push('');
-      }
     }
   }
 
@@ -203,7 +206,17 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push(`감지 패턴 ${patterns.length}건`);
 
   out.push('');
-  for (const pattern of patterns) addPatternDetail(out, pattern, report);
+  const renderedSectionPatternKeys = new Set(
+    SECTION_ORDER.flatMap((axis) => {
+      const section = report.sections[axis];
+      return section.patterns
+        .filter((pattern) => section.lines.includes(renderPattern(pattern)))
+        .map((pattern) => pattern.key);
+    }),
+  );
+  for (const pattern of patterns) {
+    addPatternDetail(out, pattern, report, true, !renderedSectionPatternKeys.has(pattern.key));
+  }
 
   out.push('---');
   out.push('');

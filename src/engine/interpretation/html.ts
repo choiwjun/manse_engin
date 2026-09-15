@@ -81,7 +81,7 @@ function contextLine(report: SajuReport, _pattern: DetectedPattern): string {
     ? `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 같은 축이라 이 패턴이 곧 명식의 주 라인이 됩니다.`
     : `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 다른 축이라, 이 패턴은 본업과 활용점 사이의 다리 역할을 합니다.`;
   const strength = ctx.dayMasterVerdict.includes('신약')
-    ? '신약한 일간이 이 구조를 감당하려면 기반(인성·비겁) 보강이 선행되어야 합니다.'
+    ? '신약한 일간이 이 구조를 감당할 때 기반(인성·비겁) 보강 가능성을 먼저 살펴볼 수 있습니다.'
     : ctx.dayMasterVerdict.includes('신강')
       ? '신강한 일간이라 이 구조를 밀고 나가는 힘이 있습니다.'
       : '중화된 일간이라 이 구조를 양방향으로 활용할 수 있습니다.';
@@ -90,7 +90,7 @@ function contextLine(report: SajuReport, _pattern: DetectedPattern): string {
 
 // ---------- 패턴 상세 카드 ----------
 
-function patternDetailHtml(pattern: DetectedPattern, report: SajuReport): string {
+function patternDetailHtml(pattern: DetectedPattern, report: SajuReport, includeInterpretation = true): string {
   const parts: string[] = [];
   parts.push(`<article class="pattern" data-polarity="${esc(pattern.polarity)}">`);
   parts.push(`<h4>${esc(pattern.title)}</h4>`);
@@ -98,7 +98,7 @@ function patternDetailHtml(pattern: DetectedPattern, report: SajuReport): string
   if (pattern.evidence?.length > 0) {
     parts.push(`<p class="evidence"><span class="lbl">근거</span> ${esc(pattern.evidence.join(' · '))}</p>`);
   }
-  parts.push(`<p class="interp"><span class="lbl">해석</span> ${esc(renderPattern(pattern))}</p>`);
+  if (includeInterpretation) parts.push(`<p class="interp"><span class="lbl">해석</span> ${esc(renderPattern(pattern))}</p>`);
   const line = contextLine(report, pattern);
   if (line) parts.push(`<p class="ctx"><span class="lbl">이 명식에서</span> ${esc(line)}</p>`);
   const medium = patternBody(pattern.key, 'medium', report);
@@ -127,18 +127,21 @@ export function renderReportHtml(report: SajuReport, opts: RenderReportHtmlOptio
   const plus = patterns.filter((p) => p.polarity === 'plus').slice(0, 2);
   const caution = patterns.filter((p) => p.polarity === 'caution').slice(0, 2);
 
+  // 여러 축에 걸린 동일 패턴의 동적 문장은 문서 전체에서 첫 한 번만 표시한다.
+  const renderedSectionLines = new Set<string>();
   const sectionsHtml = SECTION_ORDER.map((axis) => {
     const section = report.sections[axis];
-    const deepParagraphs = section.patterns
-      .map((p) => ({ title: p.title, long: patternBody(p.key, 'long', report) }))
-      .filter((x): x is { title: string; long: string } => typeof x.long === 'string' && x.long.trim().length > 0);
+    const uniqueLines = section.lines.filter((line) => {
+      if (renderedSectionLines.has(line)) return false;
+      renderedSectionLines.add(line);
+      return true;
+    });
     return `<section class="axis" id="axis-${axis}">
   <h3>${esc(section.title)}</h3>
   <p class="axis-headline"><em>${esc(section.headline)}</em></p>
   <ul>
-${section.lines.map((l) => `    <li>${esc(l)}</li>`).join('\n')}
+${uniqueLines.map((l) => `    <li>${esc(l)}</li>`).join('\n')}
   </ul>
-${deepParagraphs.length > 0 ? deepParagraphs.map((d) => `  <p class="deep"><strong>${esc(d.title)}</strong> ${esc(d.long)}</p>`).join('\n') : ''}
 </section>`;
   }).join('\n');
 
@@ -155,10 +158,18 @@ ${timing.daeunFlow?.length > 0 ? `  <div class="tblock"><h3>대운 전체 흐름
 ${includeQuestions && timing.checkQuestions.length > 0 ? `  <div class="tblock questions"><h3>상담 확인 질문</h3><ul>\n${timing.checkQuestions.map((q) => `    <li>${esc(q)}</li>`).join('\n')}\n  </ul></div>` : ''}
 </section>`;
 
+  const renderedSectionPatternKeys = new Set(
+    SECTION_ORDER.flatMap((axis) => {
+      const section = report.sections[axis];
+      return section.patterns
+        .filter((pattern) => section.lines.includes(renderPattern(pattern)))
+        .map((pattern) => pattern.key);
+    }),
+  );
   const patternsHtml = `<section class="all-patterns">
   <h2>전체 구조 해설</h2>
   <p class="count">감지 패턴 ${patterns.length}건</p>
-${patterns.map((p) => patternDetailHtml(p, report)).join('\n')}
+${patterns.map((p) => patternDetailHtml(p, report, !renderedSectionPatternKeys.has(p.key))).join('\n')}
 </section>`;
 
   const brandHeader = c
@@ -198,7 +209,8 @@ ${brandHeader}
     <li><span class="lbl">전체 구조</span> ${esc(report.headline)}</li>
     <li><span class="lbl">일간 강약</span> ${esc(report.meter.dayMaster.verdictLabel)} ${report.meter.dayMaster.score}% — 비겁 ${report.meter.groupPercents.bigeop}%, 인성 ${report.meter.groupPercents.insung}%</li>
     <li><span class="lbl">격국·용신</span> ${esc(report.context?.gyeokguk ?? '')} · 용신 ${esc(report.context?.yongsin ?? '확인 필요')}</li>
-${keyPatterns.length > 0 ? `    <li><span class="lbl">핵심 패턴</span><ul class="sub">\n${keyPatterns.map((p) => `      <li><strong>${esc(p.title)}</strong> — ${esc(renderPattern(p))}</li>`).join('\n')}\n    </ul></li>` : ''}
+${report.context?.yongsinReasoning ? `    <li><span class="lbl">용신 근거(${esc(report.context.yongsinSchool)})</span> ${esc(report.context.yongsinReasoning)}</li>` : ''}
+${keyPatterns.length > 0 ? `    <li><span class="lbl">핵심 패턴</span><ul class="sub">\n${keyPatterns.map((p) => `      <li><strong>${esc(p.title)}</strong></li>`).join('\n')}\n    </ul></li>` : ''}
 ${plus.length > 0 ? `    <li><span class="lbl">주요 강점</span> ${esc(plus.map((p) => p.title).join(' · '))}</li>` : ''}
 ${caution.length > 0 ? `    <li><span class="lbl">주요 주의점</span> ${esc(caution.map((p) => p.title).join(' · '))}</li>` : ''}
     <li><span class="lbl">우선 방향</span> ${esc(report.timing.daeun?.line ?? '현재 대운 정보를 기준으로 기반과 방향을 점검하세요.')}</li>

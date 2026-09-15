@@ -196,3 +196,34 @@
 **스캔 도구** — `scan-combos-13.mjs` (1950~2010년 범위로 확장, 407개 명식에서 8/8 발화)
 
 검증: `npm test` 전체 통과 (회귀 36 + interpretation + HTML 렌더 검증 추가), `content:validate OK — 엔트리 145건 통과 (레지스트리 122키 중 미작성 0키)`
+
+## 17차 추가 — 상담 안전성 감사·문구 완화 및 출력 회귀 검증
+
+이번 단계에서는 건강·재정·관계·진로·시기·택일 문구를 내담자에게 결과를 보장하거나 결정을 지시하는 방식으로 읽히지 않도록 재검토했다.
+
+### 안전성 수정
+
+- `content/entries/saju/**/*.yaml`의 대운·세운·강약·조후·합충·재성·관성 관련 문구를 참고 신호·조건 확인·자원·위험·대안·당사자 의사 중심으로 완화했다.
+- `content/entries/taekil/sinsal12/*.yaml`의 십이직 `suited`·`avoid`·운영 문구를 날짜만으로 개업·계약·투자·혼인·치료 등을 지시하지 않도록 수정했다. 치료·수술은 의료진 판단을 우선한다.
+- `src/engine/interpretation/registry.ts` fallback `defaultText`·`conclusion`, `narrative.ts` 회고 질문, `markdown.ts`·`html.ts` 기본 안내 문구를 같은 기준으로 정리했다.
+- 콘텐츠 validator의 금칙어(`반드시`, `보장`, `확실`, `100%`)와 안전성 회귀 검사는 전체 Saju YAML 및 `PATTERN_REGISTRY` 기본 해석을 함께 검사한다.
+- `reviewed` YAML 상태는 실제 전문가 검수 완료를 뜻하지 않는 것으로 유지한다. 별도 검수자·기준·일자 기록 없이는 상담 전달용으로 분류하지 않는다.
+
+### 검증 결과
+
+- `npm test`: smoke, 회귀 36건, interpretation, content validator 통과
+- `npm --prefix packages/myeong-engine run content:validate`: 엔트리 145건·레지스트리 122키 통과
+- `git diff --check`: 통과
+- 샘플 B `庚午 癸未 戊子 丁巳`(1930-08-06 10:00): 남명 자녀 축(관성), 겁재격, 용신 금 및 격국용신 근거 노출 확인
+- 샘플 C `戊午 壬戌 辛未 乙未`(1978-11-05 14:00): 여명 자녀 축(식상), 정인격, 용신 화 및 격국용신 근거 노출 확인
+- Markdown은 핵심·분야별·전체 구조 해설의 역할을 분리하고 동적 문장의 중복 출력을 제한했다.
+- HTML은 `<!DOCTYPE html>`, `lang="ko"`, 인쇄 CSS를 포함하며 외부 런타임·`<script>` 없이 standalone으로 출력된다.
+- canonical은 `src/engine`이며 `packages/myeong-engine` 복사본과 `dist`·생성 콘텐츠 DB는 package build로 갱신한다.
+
+### 잔여 리스크 및 제한사항
+
+- 명리 학파별 자녀 배속·강약·용신 기준, 절입·자시·시각 보정·윤달 경계는 외부 기준과 독립 대조가 더 필요하다.
+- 규칙 기반 해석은 상담사의 문진·내담자 상황·현실 자료를 대체하지 않는다. 건강·재정·관계 결정은 의료·재무·법률 전문가 및 당사자의 판단을 우선한다.
+- 현재 산출물은 전문가 검수 전 상담 초안 엔진이며, `reviewed` 표기만으로 상용 상담 전달을 승인하지 않는다.
+
+다음 단계는 실제 전문가가 대표 명식·학파 기준·안전성 문구를 검수하고, 검수자·기준·일자를 별도 기록하는 것이다.

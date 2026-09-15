@@ -1,6 +1,9 @@
 // 해석 계층(detector·조립기) 회귀 테스트 — `npm run build` 후 실행.
 // 골든 케이스: 1985-01-10 16:45 남(甲子 丁丑 己酉 壬申, 비견격·용신 금)
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   buildSajuResult,
   interpretSaju,
@@ -76,7 +79,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(flowPattern, '식상생재 패턴');
   assert.equal(flowPattern.contentId, 'saju/flow/sangsaeng-saengjae', 'content DB 등록 → contentId');
   const flowRendered = renderPattern(flowPattern);
-  assert.ok(flowRendered.includes('전문성 축적이 곧 수입 축적'), `DB body.short 오버라이드: ${flowRendered}`);
+  assert.ok(flowRendered.includes('전문성 축적과 수입 구조의 관계를 점검'), `DB body.short 오버라이드: ${flowRendered}`);
 
   // 신약 계량 발화는 summary 캡과 무관하게 패턴 자체로 단언한다 (조합키 증가로 상위 라인이 밀릴 수 있음)
   const weakPattern = interp.patterns.find((p) => p.key === 'saju/imbalance/daymaster-weak');
@@ -103,6 +106,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(rep.sections.love.lines.some((l) => l.includes('배우자성')), '연애 축 — 성별 기반 배우자성 문장');
   assert.ok(rep.sections.wealth.headline.includes('재성'), '재물 축 헤드라인');
   assert.ok(rep.sections.health.lines.some((l) => l.includes('수(신장')), '건강 축 — 결/왕 오행·신체 매핑');
+  const healthText = rep.sections.health.lines.join(' ');
+  assert.ok(healthText.includes('의료 전문가의 판단'), '건강 축 — 의료 전문가 우선 안내');
+  assert.ok(!healthText.includes('체력·에너지의 기반'), '건강 축 — 강약을 체력으로 단정하지 않음');
+  assert.ok(!healthText.includes('타고난 경보'), '건강 축 — 결오행을 경보로 단정하지 않음');
   assert.ok(rep.sections.family.lines.some((l) => l.includes('시주')), '육친 축 — 궁별 문장');
 
   // 3차 — 시점 서사
@@ -123,6 +130,14 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     assert.ok(md.includes(header), `문서 섹션 헤더: ${header}`);
   }
   assert.ok(md.includes('**식상생재(食傷生財)**'), 'DB body.long 심층 문단 삽입');
+  assert.equal((md.match(/식상이 재성으로 이어지는 구조는/g) ?? []).length, 1, '식상생재 심층 문구 단일 배치');
+  assert.ok(md.includes('용신 근거(격국용신):'), '용신 판정 방식 노출');
+  assert.ok(md.includes('용신 근거(격국용신): 비견격에서'), '용신 판정 근거 노출');
+  assert.equal((md.match(/용신 근거\(격국용신\)/g) ?? []).length, 1, '용신 판정 방식 중복 제거');
+  const flowDynamic = renderPattern(flowPattern);
+  assert.equal(md.split(flowDynamic).length - 1, 1, '패턴 동적 문장 단일 배치');
+  assert.ok(!md.includes('일지 식신이 시주의 정재를 생하는'), '샘플 명식 전용 식상생재 문구 차단');
+  assert.ok(!md.includes('강도가 최상 등급'), '패턴 강도 고정 문구 차단');
   assert.ok(md.includes('## 핵심 내용'), '핵심 내용 섹션');
   assert.ok(md.includes('## 분야별 전체 풀이'), '분야별 전체 풀이 섹션');
   assert.ok(md.includes('## 운의 흐름'), '운의 흐름 섹션');
@@ -132,9 +147,13 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const firstPattern = rep.patterns[0];
   assert.ok(firstPattern && md.includes(firstPattern.title), '전체 구조 해설에 우선 패턴 제목 출력');
   assert.ok(firstPattern && firstPattern.evidence.some((e) => md.includes(e)), '전체 구조 해설에 패턴 근거 출력');
+  const sectionPatternKeys = new Set(Object.values(rep.sections).flatMap((section) => section.patterns.map((pattern) => pattern.key)));
   for (const pattern of rep.patterns) {
     assert.ok(md.includes(`### ${pattern.title}`), `전체 패턴 제목 출력: ${pattern.key}`);
-    assert.ok(md.includes(`- 해석: ${renderPattern(pattern)}`), `전체 패턴 동적 해석 출력: ${pattern.key}`);
+    assert.ok(md.includes(renderPattern(pattern)), `패턴 동적 해석 출력: ${pattern.key}`);
+    if (!sectionPatternKeys.has(pattern.key)) {
+      assert.ok(md.includes(`- 해석: ${renderPattern(pattern)}`), `미배정 패턴 상세 해석 출력: ${pattern.key}`);
+    }
     for (const evidence of pattern.evidence) assert.ok(md.includes(evidence), `전체 패턴 근거 출력: ${pattern.key}`);
   }
   assert.ok(!md.includes('undefined') && !md.includes('null'), '렌더 누수 방지');
@@ -144,6 +163,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     counselor: { name: '청명역학원', contact: '010-0000-0000', tagline: '사주·작명·택일 전문' },
   });
   assert.ok(html.startsWith('<!DOCTYPE html>'), 'HTML doctype');
+  assert.ok(!html.includes('<script'), 'standalone HTML has no scripts');
   assert.ok(html.includes('<html lang="ko">'), 'HTML lang');
   assert.ok(html.includes('@media print'), '인쇄 CSS 포함');
   assert.ok(html.includes('@page'), '페이지 여백 규칙');
@@ -174,6 +194,12 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(noHourFamily.some((l) => l.includes('시각 미상')), '시각 미상 안내 문장 존재');
   assert.ok(!noHourFamily.some((l) => l.includes('시주(자녀·말년궁)') && !l.includes('시각 미상')), '시주 언급 누출 없음');
 
+  // 육친 매핑 회귀 — 주류 배속: 남명 자녀=관성, 여명 자녀=식상
+  const maleFamily = assembleReport(saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' }), { gender: 'male' }).sections.family.lines;
+  const femaleFamily = assembleReport(saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'female' }), { gender: 'female' }).sections.family.lines;
+  assert.ok(maleFamily.some((l) => l.startsWith('자녀 축(관성)')), '남명 자녀성=관성');
+  assert.ok(femaleFamily.some((l) => l.startsWith('자녀 축(식상)')), '여명 자녀성=식상');
+
   // QA — 특수격(종강격)에서 격국×용신 cross 패턴이 발화되어야 한다
   const rJonggang = saju({ year: 1947, month: 12, day: 22, hour: 0, minute: 57, gender: 'male' });
   assert.equal(rJonggang.gyeokguk.name, '종강격', '종강격 판정');
@@ -203,6 +229,51 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const ctxA = mdA.split('\n').find((l) => l.includes('이 명식에서'));
   const ctxB = mdB.split('\n').find((l) => l.includes('이 명식에서'));
   assert.ok(ctxA && ctxB && ctxA !== ctxB, '명식별 맥락 문장이 다름');
+
+  // 내담자용 content 안전성 — 건강·재정·관계 결정을 점괘처럼 지시하지 않는다.
+  const sajuContentDir = fileURLToPath(new URL('../../content/entries/saju/', import.meta.url));
+  const yamlFiles = [];
+  function collectYaml(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const file = join(dir, entry.name);
+      if (entry.isDirectory()) collectYaml(file);
+      else if (entry.name.endsWith('.yaml') || entry.name.endsWith('.yml')) yamlFiles.push(file);
+    }
+  }
+  collectYaml(sajuContentDir);
+  const unsafeCounselingPatterns = [
+    /약한 몸에/,
+    /회복이 빠/,
+    /체력·에너지의 기반/,
+    /타고난 경보/,
+    /건강의 미세한 이상/,
+    /몸과 관계의 관리/,
+    /(?:큰 결정|큰 결단|승진·자격·진학).*보류/,
+    /(?:큰 결정|큰 결단|관계 단절).*피하/,
+    /투자·대출.*피하/,
+    /(?:결정·확장·투자|결정).*크게 가져가도/,
+    /버틸 만/,
+    /무리가 적/,
+    /결정을 이 (?:해|시기)에 두기 좋/,
+    /내년을 노리고/,
+    /(?:수입·투자·계약|사업 확장·직위 상승|관계의 큰 결단).*이 (?:해|시기|구간)에/,
+    /(?:적극적으로|주저 없이|먼저 연락|이 시기를 피)/,
+    /(?:최적 동선|최적의 시기|잘 붙습니다|순조롭게 묶이는|수익이 나는 구조|매출로 이어지는 구조|재물 축적 속도)/,
+    /(?:번아웃|회복·비축의 루틴.*시스템화|회복·비축.*시스템화)/,
+    /(?:큰 결정|확장).*?(?:미루|보류|피하)/,
+  ];
+  for (const file of yamlFiles) {
+    const text = readFileSync(file, 'utf8');
+    for (const pattern of unsafeCounselingPatterns) {
+      assert.ok(!pattern.test(text), `내담자용 단정·지시 문구 금지: ${file} / ${pattern}`);
+    }
+  }
+  for (const [key, entry] of Object.entries(PATTERN_REGISTRY)) {
+    const text = `${entry.defaultText} ${entry.conclusion}`;
+    for (const pattern of unsafeCounselingPatterns) {
+      assert.ok(!pattern.test(text), `기본 해석의 단정·지시 문구 금지: ${key} / ${pattern}`);
+    }
+  }
 }
 
 // 2) 관인상생 케이스 — 1990-05-15 14:30 남 (庚午 辛巳 庚辰 癸未: 관 2·인 2)

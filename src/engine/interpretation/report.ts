@@ -52,6 +52,10 @@ export interface SajuReport {
     gisin: string;
     /** 일간 강약 라벨 (예: '신약(身弱)') */
     dayMasterVerdict: string;
+    /** 용신 판정 근거 — '왜 이 오행이 용신인가'를 상담사가 확인할 수 있게 하는 설명 */
+    yongsinReasoning: string;
+    /** 용신 판정 학파·방식 (예: '격국용신', '강약용신', '조후용신') */
+    yongsinSchool: string;
   };
 }
 
@@ -135,18 +139,18 @@ function buildLoveSection(
   const dayJiGlyph = result.palja.dayJi;
 
   if (dayJiSipsin) {
-    lines.push(`배우자궁인 일지에 ${dayJiSipsin}(${dayJiGlyph})${josa(dayJiSipsin, '이가')} 앉아 ${SIPSIN_PARTNER_LINE[dayJiSipsin] ?? '독특한 색깔의 연'}을 만듭니다.`);
+    lines.push(`배우자궁인 일지에 ${dayJiSipsin}(${dayJiGlyph})${josa(dayJiSipsin, '이가')} 앉아 ${SIPSIN_PARTNER_LINE[dayJiSipsin] ?? '독특한 색깔의 연'}을 연상시키는 전통적 해석을 참고합니다.`);
   } else {
-    lines.push('배우자궁인 일지의 십신이 비어 있어, 배우자 양상은 대운·세운의 임시 자리를 따라갑니다.');
+    lines.push('배우자궁인 일지의 십신이 뚜렷하지 않아, 배우자 양상은 대운·세운의 참고 신호와 실제 관계 경험을 함께 살핍니다.');
   }
 
   // 일지가 관계(합·충·형·해)에 걸려 있으면 그것이 배우자궁의 결
   const dayJiRelations = (result.jijiRelations ?? []).filter((r) => r.positions.includes('dayJi') && ['합', '충', '형', '해'].includes(r.type));
   for (const rel of dayJiRelations.slice(0, 2)) {
-    if (rel.type === '합') lines.push(`일지(${dayJiGlyph})가 지지합에 묶여 배우자와의 결속·끌림이 강한 구조입니다. (${rel.description})`);
-    else if (rel.type === '충') lines.push(`일지(${dayJiGlyph})가 충을 이루어 배우자궁에 변동·재정비 주기가 생기는 구조입니다. (${rel.description})`);
-    else if (rel.type === '형') lines.push(`일지(${dayJiGlyph})가 형을 이루어 배우자궁에서는 규칙·약속을 지키는 일이 비용을 좌우합니다. (${rel.description})`);
-    else if (rel.type === '해') lines.push(`일지(${dayJiGlyph})가 해를 이루어 배우자궁에 미세한 마찰이 반복되기 쉽습니다. (${rel.description})`);
+    if (rel.type === '합') lines.push(`일지(${dayJiGlyph})가 지지합에 묶인 구조로, 배우자 관계의 결속 가능성을 전통적 해석으로 참고합니다. (${rel.description})`);
+    else if (rel.type === '충') lines.push(`일지(${dayJiGlyph})가 충을 이루어 배우자궁의 변동·재정비 가능성을 살펴볼 수 있습니다. (${rel.description})`);
+    else if (rel.type === '형') lines.push(`일지(${dayJiGlyph})가 형을 이루어 배우자궁에서는 규칙·약속과 관련한 조율 필요성을 살펴봅니다. (${rel.description})`);
+    else if (rel.type === '해') lines.push(`일지(${dayJiGlyph})가 해를 이루어 배우자궁의 미세한 마찰 가능성을 살펴봅니다. (${rel.description})`);
   }
 
   // 배우자성 — 남명 재성, 여명 관성. 미지정 시 점유율이 큰 축을 예시로 든다
@@ -183,14 +187,14 @@ function buildLoveSection(
   const dayMasterStrong = meter.dayMaster.verdict === 'strong';
   const partnerLabel = opts.gender === 'male' ? '재성' : opts.gender === 'female' ? '관성' : '배우자성';
   if (dayMasterWeak) {
-    lines.push(`신약한 일간이라 ${partnerLabel}의 자리가 커질수록 감당이 무거워집니다 — 관계가 깊어질수록 체력·시간·정서의 관리가 함께 필요합니다.`);
+    lines.push(`신약으로 분류된 지표에서는 ${partnerLabel}과 관련한 책임·시간·정서의 부담을 생활 점검 항목으로 살펴봅니다 — 실제 관계의 판단은 당사자의 대화와 상황을 우선합니다.`);
   } else if (dayMasterStrong) {
-    lines.push(`신강한 일간이라 ${partnerLabel}의 자리를 감당할 힘이 있습니다 — 관계에서 주도권을 쥐되, 상대의 자리를 존중하는 균형이 중요합니다.`);
+    lines.push(`신강으로 분류된 지표에서는 ${partnerLabel}과 관련한 책임을 주도적으로 맡는 경향이라는 전통적 해석을 참고합니다 — 관계에서는 상대의 의사와 경계를 함께 존중합니다.`);
   }
   const daeunFit = patterns.find((p) => p.key === 'saju/timing/daeun-fit');
   const daeunTension = patterns.find((p) => p.key === 'saju/timing/daeun-tension');
-  if (daeunFit) lines.push('현재 대운이 용신 방향이라 연애·배우자 관계에서도 순풍이 납니다 — 인연의 폭이 넓어지는 구간입니다.');
-  else if (daeunTension) lines.push('현재 대운이 기신 방향이라 연애·배우자 관계에서 속도 조절이 필요합니다 — 무리한 결정보다 기존 관계의 정비가 우선입니다.');
+  if (daeunFit) lines.push('현재 대운이 용신 방향이라는 해석을 관계의 참고 신호로 살펴봅니다 — 인연의 폭과 관계의 변화는 당사자의 의사·상황을 함께 확인합니다.');
+  else if (daeunTension) lines.push('현재 대운이 기신 방향이라는 해석을 관계의 참고 신호로 살펴봅니다 — 관계의 속도와 정비 여부는 대화·상황·당사자의 의사를 함께 확인합니다.');
 
   const headline = `배우자궁 일지 ${dayJiSipsin ? `${dayJiSipsin}(${dayJiGlyph})` : dayJiGlyph} · ${dayJiRelations.length > 0 ? `지지 ${dayJiRelations[0].type} ${dayJiRelations.length}건` : '지지 관계 없음'}`;
   return { axis: 'love', title: AXIS_TITLES.love, headline, lines: dedupe(lines), patterns: relevant };
@@ -233,7 +237,7 @@ function buildWealthSection(
   lines.push(...renderList(riskPatterns, 2));
 
   if (jaeOhaengMissing && jaeOhaengName) {
-    lines.push(`재성 오행(${jaeOhaengName})이 분포 0% — 재물 감각은 후천적으로 채우는 주제입니다.`);
+    lines.push(`재성 오행(${jaeOhaengName})이 분포 0% — 재물에 관한 판단 기준을 후천적으로 보완하는 주제로 참고할 수 있습니다.`);
   }
 
   const headline = `재성 ${jaePercent}% · ${jaeSlots.length > 0 ? `${jaeSlots.length}자리 배치` : '재성 부재'}${riskPatterns.some((p) => p.key === 'saju/imbalance/jaesung-nochul') ? ' · 천간 노출' : ''}`;
@@ -258,7 +262,7 @@ function buildCareerSection(
   const sikPercent = meter.groupPercents.siksang;
 
   lines.push(`격국은 ${result.gyeokguk.name} — ${result.gyeokguk.description}`);
-  lines.push(`관성(조직·질서) ${gwanPercent}% · 식상(기술·표현) ${sikPercent}%의 비율로, ${sikPercent > gwanPercent ? '조직 안에서도 자기 기술을 파는 쪽이 맞습니다' : gwanPercent > sikPercent ? '체계와 질서 안에서 성취하는 쪽이 맞습니다' : '조직과 자기 영역의 균형 잡힌 구조입니다'}.`);
+  lines.push(`관성(조직·질서) ${gwanPercent}% · 식상(기술·표현) ${sikPercent}%의 비율로, ${sikPercent > gwanPercent ? '조직 안에서도 자기 기술을 활용하는 방향을 살펴볼 수 있습니다' : gwanPercent > sikPercent ? '체계와 질서 안에서 성취하는 방향을 살펴볼 수 있습니다' : '조직과 자기 영역을 함께 살펴볼 수 있는 구조입니다'}.`);
 
   const flowPatterns = patternByKeys(patterns, [
     'saju/flow/gwanin-sangsaeng',
@@ -300,14 +304,14 @@ function buildHealthSection(
   const missing = meter.distribution.filter((d) => d.percent === 0);
 
   if (top.percent >= 30) {
-    lines.push(`${top.ohaeng}(${OHAENG_BODY[top.ohaeng] ?? ''}) 쪽 분포가 ${top.percent}%로 두터워 — 과로·과열이 쌓이기 쉬운 체질 경향으로 관리 대상입니다.`);
+    lines.push(`${top.ohaeng}(${OHAENG_BODY[top.ohaeng] ?? ''}) 쪽 분포가 ${top.percent}%로 두터워 — 전통적 오행 상징상 과로·과열을 생활 관리 주제로 참고할 수 있습니다.`);
   }
   for (const m of missing.slice(0, 2)) {
-    lines.push(`결오행 ${m.ohaeng} — ${OHAENG_BODY[m.ohaeng] ?? ''} 영역은 타고난 경보가 약하니 정기 점검을 습관화하는 게 좋습니다.`);
+    lines.push(`결오행 ${m.ohaeng} — 전통적 오행 상징의 ${OHAENG_BODY[m.ohaeng] ?? ''} 영역을 생활 점검 주제로 참고할 수 있습니다.`);
   }
   if (meter.season.name) {
     const kingBody = OHAENG_BODY[meter.season.kingOhaeng] ?? '';
-    lines.push(`월지 ${meter.season.monthJi}의 ${meter.season.name} — ${meter.season.kingOhaeng} 기운이 왕한 계절 태생으로, ${meter.season.kingOhaeng}${kingBody ? `(${kingBody})` : ''} 균형이 계절 자극에 민감합니다.`);
+    lines.push(`월지 ${meter.season.monthJi}의 ${meter.season.name} — ${meter.season.kingOhaeng} 기운이 왕한 계절 태생으로, ${meter.season.kingOhaeng}${kingBody ? `(${kingBody})` : ''}의 전통적 상징을 생활 리듬 점검에 참고합니다.`);
   }
 
   const gwansungGwada = patterns.find((p) => p.key === 'saju/imbalance/gwansung-gwada');
@@ -317,14 +321,14 @@ function buildHealthSection(
   const dayMasterWeak = meter.dayMaster.verdict === 'weak';
   const dayMasterStrong = meter.dayMaster.verdict === 'strong';
   if (dayMasterWeak) {
-    lines.push('신약한 일간이라 체력·에너지의 기반이 얇습니다 — 과로·수면 부족·과음이 쌓이면 회복이 느려지므로, 정기적인 충전 루틴이 건강 관리의 핵심입니다.');
+    lines.push('신약으로 분류된 지표는 체력이나 질병을 진단하는 값이 아닙니다 — 과로·수면 부족·과음 여부를 생활 점검 항목으로 삼고, 증상이나 우려가 있으면 의료 전문가의 판단을 우선합니다.');
   } else if (dayMasterStrong) {
-    lines.push('신강한 일간이라 체력·에너지의 기반이 두껍습니다 — 다만 과잉된 기운이 과로·과열로 번지기 쉬우니, 휴식과 절제가 건강 관리의 핵심입니다.');
+    lines.push('신강으로 분류된 지표는 체력이나 질병을 진단하는 값이 아닙니다 — 과로·과열을 생활 점검 항목으로 참고하고, 증상이나 우려가 있으면 의료 전문가의 판단을 우선합니다.');
   }
   const johuPressure = patterns.find((p) => p.key === 'saju/johu/season-pressure');
   const johuSupport = patterns.find((p) => p.key === 'saju/johu/season-support');
-  if (johuPressure) lines.push('월지 계절이 일간을 극하는 구조라 환경적 스트레스가 체질에 직접 작용합니다 — 계절·기후 변화에 민감하게 대응하는 것이 좋습니다.');
-  else if (johuSupport) lines.push('월지 계절이 일간을 생하는 구조라 환경의 지원이 체질에 작용합니다 — 계절의 자원(햇빛·기후·음식)을 활용하면 회복이 빠릅니다.');
+  if (johuPressure) lines.push('월지 계절과 일간의 관계가 긴장으로 분류됩니다 — 계절·기후 변화에 맞춘 생활 리듬을 점검하되, 건강 상태는 의료 전문가의 판단을 우선합니다.');
+  else if (johuSupport) lines.push('월지 계절과 일간의 관계가 지원으로 분류됩니다 — 햇빛·기후·식사·수면 같은 생활 리듬을 점검하는 참고 자료로 활용합니다.');
 
   const headline = `오행 최다 ${top.ohaeng} ${top.percent}%${missing.length > 0 ? ` · 결오행 ${missing.map((m) => m.ohaeng).join('·')}` : ''}`;
   const healthPatterns = [gwansungGwada, johuPressure, johuSupport].filter((p): p is DetectedPattern => p !== undefined);
@@ -352,10 +356,10 @@ function buildFamilySection(
     lines.push('시각 미상 — 시주(자녀·말년궁)는 판별하지 않으며, 해당 영역은 대운·세운으로 보완합니다.');
   }
 
-  // 육친성 — 형제(비겁), 자녀(남명 식상/여명 관성)
+  // 육친성 — 형제(비겁), 자녀(남명 관성/여명 식상)
   const counts = meter.groupPercents;
   lines.push(`형제·동료 축(비겁) ${counts.bigeop}% — ${counts.bigeop >= 30 ? '형제·동료가 인생 무게에서 큰 비중' : counts.bigeop >= 15 ? '형제·동료와 무난한 거리 유지' : '형제·동료보다 독립적인 궤도'}`);
-  const childGroup: SipsinGroup | null = opts.gender === 'male' ? 'siksang' : opts.gender === 'female' ? 'gwansung' : null;
+  const childGroup: SipsinGroup | null = opts.gender === 'male' ? 'gwansung' : opts.gender === 'female' ? 'siksang' : null;
   if (childGroup) {
     const childLabel = groupLabel(childGroup);
     lines.push(
@@ -392,6 +396,10 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
   const gyeokgukGroup = groupFromOhaeng(result, getOhaengForJi(result.palja.monthJi) ?? '') ?? 'bigeop';
   const yongsinGroup = groupFromOhaeng(result, result.yongsin.ohaeng) ?? 'siksang';
   const gisin = result.yongsin.gisin.split('(')[0].trim();
+  const rawYongsinReasoning = result.yongsin.reasoning ?? '';
+  const schoolMatch = rawYongsinReasoning.match(/^(\S+?용신)\s*:/);
+  const yongsinSchool = schoolMatch ? schoolMatch[1] : '용신';
+  const yongsinReasoning = rawYongsinReasoning.replace(/^\S+?용신\s*:\s*/, '');
   const context = {
     gyeokguk: result.gyeokguk.name,
     gyeokgukGroup: groupLabel(gyeokgukGroup),
@@ -399,6 +407,8 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     yongsinGroup: groupLabel(yongsinGroup),
     gisin,
     dayMasterVerdict: meter.dayMaster.verdictLabel,
+    yongsinReasoning,
+    yongsinSchool,
   };
 
   return {
