@@ -181,10 +181,14 @@ function slotLabel(slot: string): string {
 const KNOWN_SINSAL_CROSS = new Set<string>([
   'saju/cross/sinsal-장성-siksang',
   'saju/cross/sinsal-장성-gwansung',
+  'saju/cross/sinsal-장성-bigeop',
+  'saju/cross/sinsal-장성-jaesung',
   'saju/cross/sinsal-화개-insung',
   'saju/cross/sinsal-화개-siksang',
   'saju/cross/sinsal-화개-bigeop',
+  'saju/cross/sinsal-화개-jaesung',
   'saju/cross/sinsal-연살-jaesung',
   'saju/cross/sinsal-역마-jaesung',
   'saju/cross/sinsal-역마-siksang',
+  'saju/cross/sinsal-역마-gwansung',
 ]);

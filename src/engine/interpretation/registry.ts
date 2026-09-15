@@ -44,6 +44,22 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'plus',
     conclusion: '압박 상황을 기술·표현으로 돌파하는 재주가 있어, 위기 구간일수록 가치가 올라갑니다.',
   },
+  'saju/flow/insung-saeng-bigeop': {
+    category: 'flow',
+    priority: 24,
+    title: '인성생비겁(印星生比劫)',
+    defaultText: '인성의 학습·수용이 비겁의 자기 축으로 이어지는 흐름으로 참고합니다. 배운 것을 자기 기준과 실행 기반으로 정리하는 과정을 살펴봅니다.',
+    polarity: 'plus',
+    conclusion: '학습·수용이 자기 기준으로 이어지는 흐름을 살펴보며, 실제 성장은 실행과 피드백을 함께 확인합니다.',
+  },
+  'saju/flow/bigeop-saeng-siksang': {
+    category: 'flow',
+    priority: 25,
+    title: '비겁생식상(比劫生食傷)',
+    defaultText: '비겁의 자기 축과 추진력이 식상의 표현·생산으로 이어지는 흐름으로 참고합니다. 역량을 산출물로 전환하는 조건을 함께 살펴봅니다.',
+    polarity: 'plus',
+    conclusion: '추진력이 표현·생산으로 이어지는 흐름을 살펴보며, 결과는 목표·자원·시장 조건을 함께 확인합니다.',
+  },
 
   // ---------- imbalance: 과부족 경향 ----------
   'saju/imbalance/daymaster-strong': {
@@ -312,6 +328,22 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'plus',
     conclusion: '위계 질서 안에서 리더십이 떠받쳐지는 조합입니다.',
   },
+  'saju/cross/sinsal-장성-bigeop': {
+    category: 'cross',
+    priority: 13,
+    title: '장성+비겁(將星比劫)',
+    defaultText: '장성에 비겁이 겹친 구조로 참고합니다. 독립적 추진력과 경쟁의 양상을 살피되, 협업의 역할·자원·규칙을 함께 확인합니다.',
+    polarity: 'neutral',
+    conclusion: '독립적 추진력과 경쟁의 양상을 살펴보되, 협업은 역할·자원·규칙을 함께 확인합니다.',
+  },
+  'saju/cross/sinsal-장성-jaesung': {
+    category: 'cross',
+    priority: 13,
+    title: '장성+재성(將星財星)',
+    defaultText: '장성에 재성이 겹친 구조로 참고합니다. 책임 있는 추진력과 자원 운용의 관계를 살피며, 재정·권한·성과 조건을 함께 확인합니다.',
+    polarity: 'plus',
+    conclusion: '추진력과 자원 운용의 관계를 살펴보되, 재정·권한·성과 조건을 함께 확인합니다.',
+  },
   'saju/cross/sinsal-화개-insung': {
     category: 'cross',
     priority: 13,
@@ -327,6 +359,14 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     defaultText: '화개에 식상입니다. 예술·콘텐츠·기술 창작 쪽 감각이 강합니다.',
     polarity: 'plus',
     conclusion: '예술·콘텐츠·기술 창작 쪽 감각이 강합니다.',
+  },
+  'saju/cross/sinsal-화개-jaesung': {
+    category: 'cross',
+    priority: 13,
+    title: '화개+재성(華蓋財星)',
+    defaultText: '화개에 재성이 겹친 구조로 참고합니다. 깊이 있는 전문성과 자원화의 관계를 살피며, 상품·시장·지속 조건을 함께 확인합니다.',
+    polarity: 'plus',
+    conclusion: '전문성과 자원화의 관계를 살펴보되, 상품·시장·지속 조건을 함께 확인합니다.',
   },
   'saju/cross/sinsal-화개-bigeop': {
     category: 'cross',
@@ -359,6 +399,14 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     defaultText: '역마에 식상입니다. 움직이며 표현하는 활동(강의·홍보·현장)에 재능이 있습니다.',
     polarity: 'plus',
     conclusion: '움직이며 표현하는 활동(강의·홍보·현장)에 재능이 있습니다.',
+  },
+  'saju/cross/sinsal-역마-gwansung': {
+    category: 'cross',
+    priority: 13,
+    title: '역마+관성(驛馬官星)',
+    defaultText: '역마에 관성이 겹친 구조로 참고합니다. 이동과 책임·규범의 관계를 살피며, 근무지·출장·역할 조건을 함께 확인합니다.',
+    polarity: 'neutral',
+    conclusion: '이동과 책임의 관계를 살펴보되, 근무지·출장·역할 조건을 함께 확인합니다.',
   },
 
   // ---------- johu: 조후(調候) — 계절×일간 균형 ----------
@@ -564,6 +612,15 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'caution',
     conclusion: '지위·역할과 이를 받치는 기반의 관계를 살펴보며, 선택은 준비도·자원·현실 조건을 함께 확인합니다.'
   },
+  'saju/combo/jaesaeng-gwan--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '재생관×신강(財生官身强)',
+    defaultText:
+      '재성과 관성이 천간에 드러난 흐름에 일간의 기반도 갖춘 구조로 참고합니다. 자원과 지위의 연결은 기회로 읽을 수 있지만, 역할·재정·요건을 함께 확인하며 규모를 조절합니다.',
+    polarity: 'plus',
+    conclusion: '자원과 지위의 연결 가능성을 살펴볼 수 있으나, 실제 선택은 역할·재정·요건을 함께 확인합니다.'
+  },
   'saju/combo/sangsaeng-jesal--daymaster-strong': {
     category: 'combo',
     priority: 9,
@@ -572,6 +629,15 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
       '압박을 제압할 힘이 충분한 구조입니다. 식상의 제압력이 일간의 강함과 맞물려, 어려운 국면을 오히려 실력으로 돌파하는 힘이 있습니다.',
     polarity: 'plus',
     conclusion: '압박을 실력으로 다룰 가능성을 참고할 수 있으나, 어려운 국면의 대응은 안전·자원·현실 조건과 선택지를 함께 확인합니다.'
+  },
+  'saju/combo/sangsaeng-jesal--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '식상제살×신약(食傷制殺身弱)',
+    defaultText:
+      '식상이 편관의 압박을 제어하는 흐름이 있으나 일간이 약한 구조로 참고합니다. 표현·대응과 감당 가능한 자원의 관계를 살피며, 경쟁·심사 상황은 준비도와 안전 조건을 함께 확인합니다.',
+    polarity: 'caution',
+    conclusion: '대응력과 감당 가능한 자원의 관계를 살펴보며, 경쟁·심사 상황은 준비도와 안전 조건을 함께 확인합니다.'
   },
   'saju/combo/ohaeng-missing--daymaster-weak': {
     category: 'combo',
@@ -591,6 +657,15 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'caution',
     conclusion: '충의 주기와 관계·영역의 변화 양상을 살펴보되, 거리 조절 여부는 안전·현실 조건·당사자의 의사를 함께 확인합니다.'
   },
+  'saju/combo/jiji-chung--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '충×신강(沖身强)',
+    defaultText:
+      '지지 충이 있으나 일간의 기반도 함께 읽히는 구조로 참고합니다. 변화·마찰의 신호를 행동의 결론으로 단정하지 않고, 관계·주거·직업 조건과 대응 자원을 함께 확인합니다.',
+    polarity: 'neutral',
+    conclusion: '변화·마찰의 신호를 살펴볼 수 있으나, 대응은 관계·현실 조건과 자원을 함께 확인합니다.'
+  },
   'saju/combo/bigeop-gwada--daymaster-weak': {
     category: 'combo',
     priority: 9,
@@ -608,6 +683,15 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
       '권위와 학습의 흐름이 살아 있고 일간도 강한 구조로 읽습니다. 제도·조직·자격과의 연결 가능성을 참고하되, 실제 선택은 요건·준비도·환경을 함께 확인합니다.',
     polarity: 'plus',
     conclusion: '제도·조직·자격과의 연결 가능성을 살펴볼 수 있는 구조로, 실제 선택은 요건·준비도·환경을 함께 확인합니다.',
+  },
+  'saju/combo/gwanin-sangsaeng--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '관인상생×신약(官印相生身弱)',
+    defaultText:
+      '관성과 인성이 이어지는 흐름이 있으나 일간이 약한 구조로 참고합니다. 제도·학습의 부담과 도움을 함께 살피며, 자격·역할·생활 자원의 준비도를 확인합니다.',
+    polarity: 'caution',
+    conclusion: '제도·학습의 흐름을 살펴보되, 역할 선택은 준비도·자원·현실 조건을 함께 확인합니다.',
   },
   'saju/combo/gongmang-gwansung--daymaster-weak': {
     category: 'combo',

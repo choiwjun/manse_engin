@@ -226,4 +226,47 @@
 - 규칙 기반 해석은 상담사의 문진·내담자 상황·현실 자료를 대체하지 않는다. 건강·재정·관계 결정은 의료·재무·법률 전문가 및 당사자의 판단을 우선한다.
 - 현재 산출물은 전문가 검수 전 상담 초안 엔진이며, `reviewed` 표기만으로 상용 상담 전달을 승인하지 않는다.
 
-다음 단계는 실제 전문가가 대표 명식·학파 기준·안전성 문구를 검수하고, 검수자·기준·일자를 별도 기록하는 것이다.
+## 18차 추가 — 전수 콘텐츠 검수·10차 조합·cross/flow 확장
+
+### 전수 검수 기록
+
+- 기존 콘텐츠 145건을 다섯 코드 기반 페르소나로 전수 검수: **pass 139 / revise 6 / reject 0**.
+- 6개 revise finding을 YAML에 반영하고 `content/reviews/20260915-r1.md`, `content/reviews/20260915-ledger.md`에 검수자·기준·일자를 기록했다.
+- 확장 작업은 `content/reviews/20260915-r2.md`로 별도 기록했다. 실제 역학 전문가의 대표 명식 대조는 아직 남아 있다.
+
+### 10차 조합 확장
+
+다음 구조×강약 반대축 4개를 detector·registry·YAML·골든 테스트에 연결했다.
+
+- `gwanin-sangsaeng--daymaster-weak`
+- `sangsaeng-jesal--daymaster-weak`
+- `jaesaeng-gwan--daymaster-strong`
+- `jiji-chung--daymaster-strong`
+
+### 신살×십신 교차 확장
+
+실제 계산·노출되는 신살과 십신 그룹을 기준으로 다음 4개를 추가했다.
+
+- `sinsal-장성-bigeop`, `sinsal-장성-jaesung`
+- `sinsal-화개-jaesung`, `sinsal-역마-gwansung`
+
+### 인접 십신 흐름 확장
+
+기존 슬롯 인접성 판정을 재사용해 다음 flow 2개를 추가했다.
+
+- `insung-saeng-bigeop`
+- `bigeop-saeng-siksang`
+
+흐름은 존재·그룹·인접 배치를 근거로 하며 결과를 보장하지 않고 실행·피드백·현실 조건을 함께 확인한다.
+
+### 작명×사주 안전성 보강
+
+`interpretNameWithSaju()`의 결핍·용신·기신 교차 문구를 후보·일치·현실 조건 중심으로 완화했다. 특히 `strengths`의 “메웁니다/돕습니다” 표현을 제거하고, `lines`·`guidance`와 같은 상담 안전성 어조로 맞췄다.
+
+### 현재 상태와 검증 기준
+
+- 신규 콘텐츠를 포함한 콘텐츠 수: **155건** (기존 145 + 10차 combo 4 + cross 4 + flow 2).
+- 레지스트리 신규 키를 포함해 미작성 키 0개를 유지한다.
+- 최종 `npm test`, `content:validate`, 금칙어 검사, `git diff --check`를 완료한 뒤 이 문서의 검증 수치를 확정한다.
+
+실제 전문가가 대표 명식·학파 기준·안전성 문구를 대조 검수하고, 검수자·기준·일자를 별도 기록하는 것은 상용화 전 필수 잔여 작업이다.

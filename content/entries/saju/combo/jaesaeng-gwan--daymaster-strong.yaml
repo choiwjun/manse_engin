@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jaesaeng-gwan--daymaster-strong
+title: jaesaeng-gwan--daymaster-strong
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 6
+  hour: 13
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁辛乙
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 재성과 관성이 천간에 드러난 흐름에 일간의 기반도 갖춘 구조로 참고합니다. 자원과 지위의 연결은 기회로 읽을 수 있지만, 역할·재정·요건을 함께 확인하며 규모를 조절합니다.
+  medium: 재성과 관성이 천간에 드러나 자원이 지위로 흐르는 구조이며 일간도 강한 명식입니다. 역할·자격으로 확장할 가능성을 참고하되, 재정·책임·요건을 확인하고 감당 가능한 규모로 선택합니다.
+tags: [조합, 재성,관성,신강]

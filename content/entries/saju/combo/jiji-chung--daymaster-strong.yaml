@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-chung--daymaster-strong
+title: jiji-chung--daymaster-strong
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 3
+  hour: 7
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙戊丙
+  gyeokguk: 정재격
+  yongsin: 목
+body:
+  short: 지지 충이 있으나 일간의 기반도 함께 읽히는 구조로 참고합니다. 변화·마찰의 신호를 행동의 결론으로 단정하지 않고, 관계·주거·직업 조건과 대응 자원을 함께 확인합니다.
+  medium: 지지 충과 일간의 기반이 함께 읽히는 명식입니다. 변화에 대응할 자원을 활용할 가능성을 참고하되, 관계·주거·직업의 결정은 안전·계약·현실 조건을 우선해 판단합니다.
+tags: [조합, 충,신강]

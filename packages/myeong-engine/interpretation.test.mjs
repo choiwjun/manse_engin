@@ -574,7 +574,11 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const ns = interpretNamingWithSaju(names, r);
   assert.equal(ns.length, 3, '사주 교차 해석 수');
   for (const n of ns) {
-    assert.ok(n.lines.some((l) => l.label === '사주 보완'), `사주 보완 라인: ${n.headline}`);
+    const sajuLine = n.lines.find((l) => l.label === '사주 보완');
+    assert.ok(sajuLine, `사주 보완 라인: ${n.headline}`);
+    assert.ok(sajuLine.text.includes('현실 조건'), `작명 교차의 현실 조건 안내: ${sajuLine.text}`);
+    assert.ok(!sajuLine.text.includes('부를 때마다') && !sajuLine.text.includes('효과'), `작명 교차의 인과 단정 금지: ${sajuLine.text}`);
+    assert.ok(n.strengths.every((line) => !line.includes('메웁니다') && !line.includes('돕습니다')), `작명 강점의 인과 단정 금지: ${n.strengths.join(' / ')}`);
     assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
   }
   // 용신(금) 오행 이름은 '용신 방향' 또는 '결핍 보완' 접미어를 가져야 한다
@@ -598,6 +602,98 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   // 전환 12개월 전 — 다가오는 구간
   const tn3 = buildTimingNarrative(r, new Date('2032-04-01T12:00:00+09:00'));
   assert.ok(tn3.transition && !tn3.transition.imminent, `전환 다가옴: ${tn3.transition?.line}`);
+}
+
+// 10차 — 기존 구조의 미포괄 강약 축 4개
+{
+  const cases = [
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/gwanin-sangsaeng--daymaster-weak',
+      label: '관인상생×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 5, hour: 19, minute: 30, gender: 'male' },
+      key: 'saju/combo/sangsaeng-jesal--daymaster-weak',
+      label: '식상제살×신약',
+    },
+    {
+      input: { year: 1950, month: 1, day: 6, hour: 13, minute: 30, gender: 'male' },
+      key: 'saju/combo/jaesaeng-gwan--daymaster-strong',
+      label: '재생관×신강',
+    },
+    {
+      input: { year: 1950, month: 1, day: 3, hour: 7, minute: 30, gender: 'male' },
+      key: 'saju/combo/jiji-chung--daymaster-strong',
+      label: '충×신강',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    assert.ok(pattern, `${c.label} 조합 감지 실패`);
+    assert.equal(pattern.contentId, c.key, `${c.label} DB 문구 등록`);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined') && !rendered.includes('null'), `${c.label} 동적 문장`);
+  }
+}
+
+// cross 확장 — 신살×십신 추가 조합
+{
+  const cases = [
+    {
+      input: { year: 1950, month: 1, day: 11, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/cross/sinsal-장성-bigeop',
+      label: '장성+비겁',
+    },
+    {
+      input: { year: 1950, month: 1, day: 2, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/cross/sinsal-장성-jaesung',
+      label: '장성+재성',
+    },
+    {
+      input: { year: 1950, month: 1, day: 9, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/cross/sinsal-화개-jaesung',
+      label: '화개+재성',
+    },
+    {
+      input: { year: 1950, month: 1, day: 2, hour: 22, minute: 30, gender: 'male' },
+      key: 'saju/cross/sinsal-역마-gwansung',
+      label: '역마+관성',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    assert.ok(pattern, `${c.label} cross 감지 실패`);
+    assert.equal(pattern.contentId, c.key, `${c.label} DB 문구 등록`);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined') && !rendered.includes('null'), `${c.label} 동적 문장`);
+  }
+}
+
+// flow 확장 — 인성생비겁·비겁생식상 인접 흐름
+{
+  const cases = [
+    {
+      input: { year: 1950, month: 1, day: 2, hour: 10, minute: 30, gender: 'male' },
+      key: 'saju/flow/insung-saeng-bigeop',
+      label: '인성생비겁',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/flow/bigeop-saeng-siksang',
+      label: '비겁생식상',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    assert.ok(pattern, `${c.label} 흐름 감지 실패`);
+    assert.equal(pattern.contentId, c.key, `${c.label} DB 문구 등록`);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined') && !rendered.includes('null'), `${c.label} 동적 문장`);
+  }
 }
 
 // 9차 — 조합키 9차 확장 (8개 신규 조합 감지)

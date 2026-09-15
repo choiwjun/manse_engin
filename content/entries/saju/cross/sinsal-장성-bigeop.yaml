@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/cross/sinsal-장성-bigeop
+title: 장성+비겁(將星比劫)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 11
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁丙己
+  gyeokguk: 상관격
+  yongsin: 금
+body:
+  short: 장성에 비겁이 겹친 구조로 참고합니다. 독립적 추진력과 경쟁의 양상을 살피되, 협업의 역할·자원·규칙을 함께 확인합니다.
+  medium: 장성에 비겁이 겹친 구조로 참고합니다. 독립적 추진력과 경쟁의 양상을 살피되, 협업의 역할·자원·규칙을 함께 확인합니다. 실제 선택은 계약·일정·자원 조건을 함께 확인합니다.
+tags: [신살, 교차]

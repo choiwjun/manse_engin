@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/cross/sinsal-화개-jaesung
+title: 화개+재성(華蓋財星)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 9
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁甲乙
+  gyeokguk: 정재격
+  yongsin: 금
+body:
+  short: 화개에 재성이 겹친 구조로 참고합니다. 깊이 있는 전문성과 자원화의 관계를 살피며, 상품·시장·지속 조건을 함께 확인합니다.
+  medium: 화개에 재성이 겹친 구조로 참고합니다. 깊이 있는 전문성과 자원화의 관계를 살피며, 상품·시장·지속 조건을 함께 확인합니다. 실제 선택은 계약·일정·자원 조건을 함께 확인합니다.
+tags: [신살, 교차]

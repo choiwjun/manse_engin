@@ -1,16 +1,12 @@
-// 10차 신규 combo 키 8종을 발화시키는 sampleBirth 탐색 — dist 빌드 후 실행.
+// 10차 신규 combo 키 4종을 발화시키는 sampleBirth 탐색 — dist 빌드 후 실행.
 // 사용: node scan-combos-10.mjs
 import { buildSajuResult, runDetectors } from './dist/index.js';
 
 const TARGETS = [
-  'saju/combo/bigeop-gwada--daeun-tension',
-  'saju/combo/insung-gwada--daeun-tension',
-  'saju/combo/siksang-gwada--daeun-tension',
-  'saju/combo/jaesung-nochul--seun-tension',
-  'saju/combo/ohaeng-missing--daeun-fit',
-  'saju/combo/ohaeng-missing--seun-fit',
-  'saju/combo/jiji-chung--seun-fit',
-  'saju/combo/wonjin--seun-fit',
+  'saju/combo/gwanin-sangsaeng--daymaster-weak',
+  'saju/combo/sangsaeng-jesal--daymaster-weak',
+  'saju/combo/jaesaeng-gwan--daymaster-strong',
+  'saju/combo/jiji-chung--daymaster-strong',
 ];
 
 const found = new Map();

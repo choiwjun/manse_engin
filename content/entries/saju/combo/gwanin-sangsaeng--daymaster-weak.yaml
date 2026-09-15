@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gwanin-sangsaeng--daymaster-weak
+title: gwanin-sangsaeng--daymaster-weak
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙庚
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 관성과 인성이 이어지는 흐름이 있으나 일간이 약한 구조로 참고합니다. 제도·학습의 부담과 도움을 함께 살피며, 자격·역할·생활 자원의 준비도를 확인합니다.
+  medium: 관성과 인성이 이어지는 흐름에 일간이 약한 명식입니다. 제도·학습이 도움으로 작동할 가능성과 부담을 함께 참고하되, 자격·역할 선택은 준비도·기한·생활 자원을 확인해 조정합니다.
+tags: [조합, 관인,신약]

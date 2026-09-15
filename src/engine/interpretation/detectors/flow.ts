@@ -131,6 +131,34 @@ export function detectJaesaengGwan(result: SajuResult): RawPattern[] {
   ];
 }
 
+function detectAdjacentFlow(
+  result: SajuResult,
+  source: SipsinGroup,
+  target: SipsinGroup,
+  key: string,
+  label: string,
+): RawPattern[] {
+  const sourceSlots = slotsOfGroup(result, source);
+  const targetSlots = slotsOfGroup(result, target);
+  if (sourceSlots.length === 0 || targetSlots.length === 0 || !hasAdjacency(sourceSlots, targetSlots)) return [];
+  const pair = bestPair(sourceSlots, targetSlots);
+  if (!pair) return [];
+  return [{
+    key,
+    strength: 0.55,
+    evidence: [`${label} — ${slotLabel(pair[0])}·${slotLabel(pair[1])} 인접`, ...slotEvidence(result, [pair[0], pair[1]])],
+    slots: patternSlots(result, pair[0], pair[1]),
+  }];
+}
+
+export function detectInsungSaengBigeop(result: SajuResult): RawPattern[] {
+  return detectAdjacentFlow(result, 'insung', 'bigeop', 'saju/flow/insung-saeng-bigeop', '인성생비겁');
+}
+
+export function detectBigeopSaengSiksang(result: SajuResult): RawPattern[] {
+  return detectAdjacentFlow(result, 'bigeop', 'siksang', 'saju/flow/bigeop-saeng-siksang', '비겁생식상');
+}
+
 export function detectSangsaengJesal(result: SajuResult): RawPattern[] {
   const counts = countGroups(result);
   // 식상제살은 편관이 둘 이상일 때 '압박'이 실재하는 것으로 본다

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/cross/sinsal-장성-jaesung
+title: 장성+재성(將星財星)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 2
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丁辛
+  gyeokguk: 종재격
+  yongsin: 금
+body:
+  short: 장성에 재성이 겹친 구조로 참고합니다. 책임 있는 추진력과 자원 운용의 관계를 살피며, 재정·권한·성과 조건을 함께 확인합니다.
+  medium: 장성에 재성이 겹친 구조로 참고합니다. 책임 있는 추진력과 자원 운용의 관계를 살피며, 재정·권한·성과 조건을 함께 확인합니다. 실제 선택은 계약·일정·자원 조건을 함께 확인합니다.
+tags: [신살, 교차]

@@ -2,7 +2,7 @@
 
 import type { SajuResult } from '@/engine/types';
 import type { RawPattern } from '../types';
-import { detectSangsaengSaengjae, detectGwaninSangsaeng, detectJaesaengGwan, detectSangsaengJesal } from './flow';
+import { detectSangsaengSaengjae, detectGwaninSangsaeng, detectJaesaengGwan, detectSangsaengJesal, detectInsungSaengBigeop, detectBigeopSaengSiksang } from './flow';
 import { detectInsungGwada, detectBigeopGwada, detectSiksangGwada, detectGwansungGwada, detectJaesungNochul } from './imbalance';
 import { detectDayMasterStrong, detectDayMasterWeak, detectOhaengSkew } from './strength';
 import { detectGanHap, detectJijiRelations, detectWonjin } from './relations';
@@ -22,6 +22,8 @@ export const DETECTORS: DetectorFn[] = [
   detectGwaninSangsaeng,
   detectJaesaengGwan,
   detectSangsaengJesal,
+  detectInsungSaengBigeop,
+  detectBigeopSaengSiksang,
   // imbalance
   detectInsungGwada,
   detectBigeopGwada,
