@@ -1,0 +1,21 @@
+id: saju/combo/season-command--daymaster-weak
+title: 득령×신약(得令身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 1
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙癸甲
+  gyeokguk: 건록격
+  yongsin: 목
+body:
+  short: 계절은 맞으나 구조가 축을 약하게 만든 형태로, 기반의 충실도를 함께 확인합니다.
+  medium: 태어난 계절의 왕오행이 일간과 같아 득령이지만, 명식 안의 다른 글자들이 일간을 생하기보다 설기하거나 극해 축이 약하게 잡힙니다. 계절의 기운을 받을 수 있는 그릇(기반)이 충분한지, 받은 기운이 새어나가지 않는지를 함께 살펴봅니다.
+  long: 득령이란 태어난 계절의 왕오행이 일간과 같은 상태를 말하며, 전통적으로는 유리한 출발로 읽습니다. 그런데 이 명식은 득령임에도 일간 축이 약하게 잡힙니다. 득령의 기운을 받아들이는 기반(인성·비겁)이 다른 글자에 비해 얇거나, 받은 기운이 식상·재성으로 새어나가는 구조일 수 있습니다. 상담에서는 득령이라는 조건보다 그 조건을 지탱하는 기반의 충실도를 먼저 봅니다.
+tags: [조후, 강약, 득령, 신약]

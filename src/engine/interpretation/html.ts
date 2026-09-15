@@ -4,6 +4,11 @@
 
 import type { SajuReport } from './report';
 import type { DetectedPattern } from './types';
+import type { NamingInterpretation } from './naming';
+import type { TaekilInterpretation } from './taekil';
+import type { CompatibilityInterpretation } from './compatibility';
+import type { CompatibilityResult } from '@/engine/compatibility/types';
+import type { NamingResult, CalendarDay } from '@/engine/types';
 import { getContentEntry } from './content';
 import { renderPattern, strengthLabel } from './sentence';
 
@@ -232,6 +237,214 @@ ${sectionsHtml}
 ${timingHtml}
 
 ${patternsHtml}
+
+<hr class="foot-rule">
+<p class="disclaimer">본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.</p>
+${brandFooter}
+</div>
+</body>
+</html>
+`;
+}
+
+// ---------- 궁합 HTML ----------
+
+function paljaOfCompatHtml(compat: CompatibilityResult, person: 1 | 2): string {
+  const p = person === 1 ? compat.person1Palja : compat.person2Palja;
+  const hour = p.hourGan && p.hourJi ? `${p.hourGan}${p.hourJi}` : '(시각 미상)';
+  return `${p.yearGan}${p.yearJi} ${p.monthGan}${p.monthJi} ${p.dayGan}${p.dayJi} ${hour}`;
+}
+
+/** CompatibilityResult + 해석 → standalone HTML 궁합 문서 */
+export function renderCompatibilityHtml(
+  compat: CompatibilityResult,
+  narrative: CompatibilityInterpretation,
+  opts: { title?: string; nameA?: string; nameB?: string; counselor?: CounselorBrand } = {},
+): string {
+  const nameA = opts.nameA ?? 'A';
+  const nameB = opts.nameB ?? 'B';
+  const title = opts.title ?? `궁합 리포트 — ${nameA} × ${nameB}`;
+  const c = opts.counselor;
+
+  const brandHeader = c ? `<header class="brand"><div class="brand-name">${esc(c.name)}</div>${c.tagline ? `<div class="brand-tagline">${esc(c.tagline)}</div>` : ''}${c.contact ? `<div class="brand-contact">${esc(c.contact)}</div>` : ''}</header>` : '';
+  const brandFooter = c ? `<footer class="brand-foot"><span class="bf-name">${esc(c.name)}</span>${c.contact ? ` <span class="bf-sep">·</span> <span class="bf-contact">${esc(c.contact)}</span>` : ''}</footer>` : '';
+
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<style>
+${CSS}
+</style>
+</head>
+<body>
+<div class="page">
+${brandHeader}
+<h1 class="doc-title">${esc(title)}</h1>
+<p class="headline">${esc(narrative.headline)}</p>
+<p class="palja">${esc(compat.summary)}</p>
+<p class="palja">원국 ${esc(nameA)} ${esc(paljaOfCompatHtml(compat, 1))} · ${esc(nameB)} ${esc(paljaOfCompatHtml(compat, 2))}</p>
+
+<section>
+  <h2>관계 구조</h2>
+  <ul>
+${narrative.lines.map((l) => `    <li><span class="lbl">${esc(l.label)}</span> ${esc(l.text)}</li>`).join('\n')}
+  </ul>
+</section>
+
+<section>
+  <h2>점수 구성</h2>
+  <ul>
+${compat.categories.map((cat) => `    <li>${esc(cat.name)}: ${cat.score}/${cat.maxScore} — ${esc(cat.description)}</li>`).join('\n')}
+  </ul>
+</section>
+
+<section>
+  <h2>강점</h2>
+  <ul>
+${narrative.strengths.map((s) => `    <li>${esc(s)}</li>`).join('\n')}
+  </ul>
+</section>
+
+${narrative.frictions.length > 0 ? `<section>
+  <h2>주의 축</h2>
+  <ul>
+${narrative.frictions.map((f) => `    <li>${esc(f)}</li>`).join('\n')}
+  </ul>
+</section>` : ''}
+
+<section>
+  <h2>운영 가이드</h2>
+  <ul>
+${narrative.guidance.map((g) => `    <li>${esc(g)}</li>`).join('\n')}
+  </ul>
+</section>
+
+<hr class="foot-rule">
+<p class="disclaimer">본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.</p>
+${brandFooter}
+</div>
+</body>
+</html>
+`;
+}
+
+// ---------- 작명 HTML ----------
+
+/** NamingResult + 해석 → standalone HTML 작명 문서 */
+export function renderNamingHtml(
+  result: NamingResult,
+  narratives: NamingInterpretation[],
+  opts: { title?: string; counselor?: CounselorBrand } = {},
+): string {
+  const title = opts.title ?? `작명 리포트 — ${result.surname}씨 후보 ${result.candidates.length}인`;
+  const c = opts.counselor;
+
+  const brandHeader = c ? `<header class="brand"><div class="brand-name">${esc(c.name)}</div>${c.tagline ? `<div class="brand-tagline">${esc(c.tagline)}</div>` : ''}${c.contact ? `<div class="brand-contact">${esc(c.contact)}</div>` : ''}</header>` : '';
+  const brandFooter = c ? `<footer class="brand-foot"><span class="bf-name">${esc(c.name)}</span>${c.contact ? ` <span class="bf-sep">·</span> <span class="bf-contact">${esc(c.contact)}</span>` : ''}</footer>` : '';
+
+  const candidatesHtml = result.candidates.map((cand, i) => {
+    const n = narratives[i];
+    if (!n) return '';
+    return `<section class="axis">
+  <h3>${i + 1}. ${esc(result.surname)}${esc(cand.name)} — ${cand.totalScore}점</h3>
+  <p class="axis-headline"><em>${esc(n.headline)}</em></p>
+  <ul>
+${n.lines.map((l) => `    <li><span class="lbl">${esc(l.label)}</span> ${esc(l.text)}</li>`).join('\n')}
+  </ul>
+${n.strengths.length > 0 ? `  <p class="lbl">강점</p><ul>${n.strengths.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+${n.cautions.length > 0 ? `  <p class="lbl">주의</p><ul>${n.cautions.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+${n.guidance.length > 0 ? `  <p class="lbl">가이드</p><ul>${n.guidance.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+</section>`;
+  }).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<style>
+${CSS}
+</style>
+</head>
+<body>
+<div class="page">
+${brandHeader}
+<h1 class="doc-title">${esc(title)}</h1>
+<p class="palja">성씨 ${esc(result.surname)} · 후보 ${result.candidates.length}개</p>
+
+${candidatesHtml}
+
+<hr class="foot-rule">
+<p class="disclaimer">본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.</p>
+${brandFooter}
+</div>
+</body>
+</html>
+`;
+}
+
+// ---------- 택일 HTML ----------
+
+/** CalendarDay + 해석 → standalone HTML 택일 문서 */
+export function renderTaekilHtml(
+  day: CalendarDay,
+  narrative: TaekilInterpretation,
+  opts: { title?: string; counselor?: CounselorBrand } = {},
+): string {
+  const title = opts.title ?? `택일 리포트 — ${day.solarDate}`;
+  const c = opts.counselor;
+
+  const brandHeader = c ? `<header class="brand"><div class="brand-name">${esc(c.name)}</div>${c.tagline ? `<div class="brand-tagline">${esc(c.tagline)}</div>` : ''}${c.contact ? `<div class="brand-contact">${esc(c.contact)}</div>` : ''}</header>` : '';
+  const brandFooter = c ? `<footer class="brand-foot"><span class="bf-name">${esc(c.name)}</span>${c.contact ? ` <span class="bf-sep">·</span> <span class="bf-contact">${esc(c.contact)}</span>` : ''}</footer>` : '';
+
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<style>
+${CSS}
+</style>
+</head>
+<body>
+<div class="page">
+${brandHeader}
+<h1 class="doc-title">${esc(title)}</h1>
+<p class="headline">${esc(narrative.headline)}</p>
+<p class="palja">양력 ${esc(day.solarDate)} · 음력 ${esc(day.lunarDate)}${day.isLeapMonth ? ' (윤달)' : ''} · 일진 ${esc(day.dayGanJi)}</p>
+
+<section>
+  <h2>날짜 구조</h2>
+  <ul>
+${narrative.lines.map((l) => `    <li><span class="lbl">${esc(l.label)}</span> ${esc(l.text)}</li>`).join('\n')}
+  </ul>
+</section>
+
+${narrative.suited.length > 0 ? `<section>
+  <h2>이 날에 맞는 일</h2>
+  <ul>
+${narrative.suited.map((s) => `    <li>${esc(s)}</li>`).join('\n')}
+  </ul>
+</section>` : ''}
+
+${narrative.avoid.length > 0 ? `<section>
+  <h2>이 날에 피할 일</h2>
+  <ul>
+${narrative.avoid.map((s) => `    <li>${esc(s)}</li>`).join('\n')}
+  </ul>
+</section>` : ''}
+
+<section>
+  <h2>운영 가이드</h2>
+  <ul>
+${narrative.guidance.map((g) => `    <li>${esc(g)}</li>`).join('\n')}
+  </ul>
+</section>
 
 <hr class="foot-rule">
 <p class="disclaimer">본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.</p>

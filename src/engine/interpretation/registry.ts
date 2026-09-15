@@ -1156,6 +1156,44 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '해의 잡음이 어긋난 연운과 겹쳐, 관계·건강의 방해 요소가 누적되기 쉬운 해입니다.',
   },
 
+  // ---------- 10차: 조후 잔여 축 × 강약 ----------
+  'saju/combo/season-command--daymaster-strong': {
+    category: 'combo',
+    priority: 9,
+    title: '득령×신강(得令身强)',
+    defaultText:
+      '왕오행이 일간과 같은데 일간이 강합니다. 계절과 기반이 모두 같은 방향으로 힘이 실린 구조로 읽습니다. 강한 축이 과잉으로 기울지 않도록, 나가는 방향(식상·재성)의 출구를 함께 확인합니다.',
+    polarity: 'plus',
+    conclusion: '계절과 기반이 같은 방향으로 힘이 실린 구조로, 과잉으로 기울지 않게 나가는 출구를 확인합니다.',
+  },
+  'saju/combo/season-command--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '득령×신약(得令身弱)',
+    defaultText:
+      '왕오행이 일간과 같은데 일간이 약합니다. 계절은 맞으나 명식 안의 구조(분산·설기)가 축을 약하게 만든 형태로 읽습니다. 계절의 기운을 받아들이는 기반(인성·비겁)의 충실도를 함께 확인합니다.',
+    polarity: 'neutral',
+    conclusion: '계절은 맞으나 구조가 축을 약하게 만든 형태로, 기반의 충실도를 함께 확인합니다.',
+  },
+  'saju/combo/season-drain--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '설기×신약(泄氣身弱)',
+    defaultText:
+      '일간이 계절을 생하는데 일간이 약합니다. 기운이 밖으로 흘러나가는 형태에 얇은 축이 겹쳐, 지출·소모·남을 위한 수고가 부담으로 읽힐 수 있습니다. 회수·보존·기반 보강의 균형을 함께 확인합니다.',
+    polarity: 'caution',
+    conclusion: '기운이 밖으로 흘러나가는데 축이 얇은 구조로, 회수·보존·기반 보강의 균형을 확인합니다.',
+  },
+  'saju/combo/season-control--daymaster-weak': {
+    category: 'combo',
+    priority: 9,
+    title: '제절×신약(制節身弱)',
+    defaultText:
+      '일간이 계절을 극하는데 일간이 약합니다. 극하는 힘이 부족한 상태에서 환경을 누르려는 형태로 읽습니다. 억지로 누르기보다 방향을 돌리거나 기반을 먼저 채우는 쪽이 현실적입니다.',
+    polarity: 'caution',
+    conclusion: '극하는 힘이 부족한 상태로, 억지로 누르기보다 방향 전환이나 기반 보강이 현실적입니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

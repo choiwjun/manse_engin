@@ -1,0 +1,21 @@
+id: saju/combo/season-control--daymaster-weak
+title: 제절×신약(制節身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 6
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙戊癸
+  gyeokguk: 정재격
+  yongsin: 목
+body:
+  short: 극하는 힘이 부족한 상태로, 억지로 누르기보다 방향 전환이나 기반 보강이 현실적입니다.
+  medium: 일간이 계절의 왕오행을 극하는 제절(制節) 구조인데 일간 축이 약합니다. 극하는 힘이 부족한 상태에서 환경을 누르려는 형태로 읽습니다. 억지로 누르기보다 방향을 돌리거나 기반을 먼저 채우는 쪽이 현실적입니다.
+  long: 제절은 일간이 계절의 왕오행을 극하는 상태를 말하며, 전통적으로는 일간이 환경을 제어하려는 형태로 읽습니다. 그런데 이 명식은 제절이면서 일간 축이 약하게 잡혀, 누르려는 힘이 부족한 상태로 읽힙니다. 억지로 누르려 하면 오히려 축이 더 소모될 수 있으니, 방향을 돌려 극하지 않는 길을 찾거나 기반을 먼저 채우는 쪽을 살펴봅니다. 상담에서는 제절의 의지와 그것을 감당하는 기반의 균형을 함께 봅니다.
+tags: [조후, 강약, 제절, 신약]

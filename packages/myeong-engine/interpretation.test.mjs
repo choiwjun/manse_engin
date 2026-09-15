@@ -14,6 +14,9 @@ import {
   renderPattern,
   renderReportMarkdown,
   renderReportHtml,
+  renderCompatibilityHtml,
+  renderNamingHtml,
+  renderTaekilHtml,
   renderCompatibilityMarkdown,
   interpretCompatibility,
   analyzeNames,
@@ -521,6 +524,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const md = renderCompatibilityMarkdown(compat, n, { nameA: '남편', nameB: '아내' });
   assert.ok(md.startsWith('# 궁합 리포트 — 남편 × 아내'), '궁합 문서 헤더');
   assert.ok(md.includes('## 관계 구조') && md.includes('## 운영 가이드'), '궁합 문서 섹션');
+  const html = renderCompatibilityHtml(compat, n, { nameA: '남편', nameB: '아내', counselor: { name: '테스트 명리관', contact: 'test@example.com' } });
+  assert.ok(html.startsWith('<!DOCTYPE html>') && html.includes('lang="ko"'), '궁합 HTML 구조');
+  assert.ok(html.includes('관계 구조') && html.includes('운영 가이드') && html.includes('테스트 명리관'), '궁합 HTML 섹션+브랜드');
+  assert.ok(!html.includes('undefined') && !html.includes('null'), '궁합 HTML 누수');
 }
 
 // 5차-후속 — 작명 해석 계층
@@ -538,6 +545,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const md = renderNamingMarkdown(result, narratives);
   assert.ok(md.startsWith('# 작명 리포트'), '작명 문서 헤더');
   assert.ok(md.includes('## 1. 김민준') && md.includes('**강점**'), '작명 문서 섹션');
+  const html = renderNamingHtml(result, narratives, { counselor: { name: '테스트 작명소' } });
+  assert.ok(html.startsWith('<!DOCTYPE html>') && html.includes('lang="ko"'), '작명 HTML 구조');
+  assert.ok(html.includes('김민준') && html.includes('테스트 작명소'), '작명 HTML 후보+브랜드');
+  assert.ok(!html.includes('undefined') && !html.includes('null'), '작명 HTML 누수');
 }
 
 // 5차-후속 — 택일 해석 계층
@@ -553,6 +564,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const md = renderTaekilMarkdown(day, n);
   assert.ok(md.startsWith('# 택일 리포트'), '택일 문서 헤더');
   assert.ok(md.includes('## 이 날에 피할 일') && md.includes('## 운영 가이드'), '택일 문서 섹션');
+  const html = renderTaekilHtml(day, n);
+  assert.ok(html.startsWith('<!DOCTYPE html>') && html.includes('lang="ko"'), '택일 HTML 구조');
+  assert.ok(html.includes('이 날에 피할 일') && html.includes('운영 가이드'), '택일 HTML 섹션');
+  assert.ok(!html.includes('undefined') && !html.includes('null'), '택일 HTML 누수');
 
   // 길일 케이스 — 십이직 순회로 길일 하나를 찾아 suited 목록 확인
   let gilFound = false;
@@ -626,6 +641,40 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
       input: { year: 1950, month: 1, day: 3, hour: 7, minute: 30, gender: 'male' },
       key: 'saju/combo/jiji-chung--daymaster-strong',
       label: '충×신강',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    assert.ok(pattern, `${c.label} 조합 감지 실패`);
+    assert.equal(pattern.contentId, c.key, `${c.label} DB 문구 등록`);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined') && !rendered.includes('null'), `${c.label} 동적 문장`);
+  }
+}
+
+// 11차 — 조후 잔여 축 × 강약 4개
+{
+  const cases = [
+    {
+      input: { year: 1940, month: 1, day: 7, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/season-command--daymaster-strong',
+      label: '득령×신강',
+    },
+    {
+      input: { year: 1940, month: 1, day: 1, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/season-command--daymaster-weak',
+      label: '득령×신약',
+    },
+    {
+      input: { year: 1940, month: 1, day: 14, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/season-drain--daymaster-weak',
+      label: '설기×신약',
+    },
+    {
+      input: { year: 1940, month: 1, day: 6, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/season-control--daymaster-weak',
+      label: '제절×신약',
     },
   ];
   for (const c of cases) {

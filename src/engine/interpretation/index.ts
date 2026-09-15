@@ -32,7 +32,7 @@ export { renderPattern, strengthLabel, josa } from './sentence';
 export { judgeOhaeng, buildTimingNarrative } from './narrative';
 export { assembleReport } from './report';
 export { renderReportMarkdown, renderCompatibilityMarkdown, renderNamingMarkdown, renderTaekilMarkdown, type RenderReportOptions } from './markdown';
-export { renderReportHtml, type RenderReportHtmlOptions, type CounselorBrand } from './html';
+export { renderReportHtml, renderCompatibilityHtml, renderNamingHtml, renderTaekilHtml, type RenderReportHtmlOptions, type CounselorBrand } from './html';
 export { getContentEntry, contentEntryCount, conclusionFor, type ContentEntry, type ContentBody, type ContentDb } from './content';
 export {
   interpretCompatibility,

@@ -195,7 +195,7 @@
 
 **스캔 도구** — `scan-combos-13.mjs` (1950~2010년 범위로 확장, 407개 명식에서 8/8 발화)
 
-검증: `npm test` 전체 통과 (회귀 36 + interpretation + HTML 렌더 검증 추가), `content:validate OK — 엔트리 145건 통과 (레지스트리 122키 중 미작성 0키)`
+검증: `npm test` 전체 통과 (회귀 36 + interpretation + HTML 렌더 검증 추가), `content:validate OK — 엔트리 145건 통과 (레지스트리 122키 중 미작성 0키)` *(16차 시점 수치 — 18차 이후 최신: 155건·132키)*
 
 ## 17차 추가 — 상담 안전성 감사·문구 완화 및 출력 회귀 검증
 
@@ -212,7 +212,7 @@
 ### 검증 결과
 
 - `npm test`: smoke, 회귀 36건, interpretation, content validator 통과
-- `npm --prefix packages/myeong-engine run content:validate`: 엔트리 145건·레지스트리 122키 통과
+- `npm --prefix packages/myeong-engine run content:validate`: 엔트리 145건·레지스트리 122키 통과 *(17차 시점 수치 — 최신 155건·132키)*
 - `git diff --check`: 통과
 - 샘플 B `庚午 癸未 戊子 丁巳`(1930-08-06 10:00): 남명 자녀 축(관성), 겁재격, 용신 금 및 격국용신 근거 노출 확인
 - 샘플 C `戊午 壬戌 辛未 乙未`(1978-11-05 14:00): 여명 자녀 축(식상), 정인격, 용신 화 및 격국용신 근거 노출 확인
@@ -270,3 +270,40 @@
 - 최종 `npm test`, `content:validate`, 금칙어 검사, `git diff --check`를 완료한 뒤 이 문서의 검증 수치를 확정한다.
 
 실제 전문가가 대표 명식·학파 기준·안전성 문구를 대조 검수하고, 검수자·기준·일자를 별도 기록하는 것은 상용화 전 필수 잔여 작업이다.
+
+## 19차 추가 — 전문가 검수 기준·HTML 렌더러·조후×강약 확장·승격 워크플로
+
+### 전문가 검수 기준 문서
+
+- `docs/expert-review-checklist-2026-09-15.md` — 검수 범위·fixture·판정 기준·기록 형식·서명부를 고정했다.
+- `docs/fixtures/expert-fixtures-2026-09-15.json` — 13개 대표 명식의 엔진 출력(팔자·격국·용신·기신·십신·신살·패턴)을 JSON으로 고정. 전문가가 자신의 도구로 대조할 때 `expertFill`을 채워 검수 기록으로 사용한다.
+
+### 작명·택일·궁합 HTML 렌더러
+
+- `renderCompatibilityHtml`, `renderNamingHtml`, `renderTaekilHtml` 추가 — 사주 리포트와 같은 standalone HTML 구조(인쇄→PDF, 외부 의존성 없음, 상담사 브랜드 프리앰블 지원).
+- export: `interpretation/index.ts` + `engine/index.ts` + `packages/myeong-engine/src/index.ts` 모두 추가.
+
+### 11차 조합 확장 (조후 잔여 축 × 강약)
+
+기존 `johuRelation`이 support·pressure만 판정하던 것을 `johuFull`로 확장해 5분기(command·support·drain·pressure·control) 전부 판정하도록 했다. 신규 4개:
+
+- `saju/combo/season-command--daymaster-strong` (득령×신강)
+- `saju/combo/season-command--daymaster-weak` (득령×신약)
+- `saju/combo/season-drain--daymaster-weak` (설기×신약)
+- `saju/combo/season-control--daymaster-weak` (제절×신약)
+
+### 승격 워크플로
+
+- `docs/publish-workflow-2026-09-15.md` — `reviewed`→`published` 승격 기준(전문가 대조 검수 pass + 검수 기록 + 안전성 문구 + validator 통과), 상담사 베타 피드백 수집 양식, 현재 상태(155건 reviewed / 0건 published)를 정리했다.
+
+### 문서 정합성
+
+- `content/README.md` — 조립기 오버라이드 연결 완료 표기로 정정.
+- `docs/handoff-master-2026-09-14.md` — 155건·132키·HTML 구현·작명/택일 해석 완성으로 갱신.
+- `docs/handoff-interpretation-2026-09-15.md` — 16·17차 시점 수치에 최신 기준 주석 추가.
+
+### 현재 상태와 검증 기준
+
+- 콘텐츠 **159건** (기존 155 + 11차 combo 4), 레지스트리 **136키**, 미작성 키 0개.
+- 검수 기록: `content/reviews/20260915-r3.md` (신규 4건 pass).
+- 최종 `npm test`, `content:validate`, `git diff --check`를 완료한 뒤 이 문서의 검증 수치를 확정한다.

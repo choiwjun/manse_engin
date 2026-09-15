@@ -16,11 +16,11 @@
 |------|------|
 | 계산 엔진 13모듈 | ✅ 완성 — 외부 피드백 기반 결함 전량 수정·검증 (§2 참고) |
 | 해석 계층 (사주) | ✅ 완성 — detector 25종 / 패턴 레지스트리 58키 / 동적 문장 / 5축 리포트 / 시점 서사 |
-| 문구 DB (content) | ✅ 58/58키 커버리지 100%, 전부 `reviewed` (사람 최종 검수 전 단계까지 자동 완료) |
+| 문구 DB (content) | ✅ 155건 / 레지스트리 132키 커버리지 100%, 전부 `reviewed` (사람 최종 검수 전 단계까지 자동 완료) — 2026-09-15 18차 기준 |
 | 콘텐츠 파이프라인 | ✅ YAML→빌드타임 JSON 번들, sampleBirth 엔진 재실행 대조, 금칙어 린트 — `npm test`에 통합 |
-| 문서 렌더러 | ✅ 사주 리포트 + 궁합 리포트 마크다운 (HTML·PDF는 미구현) |
+| 문서 렌더러 | ✅ 사주·궁합·작명·택일 마크다운 + 사주 standalone HTML(인쇄→PDF) — 2026-09-15 16차 기준 |
 | 해석 계층 (궁합) | ✅ 완성 — 십신 상호 인식·생극 방향·강약 대비·오행 보완·운영 가이드 |
-| 해석 계층 (작명·택일) | ❌ 미착수 — 계산 엔진은 완성, 해석은 궁합과 같은 패턴으로 확장 예정 |
+| 해석 계층 (작명·택일) | ✅ 완성 — `interpretName`/`interpretNameWithSaju`(사주 교차) + `renderNamingMarkdown`, `interpretTaekil` + `renderTaekilMarkdown` — 2026-09-15 기준 |
 | UI·워크스테이션 | ❌ 의도적 미착수 — 풀이 콘텐츠 완성 후 착수 |
 | 검증 | ✅ `npm test` = 스모크 + 회귀 36건 + 해석 골든 + 콘텐츠 58건. 128건 다중 샘플 스트레스(결정론성·누수·강도·궁합 문서) 통과. CJS/ESM 이중 번들 스모크 통과 |
 
@@ -73,13 +73,14 @@
 ```
 src/engine/                      canonical 소스 (이것만 수정)
   interpretation/                해석 계층 (SajuResult만 소비, 계산 코드 미수정)
-    detectors/                   25종 — flow·imbalance·relation(원진/삼합/방합)·cross·johu·timing·combos
+    detectors/                   25종+ — flow·imbalance·relation(원진/삼합/방합)·cross·johu·timing·combos
     meter.ts                     강약 계량기 (지장간 가중 + 월지 ×2)
-    registry.ts                  패턴 사전 58키 (title·defaultText·conclusion·polarity)
+    registry.ts                  패턴 사전 136키 (title·defaultText·conclusion·polarity) — 19차 기준
     content.ts                   DB 접근 (content-db.generated.json — build.mjs가 content/에서 생성)
     sentence.ts                  동적 문장 (slots/figures → 첫형 + 결론형)
     report.ts / narrative.ts     5축 리포트 / 대운×세운×월운 서사
-    compatibility.ts / markdown.ts  궁합 해석 / 문서 렌더러
+    compatibility.ts / naming.ts / taekil.ts  궁합·작명·택일 해석
+    markdown.ts / html.ts        문서 렌더러 (마크다운 + standalone HTML)
   index.ts                       루트 공개 API — packages/myeong-engine/src/index.ts와 항상 쌍으로 수정
 packages/myeong-engine/          배포 패키지 (build.mjs: 복사 → 별칭 재작성 → content DB 번들 → esbuild ESM/CJS → tsc d.ts)
 content/entries/                 문구 DB (경로=조합키, status: draft→linted→reviewed→published)
@@ -95,12 +96,12 @@ content/entries/                 문구 DB (경로=조합키, status: draft→li
 
 ## 5. 작업해야할 내용 (우선순위 순)
 
-1. **조합키 지속 확장** (콘텐츠 경쟁의 핵심) — 현재 8종 combo는 시작점. 강약×조후, 십신 과다×신살, 원진×일지, 격국×대운 등 전문가 조합을 계속 키화. 각 건 = detector 조건 + 레지스트리 + DB 문구 3벌. 목표 수백 키.
-2. **작명·택일 해석 계층** — 계산 엔진 완성. 궁합과 같은 패턴(narrative → strengths/frictions/guidance → markdown)으로 확장. MVP 4권(사주✅+궁합✅+작명+택일) 완성용.
+1. **조합키 지속 확장** (콘텐츠 경쟁의 핵심) — 현재 136키(19차 기준). 강약×조후 잔여 축, 십신 과다×신살, 원진×일지, 격국×대운 등 전문가 조합을 계속 키화. 각 건 = detector 조건 + 레지스트리 + DB 문구 3벌. 목표 수백 키.
+2. **작명·택일 해석 계층** — ✅ 완성 (19차). `interpretName`/`interpretNameWithSaju` + `renderNamingMarkdown`/`renderNamingHtml`, `interpretTaekil` + `renderTaekilMarkdown`/`renderTaekilHtml`. 남은 심화: 후보 비교 근거·학파별 정책·장문 리포트.
 3. **시점 서사 2단계** — 월운×세운 교차 문장, 대운 경계(전환 6개월 전) 서사, 세운 십신별 행동 가이드 문구 세트.
-4. **문서 산출물 확장** — 사주/궁합 마크다운 위에 HTML·PDF 출력 + 상담사 브랜드 프리앰블(이름·연락처·로고 자리). 마크다운이 단일 소스.
-5. **문구 운영 사이클 가동** — 상담사 베타 피드백 → short·medium 튜닝 → `published` 승격. detector 조합 확장과 병행되면 문구가 수백~수천 규모로 성장(전문가 프로그램의 "조건-문장 쌍 + 우선순위 매칭" 구조 실현).
-6. **제품·사업 (콘텐츠 완성 후)** — 워크스테이션 UI(만세력 화면·원클릭 브리핑·시간 미상 안전 모드·고객 DB), 라이선스·활성화 서버, 사전판매 검증(역학 카페·학원 100명). **사용자 결정상 UI는 마지막 단계.**
+4. **문서 산출물 확장** — ✅ 완성 (19차). 사주·궁합·작명·택일 모두 Markdown + standalone HTML(인쇄→PDF) 지원. 상담사 브랜드 프리앰블 구현됨. 남은 것: PDF 직접 출력(현재는 브라우저 인쇄 경유).
+5. **문구 운영 사이클 가동** — `docs/publish-workflow-2026-09-15.md`에 reviewed→published 승격 기준·상담사 베타 피드백 양식 정리. 실제 전문가 검수(`docs/expert-review-checklist-2026-09-15.md` + `docs/fixtures/expert-fixtures-2026-09-15.json`)가 선행 조건.
+6. **제품·사업 (콘텐츠 완성 후)** — 워크스테이션 UI(만세력 화면·원클릭 브리핑·시간 미상 안전 모드·고객 DB), 라이선스·활성화 서버, 사전판매 검증(역학 카페·학원 100명). **사용자 결정상 UI는 마지막 단계. 진입 조건: 전문가 검수 pass + published 승격 + 베타 피드백 A 등급 다수.**
 
 ## 6. 최신 상태 보충 — 2026-09-15
 
@@ -108,6 +109,7 @@ content/entries/                 문구 DB (경로=조합키, status: draft→li
 - 10차 구조×강약 조합 4건, 신살×십신 cross 4건, 인접 십신 flow 2건을 detector·registry·YAML·회귀 테스트에 연결했다. 콘텐츠는 총 155건으로 갱신된다.
 - `interpretNameWithSaju()`는 결핍·용신·기신을 후보·일치 관계로 설명하고 가족 선호·발음·사용 환경·현실 조건을 함께 확인하도록 보강했다.
 - 확장 검수 기록: `content/reviews/20260915-r2.md`. 코드 기반 페르소나 검수와 실제 역학 전문가 검수는 구분하며, 외부 전문가의 대표 명식 대조는 아직 잔여 작업이다.
+- 19차 추가(2026-09-15): 전문가 검수 기준(`docs/expert-review-checklist-2026-09-15.md` + `docs/fixtures/expert-fixtures-2026-09-15.json`), 작명·택일·궁합 HTML 렌더러, 조후×강약 11차 combo 4건(총 159건·136키), 승격 워크플로(`docs/publish-workflow-2026-09-15.md`), 문서 정합성 정리.
 - 최신 상세 문서: [handoff-interpretation-2026-09-15.md](handoff-interpretation-2026-09-15.md)
 
 ## 7. 세부 핸드오프 인덱스

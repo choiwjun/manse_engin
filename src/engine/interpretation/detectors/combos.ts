@@ -68,6 +68,19 @@ function johuRelation(meter: OhaengMeter, result: SajuResult): 'support' | 'pres
   return null;
 }
 
+/** 조후 전체 판정 — 5분기(command·support·drain·pressure·control) 중 해당 축 반환 */
+function johuFull(meter: OhaengMeter, result: SajuResult): 'command' | 'support' | 'drain' | 'pressure' | 'control' | null {
+  const king = meter.season.kingOhaeng;
+  const day = dayGanOhaeng(result);
+  if (!king || !day) return null;
+  if (king === day) return 'command';
+  if (isChildOf(king, day)) return 'support';
+  if (isChildOf(day, king)) return 'drain';
+  if (isSanggeukOf(king, day)) return 'pressure';
+  if (isSanggeukOf(day, king)) return 'control';
+  return null;
+}
+
 /** 원진과 충이 같은 명식 안에 공존하는지 — 원진 6쌍과 충 6쌍은 지지 쌍이 수학적으로 분리되어
  *  같은 자리에서 겹칠 수 없으므로, '공존'으로 판정한다 (두 마찰이 한 명식에 겹친 구조). */
 function findWonjinChungCoexist(result: SajuResult): {
@@ -1254,6 +1267,62 @@ export function detectCombos(result: SajuResult): RawPattern[] {
           group: null,
         })),
       ),
+    });
+  }
+
+  // ---------- 10차 확장: 조후 잔여 축 × 강약 ----------
+
+  const johuFullRel = johuFull(meter, result);
+
+  // 득령×신강 — 왕오행이 일간과 같은데 일간이 강함
+  if (johuFullRel === 'command' && strong) {
+    patterns.push({
+      key: 'saju/combo/season-command--daymaster-strong',
+      strength: 0.65,
+      evidence: [
+        ...meterEvidence,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}=일간 ${result.palja.dayGan}(${dayGanOhaeng(result)}) 득령 + 신강`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
+    });
+  }
+
+  // 득령×신약 — 왕오행이 일간과 같은데 일간이 약함 (계절은 맞으나 구조가 약함)
+  if (johuFullRel === 'command' && weak) {
+    patterns.push({
+      key: 'saju/combo/season-command--daymaster-weak',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}=일간 ${result.palja.dayGan}(${dayGanOhaeng(result)}) 득령 + 신약`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
+    });
+  }
+
+  // 설기×신약 — 일간이 계절을 생하는데 일간이 약함 (기운 유출이 부담)
+  if (johuFullRel === 'drain' && weak) {
+    patterns.push({
+      key: 'saju/combo/season-drain--daymaster-weak',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}을 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})이 생함(설기) + 신약`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
+    });
+  }
+
+  // 제절×신약 — 일간이 계절을 극하는데 일간이 약함 (극하는 힘이 부족)
+  if (johuFullRel === 'control' && weak) {
+    patterns.push({
+      key: 'saju/combo/season-control--daymaster-weak',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}을 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})이 극함(제절) + 신약`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
     });
   }
 

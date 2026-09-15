@@ -58,4 +58,4 @@ tags: [재물, 식상, 흐름]
 1. LLM 초안을 만들 때 엔진 facts(`DetectedPattern.evidence`)를 그대로 바인딩해 준다.
 2. 사람이 검수하면 `status: reviewed`로 올린다.
 3. 발행 전 `npm run content:validate` — assert 대조와 금칙어가 자동으로 걸러준다.
-4. 조립기 오버라이드 연결(레지스트리 문구 대신 DB 문구 사용)은 다음 단계 과제 — 핸드오프 문서 참고.
+4. 조립기 오버라이드는 연결 완료 — `body.short`가 레지스트리 `conclusion`을, `body.medium`/`body.long`이 마크다운·HTML 리포트의 심층 문단을 대체한다. (우선순위: `body.short` > `conclusion` > `defaultText`)
