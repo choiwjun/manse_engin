@@ -10,6 +10,7 @@ import {
   buildTimingNarrative,
   renderPattern,
   renderReportMarkdown,
+  renderReportHtml,
   renderCompatibilityMarkdown,
   interpretCompatibility,
   analyzeNames,
@@ -77,8 +78,11 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const flowRendered = renderPattern(flowPattern);
   assert.ok(flowRendered.includes('전문성 축적이 곧 수입 축적'), `DB body.short 오버라이드: ${flowRendered}`);
 
-  const weakLine = interp.summary.cautionLines.find((s) => s.includes('36.7%'));
-  assert.ok(weakLine && weakLine.includes('신약'), `계량 수치 반영: ${weakLine}`);
+  // 신약 계량 발화는 summary 캡과 무관하게 패턴 자체로 단언한다 (조합키 증가로 상위 라인이 밀릴 수 있음)
+  const weakPattern = interp.patterns.find((p) => p.key === 'saju/imbalance/daymaster-weak');
+  assert.ok(weakPattern, '신약 detector 발화');
+  const weakRendered = renderPattern(weakPattern);
+  assert.ok(weakRendered.includes('36.7%') && weakRendered.includes('신약'), `계량 수치 반영: ${weakRendered}`);
   // 조후 detector 발화는 summary 캡과 무관하게 패턴 자체로 단언한다 (조합키 증가로 상위 라인이 밀릴 수 있음)
   const johuPattern = interp.patterns.find((p) => p.key === 'saju/johu/season-command');
   assert.ok(johuPattern, '조후 detector — 丑월(토왕) × 己(토) 일간 = 당령 일간');
@@ -134,6 +138,30 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     for (const evidence of pattern.evidence) assert.ok(md.includes(evidence), `전체 패턴 근거 출력: ${pattern.key}`);
   }
   assert.ok(!md.includes('undefined') && !md.includes('null'), '렌더 누수 방지');
+
+  // 9차-후속 — HTML 렌더러 (인쇄·PDF 대응 standalone 문서 + 상담사 브랜드 프리앰블)
+  const html = renderReportHtml(rep, {
+    counselor: { name: '청명역학원', contact: '010-0000-0000', tagline: '사주·작명·택일 전문' },
+  });
+  assert.ok(html.startsWith('<!DOCTYPE html>'), 'HTML doctype');
+  assert.ok(html.includes('<html lang="ko">'), 'HTML lang');
+  assert.ok(html.includes('@media print'), '인쇄 CSS 포함');
+  assert.ok(html.includes('@page'), '페이지 여백 규칙');
+  assert.ok(html.includes('청명역학원'), '브랜드명 헤더');
+  assert.ok(html.includes('010-0000-0000'), '브랜드 연락처');
+  assert.ok(html.includes('사주·작명·택일 전문'), '브랜드 태그라인');
+  assert.ok(html.includes('class="brand-foot"'), '브랜드 푸터');
+  for (const header of ['핵심 내용', '오행 계량', '분야별 전체 풀이', '운의 흐름', '전체 구조 해설']) {
+    assert.ok(html.includes(header), `HTML 섹션: ${header}`);
+  }
+  assert.ok(html.includes(`감지 패턴 ${rep.patterns.length}건`), 'HTML 전체 패턴 수');
+  assert.ok(!html.includes('>undefined<') && !html.includes('>null<'), 'HTML 누수 방지');
+  assert.ok(html.includes('&lt;') === false || !html.includes('<script'), '스크립트 없음(안전한 standalone)');
+
+  // 브랜드 프리앰블 없이도 렌더 가능
+  const htmlNoBrand = renderReportHtml(rep);
+  assert.ok(!htmlNoBrand.includes('class="brand"'), '브랜드 미지정 시 헤더 없음');
+  assert.ok(htmlNoBrand.includes('사주 풀이 리포트'), '기본 제목');
 
   // 3차 — 시각 미상에서도 리포트가 예외 없이 조립되어야 한다
   const repNoHour = assembleReport(saju({ year: 1963, month: 8, day: 17, hour: null, minute: null, gender: 'female' }), {
@@ -499,6 +527,62 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   // 전환 12개월 전 — 다가오는 구간
   const tn3 = buildTimingNarrative(r, new Date('2032-04-01T12:00:00+09:00'));
   assert.ok(tn3.transition && !tn3.transition.imminent, `전환 다가옴: ${tn3.transition?.line}`);
+}
+
+// 9차 — 조합키 9차 확장 (8개 신규 조합 감지)
+// 각 케이스는 scan-combos-13.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
+{
+  const cases = [
+    {
+      input: { year: 1950, month: 1, day: 26, hour: 10, minute: 30, gender: 'male' },
+      key: 'saju/combo/samhap--seun-fit',
+      label: '삼합×세운용신',
+    },
+    {
+      input: { year: 1950, month: 1, day: 14, hour: 10, minute: 30, gender: 'male' },
+      key: 'saju/combo/samhap--seun-tension',
+      label: '삼합×세운기신',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 22, minute: 30, gender: 'female' },
+      key: 'saju/combo/banghap--daeun-fit',
+      label: '방합×용신운',
+    },
+    {
+      input: { year: 1950, month: 1, day: 1, hour: 22, minute: 30, gender: 'male' },
+      key: 'saju/combo/banghap--daeun-tension',
+      label: '방합×기신운',
+    },
+    {
+      input: { year: 1950, month: 1, day: 16, hour: 4, minute: 30, gender: 'male' },
+      key: 'saju/combo/jiji-hap--seun-fit',
+      label: '합×세운용신',
+    },
+    {
+      input: { year: 1950, month: 1, day: 2, hour: 1, minute: 30, gender: 'male' },
+      key: 'saju/combo/jiji-hap--seun-tension',
+      label: '합×세운기신',
+    },
+    {
+      input: { year: 1950, month: 1, day: 24, hour: 19, minute: 30, gender: 'male' },
+      key: 'saju/combo/jiji-hyeong--seun-tension',
+      label: '형×세운기신',
+    },
+    {
+      input: { year: 1950, month: 1, day: 13, hour: 22, minute: 30, gender: 'male' },
+      key: 'saju/combo/jiji-hae--seun-tension',
+      label: '해×세운기신',
+    },
+  ];
+  for (const c of cases) {
+    const r = saju(c.input);
+    const keys = runDetectors(r).map((p) => p.key);
+    assert.ok(keys.includes(c.key), `${c.label} 조합 감지 실패 — ${c.input.year}-${c.input.month}-${c.input.day}`);
+    const pattern = runDetectors(r).find((p) => p.key === c.key);
+    const rendered = renderPattern(pattern);
+    assert.ok(rendered.length > 20 && !rendered.includes('undefined'), `${c.label} 동적 문장: ${rendered}`);
+    assert.ok(pattern.contentId === c.key, `${c.label} DB 문구 등록`);
+  }
 }
 
 // 4) 계약 일관성 — 다양한 출생에서 (a) 모든 키가 레지스트리에 등록 (b) 강도 0~1 (c) 골든 문구 존재

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-hap--seun-tension
+title: 합×세운기신(合歲運忌神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 2
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丁辛
+  gyeokguk: 종재격
+  yongsin: 금
+body:
+  short: 엮인 관계가 어긋난 연운과 만나, 결합·인연이 묶인 채로 소모가 커지는 해입니다.
+  medium: 지지에 합이 있는 명식에 세운이 기신 방향입니다. 엮인 관계가 어긋난 연운과 만나, 결합·계약·인연이 묶인 채로 소모가 커지는 해입니다. 올해는 묶인 관계 안에서 빠져나오기보다 조건·기대를 문서로 재정리하는 것이 소모를 줄입니다.
+tags: [조합, 합, 세운, 기신]

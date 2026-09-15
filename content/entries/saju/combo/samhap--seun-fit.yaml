@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/samhap--seun-fit
+title: 삼합×세운용신(三合歲運用神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 26
+  hour: 10
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁辛癸
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 묶인 결속력이 올해의 용신 기운을 받아, 협력·연합·소속의 축이 실질 성과로 이어지는 해입니다.
+  medium: 삼합 국을 이루는 명식에 세운이 용신 방향으로 들어옵니다. 세 자지가 한 국으로 묶인 결속력이 올해의 용신 기운과 만나, 협력·연합·소속의 축이 실질 성과로 이어지기 쉬운 해입니다. 함께 묶인 관계를 성과로 전환하는 설계가 좋습니다.
+tags: [조합, 삼합, 세운, 용신]

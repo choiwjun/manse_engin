@@ -1017,5 +1017,185 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     });
   }
 
+  // ---------- 9차 확장: 삼합·방합·합·형·해 × 세운 / 방합 × 대운 ----------
+
+  const banghapRelations = (result.jijiRelations ?? []).filter((r) => r.type === '방합');
+
+  // 삼합×세운용신 — 삼합 국이 있는데 세운이 용신
+  if (samhapRelations.length > 0 && seunFit) {
+    patterns.push({
+      key: 'saju/combo/samhap--seun-fit',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: samhapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 삼합×세운기신 — 삼합 국이 있는데 세운이 기신
+  if (samhapRelations.length > 0 && seunTension) {
+    patterns.push({
+      key: 'saju/combo/samhap--seun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: samhapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 방합×용신운 — 계절 방합이 있는데 대운이 용신
+  if (banghapRelations.length > 0 && daeunFit) {
+    patterns.push({
+      key: 'saju/combo/banghap--daeun-fit',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `방합 ${banghapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 용신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: banghapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 방합×기신운 — 계절 방합이 있는데 대운이 기신
+  if (banghapRelations.length > 0 && daeunTension) {
+    patterns.push({
+      key: 'saju/combo/banghap--daeun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `방합 ${banghapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 기신 대운`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score },
+      slots: banghapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 합×세운용신 — 지지 합이 있는데 세운이 용신
+  if (hapRelations.length > 0 && seunFit) {
+    patterns.push({
+      key: 'saju/combo/jiji-hap--seun-fit',
+      strength: 0.55,
+      evidence: [
+        ...meterEvidence,
+        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: hapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 합×세운기신 — 지지 합이 있는데 세운이 기신
+  if (hapRelations.length > 0 && seunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-hap--seun-tension',
+      strength: 0.55,
+      evidence: [
+        ...meterEvidence,
+        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: hapRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 형×세운기신 — 지지 형이 있는데 세운이 기신
+  if (hyeongRelations.length > 0 && seunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-hyeong--seun-tension',
+      strength: 0.6,
+      evidence: [
+        ...meterEvidence,
+        `형 ${hyeongRelations.length}건 — ${hyeongRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: hyeongRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
+  // 해×세운기신 — 지지 해가 있는데 세운이 기신
+  if (haeRelations.length > 0 && seunTension) {
+    patterns.push({
+      key: 'saju/combo/jiji-hae--seun-tension',
+      strength: 0.55,
+      evidence: [
+        ...meterEvidence,
+        `해 ${haeRelations.length}건 — ${haeRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+      ],
+      figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
+      slots: haeRelations.flatMap((r) =>
+        r.jijis.map((ji, i) => ({
+          slot: r.positions[i] ?? ji,
+          label: posLabel(r.positions[i] ?? ji),
+          glyph: ji,
+          sipsin: null,
+          group: null,
+        })),
+      ),
+    });
+  }
+
   return patterns;
 }

@@ -998,6 +998,80 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     conclusion: '비어 있는 축을 기신운이 더 비우는 구간으로, 결핍 영역을 의식적으로 보완하는 것이 좋습니다.',
   },
 
+  // ---------- 9차: 삼합·방합·합·형·해 × 세운 / 방합 × 대운 ----------
+  'saju/combo/samhap--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '삼합×세운용신(三合歲運用神)',
+    defaultText:
+      '삼합 국을 이루는 명식에 세운이 용신 방향으로 들어옵니다. 묶인 결속력이 올해의 용신 기운을 받아, 협력·연합·소속의 축이 실질 성과로 이어지는 해입니다.',
+    polarity: 'plus',
+    conclusion: '묶인 결속력이 용신 기운을 받아, 협력·연합의 축이 실질 성과로 이어지는 해입니다.',
+  },
+  'saju/combo/samhap--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '삼합×세운기신(三合歲運忌神)',
+    defaultText:
+      '삼합 국을 이루는 명식에 세운이 기신 방향으로 들어옵니다. 묶인 결속력이 어긋난 연운과 만나, 소속·연합 내부의 마찰이나 방향 충돌이 표면화되기 쉬운 해입니다.',
+    polarity: 'caution',
+    conclusion: '묶인 결속력이 어긋난 연운과 만나, 소속·연합 내부의 마찰이 표면화되기 쉬운 해입니다.',
+  },
+  'saju/combo/banghap--daeun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '방합×용신운(方合用神運)',
+    defaultText:
+      '계절 방합을 이루는 명식에 대운이 용신 방향입니다. 한 계절의 기운이 방향을 이룬 구조에 용신운이 더해져, 환경·소속·지역의 축이 일관된 힘으로 작동하는 구간입니다.',
+    polarity: 'plus',
+    conclusion: '방향을 이룬 구조에 용신운이 더해져, 환경·소속의 축이 일관된 힘으로 작동합니다.',
+  },
+  'saju/combo/banghap--daeun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '방합×기신운(方合忌神運)',
+    defaultText:
+      '계절 방합을 이루는 명식에 대운이 기신 방향입니다. 한 방향으로 쏠린 기운이 기신운과 겹쳐, 환경·소속·지역의 축이 한쪽으로 과도하게 기울어 균형이 깨지기 쉬운 구간입니다.',
+    polarity: 'caution',
+    conclusion: '한 방향으로 쏠린 기운이 기신운과 겹쳐, 환경·소속의 축이 균형을 잃기 쉬운 구간입니다.',
+  },
+  'saju/combo/jiji-hap--seun-fit': {
+    category: 'combo',
+    priority: 9,
+    title: '합×세운용신(合歲運用神)',
+    defaultText:
+      '지지에 합이 있는 명식에 세운이 용신 방향입니다. 엮인 관계가 올해의 용신 기운을 받아, 결합·계약·인연의 축이 순조롭게 묶이는 해입니다.',
+    polarity: 'plus',
+    conclusion: '엮인 관계가 용신 기운을 받아, 결합·인연의 축이 순조롭게 묶이는 해입니다.',
+  },
+  'saju/combo/jiji-hap--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '합×세운기신(合歲運忌神)',
+    defaultText:
+      '지지에 합이 있는 명식에 세운이 기신 방향입니다. 엮인 관계가 어긋난 연운과 만나, 결합·계약·인연이 묶인 채로 소모가 커지는 해입니다.',
+    polarity: 'caution',
+    conclusion: '엮인 관계가 어긋난 연운과 만나, 결합·인연이 묶인 채 소모가 커지는 해입니다.',
+  },
+  'saju/combo/jiji-hyeong--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '형×세운기신(刑歲運忌神)',
+    defaultText:
+      '지지에 형이 있는 명식에 세운이 기신 방향입니다. 형의 살기가 어긋난 연운과 겹쳐, 법·규정·관계의 충돌이 표면화되기 쉬운 해입니다.',
+    polarity: 'caution',
+    conclusion: '형의 살기가 어긋난 연운과 겹쳐, 법·규정·관계의 충돌이 표면화되기 쉬운 해입니다.',
+  },
+  'saju/combo/jiji-hae--seun-tension': {
+    category: 'combo',
+    priority: 9,
+    title: '해×세운기신(害歲運忌神)',
+    defaultText:
+      '지지에 해가 있는 명식에 세운이 기신 방향입니다. 해의 잡음이 어긋난 연운과 겹쳐, 관계·건강·일상의 방해 요소가 잔잔하게 누적되는 해입니다.',
+    polarity: 'caution',
+    conclusion: '해의 잡음이 어긋난 연운과 겹쳐, 관계·건강의 방해 요소가 누적되기 쉬운 해입니다.',
+  },
+
   // ---------- timing: 대운 시점 ----------
   'saju/timing/daeun-fit': {
     category: 'timing',

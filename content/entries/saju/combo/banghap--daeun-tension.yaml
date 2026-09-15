@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/banghap--daeun-tension
+title: 방합×기신운(方合忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 22
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 한 방향으로 쏠린 기운이 기신운과 겹쳐, 환경·소속의 축이 균형을 잃기 쉬운 구간입니다.
+  medium: 계절 방합을 이루는 명식에 대운이 기신 방향입니다. 한 방향으로 쏠린 기운이 기신운과 겹쳐, 환경·소속·지역의 축이 한쪽으로 과도하게 기울어 균형이 깨지기 쉬운 구간입니다. 쏠린 방향에 반대축을 의식적으로 보완하는 것이 좋습니다.
+tags: [조합, 방합, 대운, 기신]
