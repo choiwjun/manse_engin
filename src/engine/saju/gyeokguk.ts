@@ -366,33 +366,9 @@ function lookupGyeokguk(name: string): Gyeokguk | null {
   return { name, hanja: info.hanja, description: info.description };
 }
 
-// ---------- 격국 판별 메인 함수 ----------
-
-/**
- * 팔자에서 격국을 판별한다.
- *
- * 판별 순서:
- * 1. 화격 판별 (일간-월간 간합 + 월지 득령)
- * 2. 종격 판별 (일간 극약/극강 + 세력 분석)
- * 3. 건록격/양인격 확인 (월지가 일간의 건록/양인 위치)
- * 4. 정격 10격 판별 (월지 지장간 + 월간 투출 기준)
- * 5. 최종 폴백: 외격
- *
- * 특수격(화격·종격)을 정격보다 먼저 평가한다. 정격은 유효한 일간·월지 조합에
- * 항상 매칭되므로 먼저 두면 특수격이 영구적으로 도달 불가가 된다.
- */
-export function determineGyeokguk(palja: Palja): Gyeokguk {
-  const { dayGan, monthGan, monthJi } = palja;
-
-  // ── Step 1: 화격 판별 ──
-  const hwagyeok = detectHwagyeok(palja);
-  if (hwagyeok) return hwagyeok;
-
-  // ── Step 2: 종격 판별 ──
-  const jongyeok = detectJongyeok(palja);
-  if (jongyeok) return jongyeok;
-
-  // ── Step 3: 건록격 / 양인격 확인 ──
+/** 건록격/양인격 — 월지가 일간의 건록 또는 양인 위치인지 검사한다 */
+function detectGeonrokYangin(palja: Palja): Gyeokguk | null {
+  const { dayGan, monthJi } = palja;
   if (GEONROK_MAP[dayGan] === monthJi) {
     return {
       ...lookupGyeokguk('건록격')!,
@@ -409,43 +385,82 @@ export function determineGyeokguk(palja: Palja): Gyeokguk {
       blockers: [],
     };
   }
+  return null;
+}
 
-  // ── Step 4: 정격 10격 판별 ──
+/** 정격 10격 — 월지 지장간 본기·월간 투출 기준 */
+function detectJeongyeok(palja: Palja): Gyeokguk | null {
+  const { dayGan, monthGan, monthJi } = palja;
   const monthJijanggan = JIJANGGAN_TABLE[monthJi];
-  if (monthJijanggan && monthJijanggan.length > 0) {
-    const bongi = monthJijanggan[0];
-    let targetGan = bongi;
-    if (monthGan && monthJijanggan.includes(monthGan)) {
-      targetGan = monthGan;
-    }
+  if (!monthJijanggan || monthJijanggan.length === 0) return null;
 
-    const sipsinName = determineSipsin(dayGan, targetGan);
-    if (sipsinName) {
-      const gyeokgukName = `${sipsinName}격`;
-      // 비견격/겁재격은 이미 건록/양인으로 걸러졌으므로 그대로 반환
-      const info = GYEOKGUK_INFO[gyeokgukName];
-      if (info) {
-        return {
-          name: gyeokgukName,
-          hanja: info.hanja,
-          description: info.description,
-          confidence: '확정',
-          basis: [
-            targetGan === bongi
-              ? `월지 ${monthJi} 본기 ${bongi} = ${sipsinName}`
-              : `월지 ${monthJi} 지장간 ${targetGan}이(가) 월간에 투출 = ${sipsinName}`,
-          ],
-          blockers: [],
-        };
-      }
-    }
-  }
+  const bongi = monthJijanggan[0];
+  const targetGan = monthGan && monthJijanggan.includes(monthGan) ? monthGan : bongi;
+  const sipsinName = determineSipsin(dayGan, targetGan);
+  if (!sipsinName) return null;
 
-  // ── Step 5: 최종 폴백 ──
+  const gyeokgukName = `${sipsinName}격`;
+  const info = GYEOKGUK_INFO[gyeokgukName];
+  if (!info) return null;
   return {
-    ...OEGYEOK_DEFAULT,
-    confidence: '참고',
-    basis: ['정격 10격·특수격(화격·종격·건록·양인) 조건 미충족'],
-    blockers: ['격국 미성립 — 명식을 개별 구조로 분석해야 함'],
+    name: gyeokgukName,
+    hanja: info.hanja,
+    description: info.description,
+    confidence: '확정',
+    basis: [
+      targetGan === bongi
+        ? `월지 ${monthJi} 본기 ${bongi} = ${sipsinName}`
+        : `월지 ${monthJi} 지장간 ${targetGan}이(가) 월간에 투출 = ${sipsinName}`,
+    ],
+    blockers: [],
   };
+}
+
+// ---------- 격국 판별 메인 함수 ----------
+
+/**
+ * 팔자에서 격국을 판별한다.
+ *
+ * 평가 순서(우선순위):
+ * 1. 화격 판별 (일간-월간 간합 + 월지 득령)
+ * 2. 종격 판별 (일간 극약/극강 + 세력 분석)
+ * 3. 건록격/양인격 확인 (월지가 일간의 건록/양인 위치)
+ * 4. 정격 10격 판별 (월지 지장간 + 월간 투출 기준)
+ * 5. 최종 폴백: 외격
+ *
+ * 특수격(화격·종격)을 정격보다 먼저 평가한다. 정격은 유효한 일간·월지 조합에
+ * 항상 매칭되므로 먼저 두면 특수격이 영구적으로 도달 불가가 된다.
+ *
+ * 모든 단계를 평가해 첫 성립 격을 대표로, 나머지 성립 격을 `candidates`에 담는다 —
+ * 특수격이 확정돼도 정격 등 대안 해석을 역술인이 함께 볼 수 있게 하기 위해서다.
+ */
+export function determineGyeokguk(palja: Palja): Gyeokguk {
+  const tiers: Gyeokguk[] = [];
+
+  const hwagyeok = detectHwagyeok(palja);
+  if (hwagyeok) tiers.push(hwagyeok);
+
+  const jongyeok = detectJongyeok(palja);
+  if (jongyeok) tiers.push(jongyeok);
+
+  const geonrok = detectGeonrokYangin(palja);
+  if (geonrok) tiers.push(geonrok);
+
+  const jeongyeok = detectJeongyeok(palja);
+  if (jeongyeok) tiers.push(jeongyeok);
+
+  const primary =
+    tiers[0] ??
+    {
+      ...OEGYEOK_DEFAULT,
+      confidence: '참고' as const,
+      basis: ['정격 10격·특수격(화격·종격·건록·양인) 조건 미충족'],
+      blockers: ['격국 미성립 — 명식을 개별 구조로 분석해야 함'],
+    };
+
+  const candidates = tiers.slice(1).map((c) => {
+    const { candidates: _nested, ...rest } = c;
+    return rest;
+  });
+  return candidates.length > 0 ? { ...primary, candidates } : primary;
 }

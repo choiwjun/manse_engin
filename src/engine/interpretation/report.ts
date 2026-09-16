@@ -70,6 +70,18 @@ export interface SajuReport {
     modelNote: string;
     /** 학파별 용신 스프레드 — '격국 금(식상)·조후 화(인성)·강약 수(재성)·물상 금(…)' 형태 */
     yongsinSchoolSpread?: string;
+    /** 학파별 판정 상세 — 용신·기신·근거·최종 용신과의 일치 여부 (역술인 검토용) */
+    yongsinSchoolDetails?: {
+      school: string;
+      yongsin: string;
+      gisin: string;
+      reasoning: string;
+      agree: boolean;
+    }[];
+    /** 차순위 격국 후보 — 특수격 성립 시에도 정격 등 대안을 함께 표기한다 */
+    gyeokgukCandidates?: string[];
+    /** 역술인 최종 선택 요약 — applyPractitionerOverride 적용 시에만 존재 */
+    practitionerChoice?: string;
     /** 학파 합의 — 선택된 용신 오행과 같은 오행을 지목한 학파 수 (예: '4학파 중 2학파') */
     yongsinConsensus?: string;
     /** 점수제 강약 병기 — 득령·득지·득세 가중 모델의 라벨 (점유율 모델과 별개) */
@@ -433,6 +445,39 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     schoolEntries.length > 0
       ? `${schoolEntries.length}학파 중 ${agreedCount}학파가 용신 ${result.yongsin.ohaeng} 지목`
       : undefined;
+  // 학파별 근거 상세 — 역술인이 각 학파의 판정 이유를 대조할 수 있게 한다
+  const yongsinSchoolDetails =
+    schoolEntries.length > 0
+      ? (Object.keys(SCHOOL_LABEL) as SajuSubSchool[])
+          .filter((s) => bySchool[s]?.ohaeng)
+          .map((s) => ({
+            school: SCHOOL_LABEL[s],
+            yongsin: bySchool[s]!.yongsin,
+            gisin: bySchool[s]!.gisin,
+            reasoning: bySchool[s]!.reasoning.replace(/^\S+?용신\s*:\s*/, ''),
+            agree: bySchool[s]!.ohaeng === result.yongsin.ohaeng,
+          }))
+      : undefined;
+  // 차순위 격국 후보 — 대표 격국 외에 성립한 대안들
+  const gyeokgukCandidates = result.gyeokguk.candidates?.length
+    ? result.gyeokguk.candidates.map((c) => `${c.name}${c.confidence ? `(${c.confidence})` : ''}`)
+    : undefined;
+  // 역술인 최종 선택 — applyPractitionerOverride 적용 결과를 리포트에 명시한다
+  const ov = result.practitionerOverride;
+  const practitionerChoice =
+    ov && (ov.yongsinOhaeng || ov.yongsinSchool || ov.gyeokgukName || ov.note)
+      ? [
+          ov.yongsinOhaeng
+            ? `용신 ${ov.yongsinOhaeng} 직접 지정`
+            : ov.yongsinSchool
+              ? `용신 ${SCHOOL_LABEL[ov.yongsinSchool]}학파 채택`
+              : '',
+          ov.gyeokgukName ? `격국 ${ov.gyeokgukName}` : '',
+          ov.note ? `메모: ${ov.note}` : '',
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : undefined;
   // 점수제 강약 병기 — 점유율 계량과 별개 모델의 결과를 함께 보여준다
   const sa = result.strengthAssessment;
   const strengthScoreLabel = sa
@@ -456,6 +501,9 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     modelNote:
       '강약은 점유율 계량·점수제(득령·득지·득세) 두 모델을 병기하며 결과가 다를 수 있습니다 — 용신은 학파별 판정을 나란히 표기합니다.',
     yongsinSchoolSpread,
+    yongsinSchoolDetails,
+    gyeokgukCandidates,
+    practitionerChoice,
     yongsinConsensus,
     strengthScoreLabel,
   };

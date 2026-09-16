@@ -4,6 +4,7 @@ import type {
   NaeumOhaeng,
   NaeumOhaengSet,
   Palja,
+  PractitionerOverride,
   SajuResult,
   SajuSubSchool,
   Wolun,
@@ -107,6 +108,68 @@ export function buildSajuResult(
   };
 }
 
+const SCHOOL_KR: Record<SajuSubSchool, string> = {
+  gyeokguk: '격국',
+  johu: '조후',
+  gangyak: '강약',
+  mulsang: '물상',
+};
+
+/**
+ * 역술인 최종 판정을 적용해 새 SajuResult를 만든다.
+ *
+ * 엔진이 학파 스프레드·격국 후보를 제시하면, 역술인이 그중 하나를 채택하거나
+ * 직접 오행·격국을 지정한다. 반환된 결과는 용신·격국이 교체되므로 이후
+ * timing 판정(judgeOhaeng)·detector·리포트가 모두 수정값 기준으로 일관되게 돌아간다.
+ *
+ * 우선순위: yongsinOhaeng(직접 지정) > yongsinSchool(학파 채택) > 격국 변경만 있으면 기본 학파 재계산.
+ */
+export function applyPractitionerOverride(
+  result: SajuResult,
+  override: PractitionerOverride,
+): SajuResult {
+  const next: SajuResult = { ...result, practitionerOverride: override };
+  const gyeokgukChanged = Boolean(override.gyeokgukName && override.gyeokgukName !== result.gyeokguk.name);
+
+  // 격국 수정 — 후보 목록에서 찾거나, 없으면 직접 지정으로 표기한다
+  if (gyeokgukChanged) {
+    const candidate = result.gyeokguk.candidates?.find((c) => c.name === override.gyeokgukName);
+    next.gyeokguk = candidate
+      ? { ...candidate, basis: [...(candidate.basis ?? []), '역술인 최종 선택'] }
+      : {
+          name: override.gyeokgukName!,
+          hanja: '',
+          description: '',
+          confidence: '참고',
+          basis: ['역술인 최종 선택 — 엔진 후보 목록에 없는 직접 지정'],
+          blockers: [],
+        };
+    // 격국이 바뀌면 격국학파 용신도 달라지므로 스프레드를 재계산한다
+    next.yongsinBySchool = determineYongsinBySchool(result.palja, next.gyeokguk);
+  }
+
+  // 용신 수정
+  if (override.yongsinOhaeng) {
+    next.yongsin = {
+      yongsin: `${override.yongsinOhaeng}(역술인 선택)`,
+      gisin: override.gisinOhaeng ? `${override.gisinOhaeng}(역술인 선택)` : result.yongsin.gisin,
+      ohaeng: override.yongsinOhaeng,
+      reasoning: `역술인 최종 선택 — 용신 ${override.yongsinOhaeng}${override.note ? `, 메모: ${override.note}` : ''}`,
+    };
+  } else if (override.yongsinSchool && next.yongsinBySchool?.[override.yongsinSchool]) {
+    const picked = next.yongsinBySchool[override.yongsinSchool]!;
+    next.yongsin = {
+      ...picked,
+      reasoning: `${picked.reasoning} — 역술인이 ${SCHOOL_KR[override.yongsinSchool]}학파 판정을 최종 채택${override.note ? ` (메모: ${override.note})` : ''}`,
+    };
+  } else if (gyeokgukChanged) {
+    // 격국만 바꾼 경우 기본 학파(격국용신)로 최종 용신을 재계산한다
+    next.yongsin = determineYongsin(result.palja, next.gyeokguk, 'gyeokguk');
+  }
+
+  return next;
+}
+
 export function normalizeSajuResult(value: unknown): SajuResult | null {
   if (!value || typeof value !== 'object') {
     return null;
@@ -149,5 +212,6 @@ export function normalizeSajuResult(value: unknown): SajuResult | null {
     yongsin,
     yongsinBySchool: source.yongsinBySchool,
     strengthAssessment: source.strengthAssessment,
+    practitionerOverride: source.practitionerOverride,
   };
 }

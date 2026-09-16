@@ -118,11 +118,20 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
       : '';
     out.push(`- 격국 신뢰도: ${report.context.gyeokgukConfidence}${blockers}`);
   }
+  if (report.context?.gyeokgukCandidates?.length) {
+    out.push(`- 격국 후보: ${report.context.gyeokgukCandidates.join(' · ')} — 대표 격국 외 성립한 대안입니다`);
+  }
+  if (report.context?.practitionerChoice) {
+    out.push(`- 역술인 선택: ${report.context.practitionerChoice}`);
+  }
   if (report.context?.yongsinReasoning) {
     out.push(`- 용신 근거(${report.context.yongsinSchool}): ${report.context.yongsinReasoning}`);
   }
   if (report.context?.yongsinSchoolSpread) {
     out.push(`- 학파별 용신: ${report.context.yongsinSchoolSpread}${report.context.yongsinConsensus ? ` (${report.context.yongsinConsensus})` : ''}`);
+    for (const d of report.context.yongsinSchoolDetails ?? []) {
+      out.push(`  - ${d.school}학파: 용신 ${d.yongsin} / 기신 ${d.gisin}${d.agree ? '' : ' (최종 용신과 불일치)'} — ${d.reasoning}`);
+    }
   }
   if (report.context?.strengthScoreLabel) {
     out.push(`- 강약 병기: 점유율 ${report.meter.dayMaster.verdictLabel} ${report.meter.dayMaster.score}% / 점수제 ${report.context.strengthScoreLabel}`);

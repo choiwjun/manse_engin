@@ -643,3 +643,77 @@ test('루트 소스와 패키지 미러의 생성 콘텐츠 DB가 동일하다',
   assert.deepEqual(pkg, root, 'build.mjs가 루트·미러에 같은 DB를 생성해야 한다');
   assert.ok(Object.keys(root).length >= 160, `엔트리 수: ${Object.keys(root).length}`);
 });
+
+test('격국이 차순위 후보를 함께 노출한다 (특수격 성립 시 정격이 candidates로)', () => {
+  // 화격 + 정격 동시 성립 — 甲己 간합이 辰월(토)에 득령, 정격으로는 辰 본기 戊 = 편재격
+  const hwa = esm.determineGyeokguk({
+    yearGan: '丙', yearJi: '子', monthGan: '己', monthJi: '辰', dayGan: '甲', dayJi: '午', hourGan: '丙', hourJi: '寅',
+  });
+  assert.equal(hwa.name, '갑기합화토격');
+  assert.ok(hwa.candidates?.some(c => c.name === '편재격'), `후보 목록: ${hwa.candidates?.map(c => c.name)}`);
+
+  // 건록월 — 실제 생일로 甲日 寅月을 찾는다 (2024-02는 丙寅월)
+  let r;
+  for (let d = 5; d < 29; d++) {
+    const cand = esm.buildSajuResult(birth({ year: 2024, month: 2, day: d }), { now: new Date('2026-09-12T00:00:00Z') });
+    if (cand.palja.dayGan === '甲' && cand.palja.monthJi === '寅') { r = cand; break; }
+  }
+  assert.ok(r, '甲日 寅月 명식을 찾아야 한다');
+  // 건록격(또는 더 상위 특수격)이 대표이고, 정격이 후보로 남는다
+  assert.ok(r.gyeokguk.candidates?.length > 0, `후보 없음 — gyeokguk=${r.gyeokguk.name}`);
+  assert.ok(r.gyeokguk.candidates.every(c => c.name.endsWith('격') && c.confidence && c.basis?.length));
+  const md = esm.renderReportMarkdown(esm.assembleReport(r));
+  assert.ok(md.includes('격국 후보'), '리포트에 격국 후보 표기');
+});
+
+test('학파별 용신 근거와 일치/불일치가 리포트에 노출된다', () => {
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), {
+    now: new Date('2025-12-13T00:00:00+09:00'),
+  });
+  const rep = esm.assembleReport(r);
+  const details = rep.context.yongsinSchoolDetails;
+  assert.ok(details?.length === 4, '4학파 상세');
+  for (const d of details) {
+    assert.ok(d.school && d.yongsin && d.gisin && d.reasoning.length > 5, `${d.school} 근거`);
+    assert.equal(typeof d.agree, 'boolean');
+  }
+  // 이 명식은 격국(금)과 조후·강약·물상(화)이 갈린다 — 불일치 표시가 있어야 한다
+  assert.ok(details.some(d => !d.agree), '학파 불일치 케이스 존재');
+  const md = esm.renderReportMarkdown(rep);
+  assert.ok(md.includes('학파: 용신'), '학파별 근거 행');
+  assert.ok(md.includes('불일치'), '불일치 표기');
+});
+
+test('applyPractitionerOverride — 역술인 선택이 용신·격국·운 판정·리포트에 일관 반영된다', () => {
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), {
+    now: new Date('2025-12-13T00:00:00+09:00'),
+  });
+  assert.equal(esm.judgeGanJi(r, '辛', '巳').verdict, 'mixed', '기본 용신(금) 기준 辛巳는 혼재');
+  assert.equal(esm.judgeGanJi(r, '丙', '午').verdict, 'tension', '기본 기신(화) 기준 丙午는 tension');
+
+  // 학파 채택 — 조후학파 용신(화)으로 바꾸면 丙午 판정이 fit으로 바뀐다
+  const picked = esm.applyPractitionerOverride(r, { yongsinSchool: 'johu', note: '丑월 조후 우선' });
+  assert.equal(picked.yongsin.ohaeng, r.yongsinBySchool.johu.ohaeng);
+  assert.ok(picked.yongsin.reasoning.includes('최종 채택'));
+  assert.equal(picked.practitionerOverride?.note, '丑월 조후 우선');
+  assert.equal(esm.judgeGanJi(picked, '丙', '午').verdict, 'fit', '용신 화 기준 丙午 = 용신축 일치 → fit');
+  const rep = esm.assembleReport(picked);
+  assert.ok(rep.context.practitionerChoice?.includes('조후'), '리포트에 역술인 선택 표기');
+  assert.ok(esm.renderReportMarkdown(rep).includes('역술인 선택'));
+
+  // 용신 오행 직접 지정 — 학파 채택보다 우선한다
+  const direct = esm.applyPractitionerOverride(r, { yongsinOhaeng: '수', yongsinSchool: 'johu' });
+  assert.equal(direct.yongsin.ohaeng, '수');
+  assert.ok(direct.yongsin.reasoning.includes('직접 지정') || direct.yongsin.yongsin.includes('역술인 선택'));
+
+  // 격국 직접 지정 — 후보 밖 이름이면 '직접 지정'으로 표기되고 격국학파 용신이 재계산된다
+  const reGeok = esm.applyPractitionerOverride(r, { gyeokgukName: '식신격' });
+  assert.equal(reGeok.gyeokguk.name, '식신격');
+  assert.ok(reGeok.gyeokguk.basis?.some(b => b.includes('역술인')), '역술인 지정 근거');
+  // 식신격 → 격국학파 용신은 재성(일간 己토가 극하는 수)
+  assert.equal(reGeok.yongsin.ohaeng, '수', `격국 변경 시 용신 재계산 — 실제 ${reGeok.yongsin.ohaeng}`);
+  assert.equal(reGeok.yongsinBySchool.gyeokguk.ohaeng, '수');
+  // 원본은 변하지 않는다
+  assert.equal(r.gyeokguk.name, '비견격');
+  assert.equal(r.yongsin.ohaeng, '금');
+});

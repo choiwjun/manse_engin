@@ -32,7 +32,8 @@
           "basis": [
             "월지 丑 본기 己 = 비견"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "금",
         "gisin": "화(인성)",
@@ -157,7 +158,8 @@
           "basis": [
             "월지 未 본기 己 = 겁재"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "금",
         "gisin": "화(인성)",
@@ -282,7 +284,8 @@
           "basis": [
             "월지 戌 본기 戊 = 정인"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "화",
         "gisin": "목(재성)",
@@ -410,7 +413,8 @@
           "basis": [
             "월지 子 본기 癸 = 정관"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "목",
         "gisin": "토(식상)",
@@ -541,7 +545,8 @@
           "basis": [
             "월지 子 본기 癸 = 상관"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "목",
         "gisin": "토(인성)",
@@ -670,7 +675,8 @@
           "basis": [
             "월지 丑 본기 己 = 편인"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "화",
         "gisin": "목(재성)",
@@ -795,7 +801,8 @@
           "basis": [
             "월지 子 본기 癸 = 정재"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "목",
         "gisin": "토(비겁)",
@@ -922,7 +929,8 @@
           "basis": [
             "월지 丑 본기 己 = 상관"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "금",
         "gisin": "목(인성)",
@@ -1041,7 +1049,13 @@
             "일간 세력(비겁+인성) 1 — 우세 축 종재 5",
             "비겁 1·인성 0·식상 5·재성 5·관성 4"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": [
+            {
+              "name": "편관격",
+              "confidence": "확정"
+            }
+          ]
         },
         "yongsin": "금",
         "gisin": "화(비겁)",
@@ -1163,7 +1177,8 @@
           "basis": [
             "월지 丑 본기 己 = 정재"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "금",
         "gisin": "목(비겁)",
@@ -1277,7 +1292,8 @@
           "basis": [
             "월지 子 본기 癸 = 편관"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "목",
         "gisin": "토(식상)",
@@ -1404,7 +1420,8 @@
           "basis": [
             "월지 子 본기 癸 = 편관"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": []
         },
         "yongsin": "목",
         "gisin": "토(식상)",
@@ -1536,7 +1553,13 @@
             "일간 세력(비겁+인성) 1 — 우세 축 종아 7",
             "비겁 1·인성 0·식상 7·재성 4·관성 5"
           ],
-          "blockers": []
+          "blockers": [],
+          "candidates": [
+            {
+              "name": "정관격",
+              "confidence": "확정"
+            }
+          ]
         },
         "yongsin": "토",
         "gisin": "목(인성)",

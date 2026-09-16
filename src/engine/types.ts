@@ -74,6 +74,28 @@ export interface Gyeokguk {
   basis?: string[];
   /** 불성립·약화 조건 — 있으면 확정 대신 후보로 읽어야 한다 */
   blockers?: string[];
+  /**
+   * 차순위 격국 후보 — 특수격이 성립해도 정격 등 대안 해석을 함께 노출한다.
+   * 역술인이 applyPractitionerOverride로 최종 격국을 이 목록에서 선택할 수 있다.
+   */
+  candidates?: Gyeokguk[];
+}
+
+/**
+ * 역술인 최종 판정 — 엔진 출력을 사람이 검토·수정한 값.
+ * applyPractitionerOverride로 적용하면 용신·격국·운 판정·리포트 전체에 일관 반영된다.
+ */
+export interface PractitionerOverride {
+  /** 채택한 용신 학파 — yongsinBySchool에서 해당 학파의 용신·기신을 최종 용신으로 사용 */
+  yongsinSchool?: SajuSubSchool;
+  /** 용신 오행 직접 지정 — yongsinSchool보다 우선한다 */
+  yongsinOhaeng?: Ohaeng;
+  /** 기신 오행 직접 지정 (선택 — 미지정 시 기존 기신을 유지한다) */
+  gisinOhaeng?: Ohaeng;
+  /** 격국 수정 — gyeokguk.candidates의 이름 또는 직접 입력 */
+  gyeokgukName?: string;
+  /** 역술인 판정 메모 — 리포트에 '역술인 선택' 근거로 표기된다 */
+  note?: string;
 }
 
 export interface Yongsin {
@@ -184,6 +206,8 @@ export interface SajuResult {
   yongsinBySchool?: Partial<Record<SajuSubSchool, Yongsin>>;
   /** 점수제 강약 판정 — 점유율 계량 결과와 별개 모델. 병기해서 두 모델의 차이를 드러낸다. */
   strengthAssessment?: StrengthAssessment;
+  /** 역술인 최종 판정 — applyPractitionerOverride 적용 시 기록된다 */
+  practitionerOverride?: PractitionerOverride;
 }
 
 export interface BirthInputData {

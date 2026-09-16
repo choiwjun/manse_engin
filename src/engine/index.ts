@@ -46,7 +46,7 @@ export { correctToTrueSolarTime } from './adapter/time-corrector';
 
 // ---------- 사주 ----------
 export { calculatePalja } from './saju/calculator';
-export { buildSajuResult } from './saju/result-builder';
+export { buildSajuResult, applyPractitionerOverride } from './saju/result-builder';
 export {
   calculateYunStartAge,
   calculateDaeun,
@@ -120,6 +120,7 @@ export {
   renderPattern,
   strengthLabel,
   judgeOhaeng,
+  judgeGanJi,
   buildTimingNarrative,
   assembleReport,
   renderReportMarkdown,
@@ -159,6 +160,7 @@ export type {
   TimingNarrative,
   TimingVerdict,
   TimingVerdictInfo,
+  GanJiJudgement,
   RenderReportOptions,
   RenderReportHtmlOptions,
   CounselorBrand,

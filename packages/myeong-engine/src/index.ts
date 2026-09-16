@@ -69,7 +69,7 @@ export { correctToTrueSolarTime } from './engine/adapter/time-corrector';
 // ---------- 사주 ----------
 export { calculatePalja } from './engine/saju/calculator';
 export type { CalculateOptions } from './engine/saju/calculator';
-export { buildSajuResult } from './engine/saju/result-builder';
+export { buildSajuResult, applyPractitionerOverride } from './engine/saju/result-builder';
 export {
   calculateYunStartAge,
   calculateDaeun,
