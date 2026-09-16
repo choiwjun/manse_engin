@@ -85,6 +85,8 @@ const TIMING_VERDICT: Record<string, (p: DetectedPattern) => string> = {
     `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}가 기신 ${str(p, 'gisin')} 축으로 기울어`,
   'saju/timing/daeun-neutral': (p) =>
     `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}가 중간 오행(${str(p, 'ohaeng')})으로 흘러`,
+  'saju/timing/daeun-mixed': (p) =>
+    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}(천간 ${str(p, 'ganOhaeng')}·지지 ${str(p, 'jiOhaeng')})가 용신·기신 축에 걸쳐 엇갈려`,
 };
 
 const JOHU_INTRO: Record<string, (p: DetectedPattern) => string> = {

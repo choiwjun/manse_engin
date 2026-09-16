@@ -56,6 +56,18 @@ export interface SajuReport {
     yongsinReasoning: string;
     /** 용신 판정 학파·방식 (예: '격국용신', '강약용신', '조후용신') */
     yongsinSchool: string;
+    /** 격국 신뢰도 — 화격·종격 등 조건이 부분 충족일 때 '유력'/'참고' */
+    gyeokgukConfidence?: '확정' | '유력' | '참고';
+    /** 격국 성립 근거 */
+    gyeokgukBasis?: string[];
+    /** 격국 불성립·약화 조건 — 있으면 격국을 확정으로 읽지 않는다 */
+    gyeokgukBlockers?: string[];
+    /** 일간 강약 계산 모델 — 신강·신약 표기는 이 모델 기준 */
+    strengthModel: string;
+    /** 용신 계산 모델 — 학파 + 판정 방식 */
+    yongsinModel: string;
+    /** 두 모델의 관계 — 계량 강약과 용신 판정은 별도 알고리즘 */
+    modelNote: string;
   };
 }
 
@@ -193,8 +205,10 @@ function buildLoveSection(
   }
   const daeunFit = patterns.find((p) => p.key === 'saju/timing/daeun-fit');
   const daeunTension = patterns.find((p) => p.key === 'saju/timing/daeun-tension');
+  const daeunMixed = patterns.find((p) => p.key === 'saju/timing/daeun-mixed');
   if (daeunFit) lines.push('현재 대운이 용신 방향이라는 해석을 관계의 참고 신호로 살펴봅니다 — 인연의 폭과 관계의 변화는 당사자의 의사·상황을 함께 확인합니다.');
   else if (daeunTension) lines.push('현재 대운이 기신 방향이라는 해석을 관계의 참고 신호로 살펴봅니다 — 관계의 속도와 정비 여부는 대화·상황·당사자의 의사를 함께 확인합니다.');
+  else if (daeunMixed) lines.push('현재 대운이 천간·지지 양축에서 엇갈린다는 해석을 관계의 참고 신호로 살펴봅니다 — 관계가 겉과 속으로 다르게 읽힐 수 있어, 속도는 대화·상황·당사자의 의사를 함께 확인합니다.');
 
   const headline = `배우자궁 일지 ${dayJiSipsin ? `${dayJiSipsin}(${dayJiGlyph})` : dayJiGlyph} · ${dayJiRelations.length > 0 ? `지지 ${dayJiRelations[0].type} ${dayJiRelations.length}건` : '지지 관계 없음'}`;
   return { axis: 'love', title: AXIS_TITLES.love, headline, lines: dedupe(lines), patterns: relevant };
@@ -409,6 +423,13 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     dayMasterVerdict: meter.dayMaster.verdictLabel,
     yongsinReasoning,
     yongsinSchool,
+    gyeokgukConfidence: result.gyeokguk.confidence,
+    gyeokgukBasis: result.gyeokguk.basis,
+    gyeokgukBlockers: result.gyeokguk.blockers,
+    strengthModel: '오행 점유율 계량(비겁+인성 %)',
+    yongsinModel: `${yongsinSchool}(점수·학파 기반 판정)`,
+    modelNote:
+      '강약(점유율 계량)과 용신(격국·강약·조후·물상 학파)은 서로 다른 모델의 결과입니다 — 신강·신약 표기는 점유율 기준이며 용신 판정의 강약 점수식과 다를 수 있습니다.',
   };
 
   return {

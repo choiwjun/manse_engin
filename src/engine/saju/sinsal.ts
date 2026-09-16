@@ -108,11 +108,33 @@ const CHUNG_PAIRS: readonly [string, string][] = [
 /**
  * Hyeong (刑) definitions.
  * Three-way punishments are checked as complete triples AND pairwise.
+ * 삼형은 완성형(세 글자 모두 존재)이면 완성형만 반환하고,
+ * 두 글자만 존재하면 그 부분쌍을 형으로 반환한다.
  * Self-punishments are checked for duplicates.
  */
-const HYEONG_TRIPLES: readonly { jijis: string[]; desc: string }[] = [
-  { jijis: ['寅', '巳', '申'], desc: '인사신 무은지형(三刑)' },
-  { jijis: ['丑', '戌', '未'], desc: '축술미 지세지형(三刑)' },
+const HYEONG_TRIPLES: readonly {
+  jijis: [string, string, string];
+  desc: string;
+  pairs: readonly { jijis: [string, string]; desc: string }[];
+}[] = [
+  {
+    jijis: ['寅', '巳', '申'],
+    desc: '인사신 무은지형(三刑)',
+    pairs: [
+      { jijis: ['寅', '巳'], desc: '인사 무은지형(寅巳申 삼형 부분)' },
+      { jijis: ['巳', '申'], desc: '사신 무은지형(寅巳申 삼형 부분)' },
+      { jijis: ['寅', '申'], desc: '인신 무은지형(寅巳申 삼형 부분)' },
+    ],
+  },
+  {
+    jijis: ['丑', '戌', '未'],
+    desc: '축술미 지세지형(三刑)',
+    pairs: [
+      { jijis: ['丑', '戌'], desc: '축술 지세지형(丑戌未 삼형 부분)' },
+      { jijis: ['戌', '未'], desc: '술미 지세지형(丑戌未 삼형 부분)' },
+      { jijis: ['丑', '未'], desc: '축미 지세지형(丑戌未 삼형 부분)' },
+    ],
+  },
 ];
 
 const HYEONG_PAIR: readonly { jijis: [string, string]; desc: string }[] = [
@@ -287,6 +309,13 @@ export function analyzeJijiRelations(palja: Palja): JijiRelation[] {
   const entries = getJijiEntries(palja);
   const result: JijiRelation[] = [];
 
+  const jiSet = new Set(entries.map(e => e.ji));
+
+  // 삼형이 세 글자 모두 갖춰진 경우 완성형만 반환하고 부분쌍은 건너뛴다
+  const hyeongTripleComplete = HYEONG_TRIPLES.map((triple) =>
+    triple.jijis.every((j) => jiSet.has(j)),
+  );
+
   // --- Pairwise checks (yukhap, chung, pa, hae, hyeong pair/self) ---
   for (let i = 0; i < entries.length; i++) {
     for (let j = i + 1; j < entries.length; j++) {
@@ -317,6 +346,21 @@ export function analyzeJijiRelations(palja: Palja): JijiRelation[] {
         }
       }
 
+      // Hyeong - 삼형 부분쌍 (寅巳, 巳申, 寅申, 丑戌, 戌未, 丑未)
+      for (let t = 0; t < HYEONG_TRIPLES.length; t++) {
+        if (hyeongTripleComplete[t]) continue;
+        for (const hp of HYEONG_TRIPLES[t].pairs) {
+          if (isPairMatch(a.ji, b.ji, hp.jijis[0], hp.jijis[1])) {
+            result.push({
+              type: '형',
+              positions: [a.position, b.position],
+              jijis: [a.ji, b.ji],
+              description: hp.desc,
+            });
+          }
+        }
+      }
+
       // Hyeong - self (辰辰, 午午, 酉酉, 亥亥)
       if (a.ji === b.ji && HYEONG_SELF.includes(a.ji)) {
         result.push({
@@ -330,7 +374,6 @@ export function analyzeJijiRelations(palja: Palja): JijiRelation[] {
   }
 
   // --- Triple checks (samhap, banghap, hyeong triples) ---
-  const jiSet = new Set(entries.map(e => e.ji));
 
   // Samhap (三合)
   for (const group of SAMHAP_GROUPS) {

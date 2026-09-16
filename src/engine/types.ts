@@ -45,6 +45,8 @@ export interface Daeun {
   gan: string;
   ji: string;
   ohaeng: Ohaeng;
+  /** 대운 지지의 오행 — 천간과 다른 축일 수 있어 이중 판정에 사용. */
+  jiOhaeng?: Ohaeng;
   /** 출생 순간(KST)에 시작 개월 수를 더한 실제 구간 [시작, 다음 시작). */
   isCurrent: boolean;
   /** 소수 개월 포함. 정수 개월은 달력 가산, 나머지는 1개월=30일로 환산. */
@@ -66,6 +68,12 @@ export interface Gyeokguk {
   name: string;
   hanja: string;
   description: string;
+  /** 판정 신뢰도 — 화격·종격처럼 조건이 부분 충족일 때 '유력'/'참고'로 낮춘다 */
+  confidence?: '확정' | '유력' | '참고';
+  /** 성립 근거 — 어떤 글자·관계로 판정했는지 */
+  basis?: string[];
+  /** 불성립·약화 조건 — 있으면 확정 대신 후보로 읽어야 한다 */
+  blockers?: string[];
 }
 
 export interface Yongsin {
@@ -129,6 +137,11 @@ export interface SajuResult {
   jijangganSipsin?: Record<string, JijangganSipsin>;
   unsung: Record<string, string>;
   jijanggan: Record<string, string[]>;
+  /**
+   * 해석 기준 시각(ISO 8601) — daeun.isCurrent·seun·wolun이 이 시각으로 계산됐다.
+   * 리포트 생성 시 now를 생략하면 이 값이 기준점이 되어 재현성이 보장된다.
+   */
+  asOf?: string;
   daeun: Daeun[];
   seun: { gan: string; ji: string };
   wolun?: Wolun;

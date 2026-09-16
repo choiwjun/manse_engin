@@ -79,8 +79,8 @@ function getWangState(dayOhaeng: Ohaeng, monthJiOhaeng: Ohaeng | null): WangStat
   if (monthJiOhaeng === dayOhaeng) return '旺';                    // 같은 오행 → 왕
   if (SAENG_BY[dayOhaeng] === monthJiOhaeng) return '相';         // 나를 생하는 오행 → 상
   if (SAENGSAENG[dayOhaeng] === monthJiOhaeng) return '休';       // 내가 생하는 오행 → 휴
-  if (GEUK_BY[dayOhaeng] === monthJiOhaeng) return '囚';          // 나를 극하는 오행 → 수
-  if (SANGGEUK[dayOhaeng] === monthJiOhaeng) return '死';         // 내가 극하는 오행 → 사
+  if (SANGGEUK[dayOhaeng] === monthJiOhaeng) return '囚';         // 내가 극하는 오행 → 수(극령자수)
+  if (GEUK_BY[dayOhaeng] === monthJiOhaeng) return '死';          // 나를 극하는 오행 → 사(영극자사)
   return '休';
 }
 
@@ -92,8 +92,8 @@ function getWangState(dayOhaeng: Ohaeng, monthJiOhaeng: Ohaeng | null): WangStat
  * - 旺: 당령(當令) — 같은 오행 월 → 최대 힘
  * - 相: 상령(相令) — 나를 생하는 오행 월 → 강한 지원
  * - 休: 휴령(休令) — 내가 생하는 오행 월 → 중립/소모
- * - 囚: 수령(囚令) — 나를 극하는 오행 월 → 억제
- * - 死: 사령(死令) — 내가 극하는 오행 월 → 최약
+ * - 囚: 수령(囚令) — 내가 극하는 오행 월 → 억제(당령에 대항하다 갇힘)
+ * - 死: 사령(死令) — 나를 극하는 오행 월 → 최약(당령이 나를 극함)
  *
  * 가중치 비율: 득령(50%) : 근기(30%) : 투출(20%) — 자평진전 전통 비율
  * 총 만점 ~10점 기준으로 환산: 득령 최대 5, 근기 최대 3, 투출 최대 2
@@ -651,28 +651,51 @@ function buildGangyakDecision(
     };
   }
 
-  const seasonalNeed = getSeasonalBias(palja.monthJi, dayOhaeng);
+  const seasonalNeed = getJohuBias(palja, dayOhaeng);
   return {
     yongsin: `${seasonalNeed.ohaeng}(${seasonalNeed.role})`,
     gisin: `${seasonalNeed.giOhaeng}(${seasonalNeed.giRole})`,
     ohaeng: seasonalNeed.ohaeng,
-    reasoning: `강약용신: 일간(${dayOhaeng})이 ${labelText}(${assessment.wangState}, 점수 ${assessment.score.toFixed(1)})이며 ${supportSummary} - 중화축으로 조후를 참고하여 ${seasonalNeed.ohaeng}(${seasonalNeed.role})이 용신`,
+    reasoning: `강약용신: 일간(${dayOhaeng})이 ${labelText}(${assessment.wangState}, 점수 ${assessment.score.toFixed(1)})이며 ${supportSummary} - 중화축으로 ${palja.monthJi}월 조후표를 참고하여 ${seasonalNeed.ohaeng}(${seasonalNeed.role})이 용신 — ${seasonalNeed.johuReasoning}`,
   };
 }
 
-function getSeasonalBias(
-  monthJi: string,
+/** 일간 기준으로 오행의 십신 역할(비겁/식상/재성/관성/인성)을 구한다. */
+function ohaengRole(dayOhaeng: Ohaeng, target: Ohaeng): string {
+  if (target === dayOhaeng) return '비겁';
+  if (SAENGSAENG[dayOhaeng] === target) return '식상';
+  if (SANGGEUK[dayOhaeng] === target) return '재성';
+  if (GEUK_BY[dayOhaeng] === target) return '관성';
+  return '인성';
+}
+
+const OHAENG_CHARS = new Set(['목', '화', '토', '금', '수']);
+
+/** '수(壬水)' 같은 라벨에서 선행 오행 글자를 추출한다. */
+function leadOhaengOf(label: string): Ohaeng | null {
+  const ch = label.trim().charAt(0) as Ohaeng;
+  return OHAENG_CHARS.has(ch) ? ch : null;
+}
+
+/**
+ * 중화축 폴백: 실제 조후표(궁통보감 일간오행×월지 60매핑)를 직접 참고한다.
+ * 과거에는 '봄·여름=식상, 가을·겨울=인성'의 거친 계절 규칙을 썼으나
+ * 조후표와 다른 결과가 다수 발생해 폐기 — 표에 없는 조합만
+ * getJohuTableByMonth 내부의 레거시 폴백으로 내려간다.
+ */
+function getJohuBias(
+  palja: Palja,
   dayOhaeng: Ohaeng,
-): { ohaeng: Ohaeng; role: string; giOhaeng: Ohaeng; giRole: string } {
-  const season = SEASON_MAP[monthJi] ?? '봄';
-  if (season === '겨울' || season === '가을') {
-    // 추운 계절 → 따뜻하게 해주는 오행 선호
-    const warmOhaeng = SAENG_BY[dayOhaeng]; // 인성으로 힘을 보충
-    return { ohaeng: warmOhaeng, role: '인성', giOhaeng: SANGGEUK[dayOhaeng], giRole: '재성' };
-  }
-  // 더운 계절(봄/여름) → 설기하여 균형
-  const coolOhaeng = SAENGSAENG[dayOhaeng]; // 식상으로 설기
-  return { ohaeng: coolOhaeng, role: '식상', giOhaeng: SAENG_BY[dayOhaeng], giRole: '인성' };
+): { ohaeng: Ohaeng; role: string; giOhaeng: Ohaeng; giRole: string; johuReasoning: string } {
+  const entry = getJohuTableByMonth(dayOhaeng, palja.monthJi);
+  const giOhaeng = leadOhaengOf(entry.gisin) ?? GEUK_BY[entry.ohaeng];
+  return {
+    ohaeng: entry.ohaeng,
+    role: ohaengRole(dayOhaeng, entry.ohaeng),
+    giOhaeng,
+    giRole: ohaengRole(dayOhaeng, giOhaeng),
+    johuReasoning: entry.reasoning,
+  };
 }
 
 /**

@@ -112,8 +112,17 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push(`- 전체 구조: ${report.headline}`);
   out.push(`- 일간 강약: ${report.meter.dayMaster.verdictLabel} ${report.meter.dayMaster.score}% — 비겁 ${report.meter.groupPercents.bigeop}%, 인성 ${report.meter.groupPercents.insung}%`);
   out.push(`- 격국·용신: ${report.headline.split(' · ').slice(0, 1)[0]} · 용신 ${report.headline.split('용신 ').slice(1)[0] ?? '확인 필요'}`);
+  if (report.context?.gyeokgukConfidence && report.context.gyeokgukConfidence !== '확정') {
+    const blockers = report.context.gyeokgukBlockers?.length
+      ? ` — 불성립 요소: ${report.context.gyeokgukBlockers.join('·')}`
+      : '';
+    out.push(`- 격국 신뢰도: ${report.context.gyeokgukConfidence}${blockers}`);
+  }
   if (report.context?.yongsinReasoning) {
     out.push(`- 용신 근거(${report.context.yongsinSchool}): ${report.context.yongsinReasoning}`);
+  }
+  if (report.context?.modelNote) {
+    out.push(`- 계산 모델: 강약=${report.context.strengthModel} · 용신=${report.context.yongsinModel} — ${report.context.modelNote}`);
   }
   const keyPatterns = patterns.slice(0, 5);
   if (keyPatterns.length > 0) {

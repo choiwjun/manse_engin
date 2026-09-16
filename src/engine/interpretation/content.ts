@@ -1,5 +1,6 @@
 // 3층 콘텐츠 DB 접근 — content/entries의 YAML이 빌드 타임에 JSON으로 번들된다.
-// (build.mjs §2.5가 생성하며, 루트 소스에는 빈 {} 플레이스홀더가 커밋된다.
+// (build.mjs가 소스 복사 전에 루트 src 경로에 생성하므로, 루트 src를 직접
+//  import하는 소비자와 패키지 소비자가 같은 DB를 본다.
 //  런타임 파일시스템은 전혀 쓰지 않는다 — 엔진의 순수성 유지.)
 // 우선순위: DB body.short(한 줄) > 레지스트리 conclusion > defaultText.
 

@@ -88,6 +88,8 @@ export function buildSajuResult(
     jijangganSipsin: calculateJijangganSipsin(palja),
     unsung: calculateUnsung(palja),
     jijanggan: extractJijanggan(palja),
+    // asOf — 이 결과의 해석 기준 시각. assembleReport가 now 없이 호출돼도 이 시각을 기준으로 삼아 재현성이 보장된다.
+    asOf: now.toISOString(),
     daeun: calculateDaeun(palja, input, 8, options?.calculateOptions, now),
     seun: calculateSeun(now),
     wolun: calculateWolun(now),
@@ -125,6 +127,7 @@ export function normalizeSajuResult(value: unknown): SajuResult | null {
     jijangganSipsin: source.jijangganSipsin ?? {},
     unsung: source.unsung ?? {},
     jijanggan: source.jijanggan ?? {},
+    asOf: typeof source.asOf === 'string' ? source.asOf : undefined,
     daeun: source.daeun ?? [],
     seun: source.seun ?? { gan: '', ji: '' },
     wolun: source.wolun ?? EMPTY_WOLUN,

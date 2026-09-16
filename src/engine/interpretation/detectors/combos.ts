@@ -4,7 +4,6 @@
 
 import type { SajuResult } from '@/engine/types';
 import type { RawPattern, SipsinGroup } from '../types';
-import { getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';
 import {
   countGroups,
   dayGanOhaeng,
@@ -19,16 +18,20 @@ import {
 } from '../sipsin-groups';
 import { measureOhaeng } from '../meter';
 import type { OhaengMeter } from '../meter';
+import { judgeGanJi } from '../narrative';
+
+/** 대운 종합 판정 — 천간·지지 이중 축(judgeGanJi). 'mixed'면 fit/tension 어느 쪽으로도 단정하지 않는다 */
+function daeunVerdict(result: SajuResult) {
+  const current = result.daeun.find((d) => d.isCurrent);
+  return current ? judgeGanJi(result, current.gan, current.ji) : null;
+}
 
 function isDaeunFit(result: SajuResult): boolean {
-  const current = result.daeun.find((d) => d.isCurrent);
-  return !!current && current.ohaeng === result.yongsin.ohaeng;
+  return daeunVerdict(result)?.verdict === 'fit';
 }
 
 function isDaeunTension(result: SajuResult): boolean {
-  const current = result.daeun.find((d) => d.isCurrent);
-  const gisin = result.yongsin.gisin.split('(')[0].trim();
-  return !!current && current.ohaeng === gisin;
+  return daeunVerdict(result)?.verdict === 'tension';
 }
 
 function hasSangsaengSaengjae(result: SajuResult): boolean {
@@ -433,21 +436,11 @@ export function detectCombos(result: SajuResult): RawPattern[] {
 
   // ---------- 4차 확장: 흐름×대운 / 관계×대운 / 강약×세운 ----------
 
-  // 세운 오행 — 천간 우선, 비어 있으면 지지 (timing detector와 동일 기준)
-  const seunO = (() => {
-    const gan = result.seun?.gan;
-    if (gan) {
-      const o = getOhaengForGan(gan);
-      if (o) return o;
-    }
-    const ji = result.seun?.ji;
-    if (ji) return getOhaengForJi(ji) ?? '';
-    return '';
-  })();
-  const yongsin = result.yongsin.ohaeng;
-  const gisin = result.yongsin.gisin.split('(')[0].trim();
-  const seunFit = seunO === yongsin;
-  const seunTension = seunO === gisin;
+  // 세운 판정 — 천간·지지 이중 축(judgeGanJi). 'mixed'면 fit/tension 어느 쪽으로도 단정하지 않는다
+  const seunJ = result.seun?.gan ? judgeGanJi(result, result.seun.gan, result.seun.ji) : null;
+  const seunAxis = seunJ?.axisText ?? '';
+  const seunFit = seunJ?.verdict === 'fit';
+  const seunTension = seunJ?.verdict === 'tension';
 
   // 생재×용신운 — 식상생재 흐름이 있는데 대운이 용신
   if (hasSangsaengSaengjae(result) && daeunFit) {
@@ -550,7 +543,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     patterns.push({
       key: 'saju/combo/daymaster-weak--seun-fit',
       strength: 0.65,
-      evidence: [...meterEvidence, `세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신 + 신약`],
+      evidence: [...meterEvidence, `세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신 + 신약`],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
     });
   }
@@ -560,7 +553,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     patterns.push({
       key: 'saju/combo/daymaster-strong--seun-tension',
       strength: 0.6,
-      evidence: [...meterEvidence, `세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신 + 신강`],
+      evidence: [...meterEvidence, `세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신 + 신강`],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
     });
   }
@@ -572,7 +565,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     patterns.push({
       key: 'saju/combo/sangsaeng-saengjae--seun-fit',
       strength: 0.65,
-      evidence: [...meterEvidence, `식상생재 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`],
+      evidence: [...meterEvidence, `식상생재 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신`],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: [
         ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang'),
@@ -586,7 +579,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     patterns.push({
       key: 'saju/combo/sangsaeng-saengjae--seun-tension',
       strength: 0.6,
-      evidence: [...meterEvidence, `식상생재 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`],
+      evidence: [...meterEvidence, `식상생재 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: [
         ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'siksang'),
@@ -600,7 +593,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     patterns.push({
       key: 'saju/combo/gwanin-sangsaeng--seun-fit',
       strength: 0.65,
-      evidence: [...meterEvidence, `관인상생 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`],
+      evidence: [...meterEvidence, `관인상생 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신`],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: [
         ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'gwansung'),
@@ -614,7 +607,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     patterns.push({
       key: 'saju/combo/gwanin-sangsaeng--seun-tension',
       strength: 0.6,
-      evidence: [...meterEvidence, `관인상생 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`],
+      evidence: [...meterEvidence, `관인상생 구조 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: [
         ...SIPSIN_SLOTS.filter((s) => groupOfSlot(result, s) === 'gwansung'),
@@ -630,7 +623,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.65,
       evidence: [
         ...meterEvidence,
-        `충 ${chungRelations.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `충 ${chungRelations.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: chungRelations.flatMap((r) =>
@@ -652,7 +645,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `원진 ${wonjin.pairs.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `원진 ${wonjin.pairs.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: wonjin.pairs.flatMap((p) => [
@@ -734,7 +727,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `천간 재성 노출 ${exposedJaeCount(result)} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `천간 재성 노출 ${exposedJaeCount(result)} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: SIPSIN_SLOTS.filter(
@@ -760,7 +753,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.55,
       evidence: [
         ...meterEvidence,
-        `결핍 오행 ${missingOhaeng.join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+        `결핍 오행 ${missingOhaeng.join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}`, missing: missingOhaeng.join('·') },
     });
@@ -773,7 +766,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `충 ${chungRelations.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+        `충 ${chungRelations.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: chungRelations.flatMap((r) =>
@@ -795,7 +788,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.55,
       evidence: [
         ...meterEvidence,
-        `원진 ${wonjin.pairs.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+        `원진 ${wonjin.pairs.length}건 + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: wonjin.pairs.flatMap((p) => [
@@ -1059,7 +1052,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `공망 ${result.gongmang!.join('·')} — 재성 자리 ${gongmangJaeSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `공망 ${result.gongmang!.join('·')} — 재성 자리 ${gongmangJaeSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: gongmangJaeSlots.map((s) => toPatternSlot(result, s)),
@@ -1073,7 +1066,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.55,
       evidence: [
         ...meterEvidence,
-        `공망 ${result.gongmang!.join('·')} — 관성 자리 ${gongmangGwanSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `공망 ${result.gongmang!.join('·')} — 관성 자리 ${gongmangGwanSlots.map((s) => `${posLabel(s)} ${glyphOfSlot(result, s)}`).join('·')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: gongmangGwanSlots.map((s) => toPatternSlot(result, s)),
@@ -1101,7 +1094,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: samhapRelations.flatMap((r) =>
@@ -1123,7 +1116,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `삼합 ${samhapRelations.map((r) => r.jijis.join('·')).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: samhapRelations.flatMap((r) =>
@@ -1189,7 +1182,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.55,
       evidence: [
         ...meterEvidence,
-        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=용신`,
+        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=용신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: hapRelations.flatMap((r) =>
@@ -1211,7 +1204,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.55,
       evidence: [
         ...meterEvidence,
-        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `합 ${hapRelations.length}건 — ${hapRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: hapRelations.flatMap((r) =>
@@ -1233,7 +1226,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `형 ${hyeongRelations.length}건 — ${hyeongRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `형 ${hyeongRelations.length}건 — ${hyeongRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: hyeongRelations.flatMap((r) =>
@@ -1255,7 +1248,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.55,
       evidence: [
         ...meterEvidence,
-        `해 ${haeRelations.length}건 — ${haeRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunO})=기신`,
+        `해 ${haeRelations.length}건 — ${haeRelations.map((r) => `${r.positions.map((p) => posLabel(p)).join('↔')} ${r.jijis.join('·')}`).join(' / ')} + 세운 ${result.seun.gan}${result.seun.ji}(${seunAxis})=기신`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, seunGanJi: `${result.seun.gan}${result.seun.ji}` },
       slots: haeRelations.flatMap((r) =>

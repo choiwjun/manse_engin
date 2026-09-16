@@ -1,6 +1,6 @@
 {
   "generated": "2026-09-15",
-  "note": "엔진 출력 + 전문가 수기 대조란. expertFill을 채워 검수 기록으로 사용.",
+  "note": "엔진 출력 + 전문가 수기 대조란. expertFill을 채워 검수 기록으로 사용. engine 블록은 buildSajuResult(input, { now: new Date(asOf) })로 재현 가능 — asOf는 각 fixture의 기준시각.",
   "fixtures": [
     {
       "id": "G1",
@@ -27,6 +27,13 @@
           "hourJi": "申"
         },
         "gyeokguk": "비견격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 丑 본기 己 = 비견"
+          ],
+          "blockers": []
+        },
         "yongsin": "금",
         "gisin": "화(인성)",
         "sipsin": {
@@ -57,18 +64,26 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "辛巳",
+          "verdict": "mixed",
+          "ganVerdict": "fit",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
-          "saju/combo/daymaster-weak--daeun-fit",
-          "saju/combo/sangsaeng-saengjae--daeun-fit",
-          "saju/combo/gwanin-sangsaeng--daeun-fit",
-          "saju/combo/jaesaeng-gwan--daeun-fit",
           "saju/combo/sangsaeng-saengjae--daymaster-weak",
           "saju/combo/jaesaeng-gwan--daymaster-weak",
           "saju/combo/gwanin-sangsaeng--daymaster-weak",
           "saju/combo/sangsaeng-saengjae--seun-tension",
           "saju/combo/gwanin-sangsaeng--seun-tension",
-          "saju/combo/jiji-hap--daeun-fit",
           "saju/combo/jaesung-insung--daymaster-weak",
+          "saju/combo/season-command--daymaster-weak",
           "saju/combo/jiji-hap--seun-tension",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/sinsal-화개-bigeop",
@@ -84,8 +99,9 @@
           "saju/relation/gan-hap-gabgi",
           "saju/relation/gan-hap-jeongim",
           "saju/relation/jiji-hap",
-          "saju/timing/daeun-fit"
-        ]
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -122,6 +138,13 @@
           "hourJi": "巳"
         },
         "gyeokguk": "겁재격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 未 본기 己 = 겁재"
+          ],
+          "blockers": []
+        },
         "yongsin": "금",
         "gisin": "화(인성)",
         "sipsin": {
@@ -152,10 +175,18 @@
             "position": "hourJi"
           }
         ],
+        "daeun": null,
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/wonjin--jiji-chung",
           "saju/combo/sangsaeng-saengjae--daymaster-strong",
           "saju/combo/jiji-chung--seun-tension",
+          "saju/combo/season-command--daymaster-strong",
           "saju/combo/insung-gwada--daymaster-strong",
           "saju/combo/jiji-chung--daymaster-strong",
           "saju/combo/daymaster-strong--seun-tension",
@@ -180,7 +211,8 @@
           "saju/relation/jiji-chung",
           "saju/relation/jiji-hae",
           "saju/relation/wonjin"
-        ]
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -217,6 +249,13 @@
           "hourJi": "未"
         },
         "gyeokguk": "정인격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 戌 본기 戊 = 정인"
+          ],
+          "blockers": []
+        },
         "yongsin": "화",
         "gisin": "목(재성)",
         "sipsin": {
@@ -247,14 +286,30 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "戊午",
+          "verdict": "fit",
+          "ganVerdict": "neutral",
+          "jiVerdict": "fit"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
         "patterns": [
+          "saju/combo/sangsaeng-saengjae--daeun-fit",
+          "saju/combo/gwanin-sangsaeng--daeun-fit",
           "saju/combo/sangsaeng-saengjae--daymaster-strong",
+          "saju/combo/daymaster-strong--daeun-fit",
           "saju/combo/daymaster-strong--johu-support",
           "saju/combo/sangsaeng-saengjae--seun-fit",
           "saju/combo/gwanin-sangsaeng--seun-fit",
           "saju/combo/gwanin-sangsaeng--insung-gwada",
           "saju/combo/insung-gwada--daymaster-strong",
           "saju/combo/gwanin-sangsaeng--daymaster-strong",
+          "saju/combo/jiji-hap--daeun-fit",
           "saju/combo/siksang-gwansung--daymaster-strong",
           "saju/combo/jiji-hap--seun-fit",
           "saju/cross/gyeokguk-yongsin-split",
@@ -267,8 +322,11 @@
           "saju/imbalance/daymaster-strong",
           "saju/imbalance/ohaeng-skew",
           "saju/relation/jiji-hap",
-          "saju/timing/daeun-neutral"
-        ]
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-fit",
+          "saju/timing/daeun-fit"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -305,6 +363,13 @@
           "hourJi": "寅"
         },
         "gyeokguk": "정관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 정관"
+          ],
+          "blockers": []
+        },
         "yongsin": "목",
         "gisin": "토(식상)",
         "sipsin": {
@@ -335,6 +400,18 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/daymaster-weak--daeun-tension",
           "saju/combo/daymaster-weak--johu-pressure",
@@ -342,10 +419,16 @@
           "saju/combo/jiji-chung--daymaster-weak",
           "saju/combo/sangsaeng-saengjae--daeun-tension",
           "saju/combo/gwanin-sangsaeng--daeun-tension",
+          "saju/combo/jiji-chung--seun-tension",
+          "saju/combo/jiji-hyeong--daeun-tension",
           "saju/combo/sangsaeng-saengjae--daymaster-weak",
           "saju/combo/gwanin-sangsaeng--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/gwanin-sangsaeng--seun-tension",
           "saju/combo/jiji-hap--daeun-tension",
           "saju/combo/jaesung-insung--daymaster-weak",
+          "saju/combo/jiji-hyeong--seun-tension",
+          "saju/combo/jiji-hap--seun-tension",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/sinsal-장성-gwansung",
           "saju/johu/season-pressure",
@@ -356,8 +439,11 @@
           "saju/imbalance/ohaeng-skew",
           "saju/relation/jiji-hap",
           "saju/relation/jiji-chung",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
-        ]
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -394,6 +480,13 @@
           "hourJi": "戌"
         },
         "gyeokguk": "상관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 상관"
+          ],
+          "blockers": []
+        },
         "yongsin": "목",
         "gisin": "토(인성)",
         "sipsin": {
@@ -424,16 +517,33 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/daymaster-weak--daeun-tension",
           "saju/combo/ohaeng-missing--daymaster-weak",
           "saju/combo/gwanin-sangsaeng--daeun-tension",
+          "saju/combo/jiji-hyeong--daeun-tension",
           "saju/combo/gwanin-sangsaeng--insung-gwada",
           "saju/combo/sangsaeng-jesal--daymaster-weak",
           "saju/combo/gwanin-sangsaeng--daymaster-weak",
+          "saju/combo/gwanin-sangsaeng--seun-tension",
           "saju/combo/insung-gwada--daeun-tension",
           "saju/combo/jiji-hap--daeun-tension",
           "saju/combo/ohaeng-missing--daeun-tension",
+          "saju/combo/jiji-hyeong--seun-tension",
+          "saju/combo/season-drain--daymaster-weak",
+          "saju/combo/jiji-hap--seun-tension",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/sinsal-장성-siksang",
           "saju/johu/season-drain",
@@ -444,8 +554,11 @@
           "saju/imbalance/ohaeng-skew",
           "saju/imbalance/ohaeng-missing",
           "saju/relation/jiji-hap",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
-        ]
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -482,6 +595,13 @@
           "hourJi": "未"
         },
         "gyeokguk": "편인격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 丑 본기 己 = 편인"
+          ],
+          "blockers": []
+        },
         "yongsin": "화",
         "gisin": "목(재성)",
         "sipsin": {
@@ -512,9 +632,24 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "fit",
+          "ganVerdict": "neutral",
+          "jiVerdict": "fit"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
         "patterns": [
+          "saju/combo/gwanin-sangsaeng--daeun-fit",
+          "saju/combo/daymaster-strong--daeun-fit",
           "saju/combo/daymaster-strong--johu-support",
           "saju/combo/gwanin-sangsaeng--seun-fit",
+          "saju/combo/jaesaeng-gwan--daeun-fit",
           "saju/combo/gwanin-sangsaeng--insung-gwada",
           "saju/combo/insung-gwada--daymaster-strong",
           "saju/combo/jaesaeng-gwan--daymaster-strong",
@@ -530,8 +665,11 @@
           "saju/imbalance/daymaster-strong",
           "saju/imbalance/ohaeng-skew",
           "saju/relation/jiji-chung",
-          "saju/timing/daeun-neutral"
-        ]
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-fit",
+          "saju/timing/daeun-fit"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -568,6 +706,13 @@
           "hourJi": "辰"
         },
         "gyeokguk": "정재격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 정재"
+          ],
+          "blockers": []
+        },
         "yongsin": "목",
         "gisin": "토(비겁)",
         "sipsin": {
@@ -598,14 +743,31 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/jiji-chung--daeun-tension",
+          "saju/combo/jiji-chung--seun-tension",
           "saju/combo/bigeop-gwada--daeun-tension",
+          "saju/combo/jiji-hyeong--daeun-tension",
           "saju/combo/daymaster-strong--daeun-tension",
           "saju/combo/jiji-chung--daymaster-strong",
+          "saju/combo/daymaster-strong--seun-tension",
           "saju/combo/jiji-hap--daeun-tension",
           "saju/combo/jiji-pa--daeun-tension",
           "saju/combo/ohaeng-missing--daeun-tension",
+          "saju/combo/jiji-hyeong--seun-tension",
+          "saju/combo/jiji-hap--seun-tension",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/gongmang-bigeop",
           "saju/cross/sinsal-화개-bigeop",
@@ -616,8 +778,11 @@
           "saju/imbalance/ohaeng-skew",
           "saju/relation/jiji-hap",
           "saju/relation/jiji-chung",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
-        ]
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -654,6 +819,13 @@
           "hourJi": "丑"
         },
         "gyeokguk": "상관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 丑 본기 己 = 상관"
+          ],
+          "blockers": []
+        },
         "yongsin": "금",
         "gisin": "목(인성)",
         "sipsin": {
@@ -684,9 +856,24 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "mixed",
+          "ganVerdict": "fit",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/ohaeng-missing--daymaster-weak",
           "saju/combo/siksang-gwada--daymaster-weak",
+          "saju/combo/wonjin--seun-tension",
+          "saju/combo/season-drain--daymaster-weak",
+          "saju/combo/jiji-hae--seun-tension",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/sinsal-장성-bigeop",
           "saju/johu/season-drain",
@@ -697,8 +884,9 @@
           "saju/imbalance/ohaeng-missing",
           "saju/relation/jiji-hae",
           "saju/relation/wonjin",
-          "saju/timing/daeun-neutral"
-        ]
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -735,6 +923,14 @@
           "hourJi": "丑"
         },
         "gyeokguk": "종재격",
+        "gyeokgukDetail": {
+          "confidence": "참고",
+          "basis": [
+            "일간 세력(비겁+인성) 1 — 우세 축 종재 5",
+            "비겁 1·인성 0·식상 5·재성 5·관성 4"
+          ],
+          "blockers": []
+        },
         "yongsin": "금",
         "gisin": "화(비겁)",
         "sipsin": {
@@ -765,6 +961,18 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "mixed",
+          "ganVerdict": "fit",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/daymaster-weak--johu-pressure",
           "saju/combo/ohaeng-missing--daymaster-weak",
@@ -785,8 +993,9 @@
           "saju/imbalance/ohaeng-missing",
           "saju/relation/gan-hap-byeongsin",
           "saju/relation/jiji-hap",
-          "saju/timing/daeun-neutral"
-        ]
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -823,6 +1032,13 @@
           "hourJi": "丑"
         },
         "gyeokguk": "정재격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 丑 본기 己 = 정재"
+          ],
+          "blockers": []
+        },
         "yongsin": "금",
         "gisin": "목(비겁)",
         "sipsin": {
@@ -853,9 +1069,23 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "mixed",
+          "ganVerdict": "fit",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/ohaeng-missing--daymaster-weak",
           "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/season-control--daymaster-weak",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/sinsal-화개-jaesung",
           "saju/johu/season-control",
@@ -863,8 +1093,9 @@
           "saju/imbalance/daymaster-weak",
           "saju/imbalance/ohaeng-skew",
           "saju/relation/gan-hap-gabgi",
-          "saju/timing/daeun-neutral"
-        ]
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -901,6 +1132,13 @@
           "hourJi": "亥"
         },
         "gyeokguk": "편관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 편관"
+          ],
+          "blockers": []
+        },
         "yongsin": "목",
         "gisin": "토(식상)",
         "sipsin": {
@@ -931,16 +1169,30 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/daymaster-weak--daeun-tension",
           "saju/combo/daymaster-weak--johu-pressure",
           "saju/combo/ohaeng-missing--daymaster-weak",
           "saju/combo/sangsaeng-saengjae--daeun-tension",
           "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
           "saju/combo/jiji-hap--daeun-tension",
           "saju/combo/jiji-pa--daeun-tension",
           "saju/combo/ohaeng-missing--daeun-tension",
           "saju/combo/banghap--daeun-tension",
+          "saju/combo/jiji-hap--seun-tension",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/sinsal-화개-siksang",
           "saju/cross/sinsal-장성-jaesung",
@@ -953,8 +1205,10 @@
           "saju/relation/banghap",
           "saju/relation/gan-hap-byeongsin",
           "saju/relation/jiji-hap",
+          "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
-        ]
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -991,6 +1245,13 @@
           "hourJi": "巳"
         },
         "gyeokguk": "편관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 편관"
+          ],
+          "blockers": []
+        },
         "yongsin": "목",
         "gisin": "토(식상)",
         "sipsin": {
@@ -1021,6 +1282,18 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
         "patterns": [
           "saju/combo/daymaster-weak--daeun-tension",
           "saju/combo/daymaster-weak--johu-pressure",
@@ -1028,10 +1301,14 @@
           "saju/combo/gwanin-sangsaeng--daeun-tension",
           "saju/combo/sangsaeng-saengjae--daymaster-weak",
           "saju/combo/gwanin-sangsaeng--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/gwanin-sangsaeng--seun-tension",
           "saju/combo/jiji-hap--daeun-tension",
           "saju/combo/jaesung-insung--daymaster-weak",
           "saju/combo/samhap--daeun-tension",
           "saju/combo/jiji-pa--daeun-tension",
+          "saju/combo/samhap--seun-tension",
+          "saju/combo/jiji-hap--seun-tension",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/gongmang-bigeop",
           "saju/cross/sinsal-화개-siksang",
@@ -1045,8 +1322,10 @@
           "saju/imbalance/ohaeng-skew",
           "saju/relation/samhap",
           "saju/relation/jiji-hap",
+          "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
-        ]
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,
@@ -1083,6 +1362,14 @@
           "hourJi": "丑"
         },
         "gyeokguk": "종아격",
+        "gyeokgukDetail": {
+          "confidence": "참고",
+          "basis": [
+            "일간 세력(비겁+인성) 1 — 우세 축 종아 7",
+            "비겁 1·인성 0·식상 7·재성 4·관성 5"
+          ],
+          "blockers": []
+        },
         "yongsin": "토",
         "gisin": "목(인성)",
         "sipsin": {
@@ -1113,16 +1400,32 @@
             "position": "hourJi"
           }
         ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
         "patterns": [
           "saju/combo/daymaster-weak--daeun-fit",
           "saju/combo/daymaster-weak--johu-pressure",
           "saju/combo/sangsaeng-saengjae--daeun-fit",
           "saju/combo/ohaeng-missing--daymaster-weak",
+          "saju/combo/daymaster-weak--seun-fit",
+          "saju/combo/sangsaeng-saengjae--seun-fit",
           "saju/combo/sangsaeng-saengjae--daymaster-weak",
           "saju/combo/sangsaeng-saengjae--siksang-gwada",
           "saju/combo/siksang-gwada--daymaster-weak",
           "saju/combo/ohaeng-missing--daeun-fit",
           "saju/combo/jiji-hap--daeun-fit",
+          "saju/combo/ohaeng-missing--seun-fit",
+          "saju/combo/jiji-hap--seun-fit",
           "saju/cross/gyeokguk-yongsin-split",
           "saju/cross/sinsal-장성-gwansung",
           "saju/johu/season-pressure",
@@ -1133,8 +1436,10 @@
           "saju/imbalance/ohaeng-skew",
           "saju/imbalance/ohaeng-missing",
           "saju/relation/jiji-hap",
+          "saju/timing/daeun-seun-fit",
           "saju/timing/daeun-fit"
-        ]
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z"
       },
       "expertFill": {
         "palja": null,

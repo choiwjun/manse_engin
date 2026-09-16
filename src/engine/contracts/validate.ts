@@ -1,5 +1,7 @@
 import { EngineContractError } from './error';
 import type { EngineModuleId } from './module-id';
+import { getLunarMonthDays } from '@/engine/core/lunar-solar';
+import { ManseryeokDataError } from '@/engine/core/errors';
 
 const MIN_PUBLIC_DATE = '1908-04-01';
 const MAX_PUBLIC_YEAR = 2101;
@@ -53,6 +55,78 @@ function validateCalendarDate(year: number, month: number, day: number): void {
   const date = new Date(Date.UTC(year, month - 1, day));
   if (date.getUTCFullYear() !== year || date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day) {
     invalidInput('존재하지 않는 날짜입니다.', { year, month, day });
+  }
+}
+
+/**
+ * 존재하는 음력 날짜인지 검사한다.
+ * - 음력 월은 1~12, 일은 1~30.
+ * - 월의 실제 날수(29/30)는 음양력 변환 테이블(getLunarMonthDays)로 확인한다.
+ * - isLeapMonth이면 해당 연도에 그 윤달이 실제로 존재해야 한다.
+ * - 평달 월 자체가 테이블에 없으면 지원 범위 밖(OUT_OF_RANGE)이다.
+ */
+function validateLunarDate(year: number, month: number, day: number, isLeapMonth: boolean): void {
+  if (month < 1 || month > 12 || day < 1 || day > 30) {
+    invalidInput('존재하지 않는 음력 날짜입니다.', { year, month, day, isLeapMonth });
+  }
+  try {
+    getLunarMonthDays(year, month, false);
+  } catch (error) {
+    if (error instanceof ManseryeokDataError) {
+      throw new EngineContractError({
+        code: 'OUT_OF_RANGE',
+        message: `음력 ${year}년 ${month}월은 지원 범위에 없습니다.`,
+        details: { year, month, isLeapMonth },
+      });
+    }
+    throw error;
+  }
+  if (isLeapMonth) {
+    try {
+      getLunarMonthDays(year, month, true);
+    } catch (error) {
+      if (error instanceof ManseryeokDataError) {
+        invalidInput(`음력 ${year}년 ${month}월은 윤달이 없습니다.`, { year, month, isLeapMonth });
+      }
+      throw error;
+    }
+  }
+  const monthDays = getLunarMonthDays(year, month, isLeapMonth);
+  if (day > monthDays) {
+    invalidInput('존재하지 않는 음력 날짜입니다.', { year, month, day, isLeapMonth, monthDays });
+  }
+}
+
+/**
+ * RFC 3339 기준시각 검증.
+ * "YYYY-MM-DDTHH:mm:ss" + "Z" 또는 명시적 ±HH:MM 오프셋만 허용한다.
+ * Date.parse만으로는 "0", "2025-02-30", 타임존 없는 시각 등이 통과하므로
+ * 형식과 실존 날짜·시각을 직접 검증한다.
+ */
+const RFC3339_RE =
+  /^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(\.\d+)?([Zz]|[+-]\d{2}:\d{2})$/;
+
+function requireNowString(value: unknown, field: string): void {
+  if (typeof value !== 'string' || !RFC3339_RE.test(value)) {
+    invalidInput(
+      `${field}는 RFC 3339 형식(예: 2025-01-15T00:00:00Z 또는 2026-09-13T12:00:00+09:00)이어야 합니다.`,
+      { field, value },
+    );
+  }
+  const m = RFC3339_RE.exec(value as string)!;
+  const [, year, month, day, hour, minute, second, , offset] = m;
+  validateCalendarDate(Number(year), Number(month), Number(day));
+  if (Number(hour) > 23 || Number(minute) > 59 || Number(second) > 59) {
+    invalidInput(`${field}의 시각이 유효하지 않습니다.`, { field, value });
+  }
+  if (offset !== 'Z' && offset !== 'z') {
+    const [offsetHour, offsetMinute] = offset.slice(1).split(':').map(Number);
+    if (offsetHour > 23 || offsetMinute > 59) {
+      invalidInput(`${field}의 UTC 오프셋이 유효하지 않습니다.`, { field, value });
+    }
+  }
+  if (Number.isNaN(Date.parse(value as string))) {
+    invalidInput(`${field}를 시각으로 해석할 수 없습니다.`, { field, value });
   }
 }
 
@@ -141,11 +215,20 @@ function validatePerson(record: Record<string, unknown>, prefix: string): void {
   const month = record.month as number;
   const day = record.day as number;
   validateDataYearRange(year, `${prefix}.year`);
-  validateCalendarDate(year, month, day);
-  validateHourMinute(record, true);
-  validateEnum(record.gender, VALID_GENDERS, `${prefix}.gender`);
   validateOptionalBoolean(record, 'isLunar');
   validateOptionalBoolean(record, 'isLeapMonth');
+  const isLunar = record.isLunar === true;
+  const isLeapMonth = record.isLeapMonth === true;
+  if (isLunar) {
+    validateLunarDate(year, month, day, isLeapMonth);
+  } else {
+    if (isLeapMonth) {
+      invalidInput('양력 날짜에는 isLeapMonth를 적용할 수 없습니다.', { field: `${prefix}.isLeapMonth` });
+    }
+    validateCalendarDate(year, month, day);
+  }
+  validateHourMinute(record, true);
+  validateEnum(record.gender, VALID_GENDERS, `${prefix}.gender`);
   if (record.birthPlace !== undefined && record.birthPlace !== null && typeof record.birthPlace !== 'string') {
     invalidInput(`${prefix}.birthPlace는 문자열 또는 null이어야 합니다.`);
   }
@@ -190,9 +273,10 @@ export function validateEngineModuleInput(moduleId: EngineModuleId, input: unkno
 
   switch (moduleId) {
     case 'saju':
-      if (!isRecord(input.birth) || typeof input.now !== 'string' || Number.isNaN(Date.parse(input.now))) {
-        throw new EngineContractError({ code: 'INVALID_INPUT', message: '사주 입력의 birth와 now가 필요합니다.' });
+      if (!isRecord(input.birth)) {
+        throw new EngineContractError({ code: 'INVALID_INPUT', message: '사주 입력의 birth가 필요합니다.' });
       }
+      requireNowString(input.now, 'now');
       validatePerson(input.birth, 'birth');
       if (input.subSchool !== undefined) {
         validateEnum(input.subSchool, VALID_SUB_SCHOOLS, 'subSchool');
@@ -206,15 +290,29 @@ export function validateEngineModuleInput(moduleId: EngineModuleId, input: unkno
       validatePerson(input.person1, 'person1');
       validatePerson(input.person2, 'person2');
       break;
-    case 'ziwei':
-      if (!['solar', 'lunar'].includes(String(input.calendarType)) || typeof input.date !== 'string') {
+    case 'ziwei': {
+      const calendarType = String(input.calendarType);
+      if (!['solar', 'lunar'].includes(calendarType) || typeof input.date !== 'string') {
         throw new EngineContractError({ code: 'INVALID_INPUT', message: '자미두수 날짜와 달력 구분이 필요합니다.' });
       }
-      requireDateString(input.date, 'date');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date)) {
+        invalidInput('date는 YYYY-MM-DD 형식이어야 합니다.', { field: 'date', value: input.date });
+      }
+      validateOptionalBoolean(input, 'isLeapMonth');
+      const [ziYear, ziMonth, ziDay] = input.date.split('-').map(Number);
+      validateDataYearRange(ziYear, 'date');
+      if (calendarType === 'lunar') {
+        validateLunarDate(ziYear, ziMonth, ziDay, input.isLeapMonth === true);
+      } else {
+        if (input.isLeapMonth === true) {
+          invalidInput('양력 날짜에는 isLeapMonth를 적용할 수 없습니다.', { field: 'isLeapMonth' });
+        }
+        validateCalendarDate(ziYear, ziMonth, ziDay);
+      }
       requireIntegerInRange(input, 'hour', 0, 23);
       validateEnum(input.gender, VALID_GENDERS, 'gender');
-      validateOptionalBoolean(input, 'isLeapMonth');
       break;
+    }
     case 'qimen':
     case 'daeyukim':
       if (typeof input.solarDate !== 'string') {

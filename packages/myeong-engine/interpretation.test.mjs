@@ -48,7 +48,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(!keys.some((k) => k.startsWith('saju/cross/gongmang-')), '공망(寅卯) 미포함 → 교차 미감지');
   assert.ok(keys.includes('saju/cross/sinsal-장성-siksang'), '장성(일지)+식신 교차');
   assert.ok(keys.includes('saju/cross/sinsal-화개-bigeop'), '화개(월지)+비견 교차');
-  assert.ok(keys.includes('saju/timing/daeun-fit'), '38세 辛巳(금)=용신 대운');
+  // 辛巳 대운 — 천간 辛(금)=용신, 지지 巳(화)=기신 → 천간·지지 이중판정에서 '혼재'로 판정된다.
+  // (한 축만 보면 fit으로 단정되는 오류 — 이 판이 바로 이중판정이 필요한 사례)
+  assert.ok(keys.includes('saju/timing/daeun-mixed'), '38세 辛巳 — 천간 금(용신)·지지 화(기신) 혼재 대운');
+  assert.ok(!keys.includes('saju/timing/daeun-fit'), '혼재 대운을 용신 대운으로 단정하지 않음');
 
   // 계량기 — 골든 값 (본기/중기/여기 가중 + 월지 2배)
   // 甲子 丁丑 己酉 壬申: 목 1.0·화 1.0·토 2.3(己+丑본기x2+申여기)·금 1.8·수 2.9(壬+子+丑중기x2+申중기) = 9.0
@@ -74,7 +77,8 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   // 3차 — 동적 문장 생성기: 위치·글자·강도가 문장에 반영되는지
   const flowLine = interp.summary.structureLines.find((s) => s.includes('생재'));
   assert.ok(flowLine, '생재 동적 문장 존재');
-  assert.ok(flowLine.includes('생하여(생재, 강도 최상)') || flowLine.includes('생재×용신운'), `첫형+제목+강도 조립: ${flowLine}`);
+  // content DB 제목('식상생재')이 동적 라벨을 대체한다 — DB가 로드되면 '식상생재, 강도 최상' 형태
+  assert.ok(flowLine.includes('생하여(식상생재, 강도 최상)') || flowLine.includes('생하여(생재, 강도 최상)') || flowLine.includes('생재×용신운'), `첫형+제목+강도 조립: ${flowLine}`);
   assert.ok(flowLine.endsWith('.'), '결론형으로 종결');
 
   // 4차 — content DB 문구 오버라이드
@@ -117,7 +121,9 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 
   // 3차 — 시점 서사
   assert.ok(rep.timing.daeun && rep.timing.daeun.ganJi === '辛巳', '현재 대운 서사 (38세 辛巳)');
-  assert.equal(rep.timing.daeun.verdict, 'fit', '용신 대운 판정');
+  assert.equal(rep.timing.daeun.verdict, 'mixed', '천간 용신·지지 기신 → 혼재 대운 판정');
+  assert.equal(rep.timing.daeun.ganVerdict, 'fit', '천간 辛(금) = 용신 축');
+  assert.equal(rep.timing.daeun.jiVerdict, 'tension', '지지 巳(화) = 기신 축');
   assert.ok(rep.timing.sewoon && rep.timing.sewoon.ganJi.length === 2, '세운 서사');
   assert.equal(rep.timing.sewoon.sipsin, '정인', `세운 십신 — 丙 vs 일간 己 = 정인: ${rep.timing.sewoon.sipsin}`);
   assert.ok(rep.timing.combined && rep.timing.combined.includes('큰 판'), '대운×세운 결합 서사');
@@ -314,7 +320,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const combos = runDetectors(r).filter((p) => p.key.startsWith('saju/combo/'));
   const comboKeys = combos.map((p) => p.key);
   assert.ok(comboKeys.includes('saju/combo/sangsaeng-saengjae--daymaster-weak'), '생재×신약 조합 감지');
-  assert.ok(comboKeys.includes('saju/combo/daymaster-weak--daeun-fit'), '신약×용신운 조합 감지');
+  // 현재 대운이 혼재(mixed)이므로 daeun-fit 조합은 발화하지 않고, 세운 기신 조합이 발화한다
+  assert.ok(comboKeys.includes('saju/combo/gwanin-sangsaeng--daymaster-weak'), '관인상생×신약 조합 감지');
+  assert.ok(comboKeys.includes('saju/combo/sangsaeng-saengjae--seun-tension'), '생재×세운기신 조합 감지');
+  assert.ok(!comboKeys.includes('saju/combo/daymaster-weak--daeun-fit'), '혼재 대운은 용신운 조합으로 단정하지 않음');
   for (const c of combos) {
     const rendered = renderPattern(c);
     assert.ok(rendered.length > 20 && !rendered.includes('undefined'), `조합 문장: ${rendered}`);
@@ -604,10 +613,16 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 // 5차-후속3 — 시점 서사 2단계 (월운×세운 교차, 대운 전환 서사)
 {
   const r = saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' });
+  // 월운은 asOf 기준 — 9월 丁酉은 천간 기신·지지 용신으로 mixed이므로 '축 혼재' 교차가 나온다
   const tn = buildTimingNarrative(r, new Date('2026-09-13T12:00:00+09:00'));
   assert.ok(tn.wolun, '월운 존재');
   assert.ok(tn.wolun.verdict && tn.wolun.cross, `월운 판정·교차: ${tn.wolun.line}`);
-  assert.ok(tn.wolun.line.includes('세운'), '월운×세운 교차 문구');
+  assert.equal(tn.wolun.cross, '축 혼재', `월운 丁酉 mixed → 축 혼재: ${tn.wolun.cross}`);
+  // 세운과 같은 방향인 월운 — 6월 건립이면 월운 甲午(tension) × 세운 丙午(tension)
+  const rJun = saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' }, new Date('2026-06-15T12:00:00+09:00'));
+  const tnJun = buildTimingNarrative(rJun);
+  assert.ok(tnJun.wolun.line.includes('세운'), `월운×세운 교차 문구: ${tnJun.wolun.line}`);
+  assert.equal(tnJun.wolun.cross, '같은 방향');
 
   // 대운 전환 임박 — 2033-03 종료이므로 2032-10은 임박 구간
   const tn2 = buildTimingNarrative(r, new Date('2032-10-01T12:00:00+09:00'));
@@ -760,7 +775,8 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
       label: '삼합×세운기신',
     },
     {
-      input: { year: 1950, month: 1, day: 1, hour: 22, minute: 30, gender: 'female' },
+      // 1950-02-25 07:30 여 — 庚寅 戊寅 辛卯 壬辰(寅卯辰 방합) + 辛未 대운(천간 금 준용신·지지 토 중간 → fit)
+      input: { year: 1950, month: 2, day: 25, hour: 7, minute: 30, gender: 'female' },
       key: 'saju/combo/banghap--daeun-fit',
       label: '방합×용신운',
     },

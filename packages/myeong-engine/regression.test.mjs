@@ -404,3 +404,161 @@ test('package version matches ENGINE_VERSION', () => {
   const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
   assert.equal(pkg.version, esm.ENGINE_VERSION);
 });
+
+// ---------- 원리 검증 — 구현 결과가 아니라 고전 규칙 자체를 단언한다 ----------
+
+test('旺相休囚死 direction follows the classical rule (五行精紀)', () => {
+  // 당령자는 旺, 당령이 생하는 것은 相, 당령을 생하는 것은 休,
+  // 당령을 극하는 것은 囚, 당령이 극하는 것은 死
+  // 일간 甲(목) 기준 — 강약용신 학파의 reasoning에 (旺|相|休|囚|死, 점수…)로 노출된다
+  const at = (month, day) =>
+    esm.buildSajuResult(birth({ year: 1990, month, day }), {
+      now: new Date('2026-09-12T00:00:00Z'),
+      subSchool: 'gangyak',
+    });
+  const wangOf = r => r.yongsin.reasoning.match(/\(([旺相休囚死]),\s*점수/)[1];
+  const cases = [
+    [{ month: 2, day: 8 }, '甲辰', '寅', '旺'],   // 같은 오행(목)
+    [{ month: 11, day: 15 }, '甲申', '亥', '相'],  // 수생목 — 당령이 일간을 생함
+    [{ month: 5, day: 9 }, '甲戌', '巳', '休'],    // 목생화 — 일간이 당령을 생함
+    [{ month: 4, day: 9 }, '甲辰', '辰', '囚'],    // 목극토 — 일간이 당령을 극함
+    [{ month: 9, day: 16 }, '甲申', '酉', '死'],   // 금극목 — 당령이 일간을 극함
+  ];
+  for (const [input, dayP, monthJi, expected] of cases) {
+    const r = at(input.month, input.day);
+    assert.equal(dayPillar(r.palja), dayP, `${JSON.stringify(input)} 일주`);
+    assert.equal(r.palja.monthJi, monthJi, `${JSON.stringify(input)} 월지`);
+    assert.equal(wangOf(r), expected, `${dayP} ${monthJi}월 → ${expected} 기대, 실제 ${r.yongsin.reasoning}`);
+  }
+});
+
+test('삼형 두 글자 조합도 형으로 감지하고 완성형은 중복 보고하지 않는다', () => {
+  const mk = (y, m, d, h) => ({
+    yearGan: '甲', yearJi: y, monthGan: '丙', monthJi: m, dayGan: '戊', dayJi: d, hourGan: '庚', hourJi: h,
+  });
+  const hyeong = rels => rels.filter(x => x.type === '형').map(x => x.jijis.join(''));
+  // 寅巳申 계열 부분쌍 (세 번째 글자 없음)
+  assert.ok(hyeong(esm.analyzeJijiRelations(mk('寅', '巳', '午', '子'))).includes('寅巳'), '寅巳 부분 형');
+  assert.ok(hyeong(esm.analyzeJijiRelations(mk('巳', '申', '午', '子'))).includes('巳申'), '巳申 부분 형');
+  assert.ok(hyeong(esm.analyzeJijiRelations(mk('寅', '申', '午', '子'))).includes('寅申'), '寅申 부분 형');
+  // 丑戌未 계열 부분쌍
+  assert.ok(hyeong(esm.analyzeJijiRelations(mk('丑', '戌', '寅', '子'))).includes('丑戌'), '丑戌 부분 형');
+  assert.ok(hyeong(esm.analyzeJijiRelations(mk('戌', '未', '寅', '子'))).includes('戌未'), '戌未 부분 형');
+  assert.ok(hyeong(esm.analyzeJijiRelations(mk('丑', '未', '寅', '子'))).includes('丑未'), '丑未 부분 형');
+  // 완성형은 삼형 하나만 — 부분쌍을 중복 보고하지 않는다
+  const triple = hyeong(esm.analyzeJijiRelations(mk('寅', '巳', '申', '子')));
+  assert.deepEqual(triple, ['寅巳申'], `완성형만 보고: ${triple}`);
+  // 형이 아예 없는 조합에서는 false positive가 없어야 한다 (子卯형을 피하기 위해 子 없이 구성)
+  assert.equal(hyeong(esm.analyzeJijiRelations(mk('寅', '午', '辰', '酉'))).length, 0, '寅午辰酉 — 형 없음');
+});
+
+test('lunar birth dates are validated by lunar month length and leap-month existence', async () => {
+  const run = input =>
+    esm.executeEngineModuleById('saju', { birth: birth({ isLunar: true, ...input }), now: '2025-01-15T00:00:00Z' });
+  // 유효한 음력 1909-02-30 — 양력 2월은 28일이지만 음력 2월은 30일까지 존재한다
+  const ok = await run({ year: 1909, month: 2, day: 30 });
+  assert.equal(ok.moduleId, 'saju');
+  // 존재하지 않는 음력 2000-03-30 — 그 해 음력 3월은 29일
+  assert.equal(esm.getLunarMonthDays(2000, 3), 29);
+  await assert.rejects(run({ year: 2000, month: 3, day: 30 }), err => err.code === 'INVALID_INPUT');
+  // 윤달 — 2012년은 윤3월이 실제로 존재하고 윤4월은 없다
+  const leap = await run({ year: 2012, month: 3, day: 15, isLeapMonth: true });
+  assert.equal(leap.moduleId, 'saju');
+  await assert.rejects(run({ year: 2012, month: 4, day: 15, isLeapMonth: true }), err => err.code === 'INVALID_INPUT');
+});
+
+test('now requires RFC 3339 with an explicit UTC designator and a real date', async () => {
+  const run = now => esm.executeEngineModuleById('saju', { birth: birth({ year: 1990, month: 5, day: 15 }), now });
+  await assert.rejects(run('0'), err => err.code === 'INVALID_INPUT');                    // 숫자 문자열
+  await assert.rejects(run('2025-02-30'), err => err.code === 'INVALID_INPUT');           // 형식 자체가 불량
+  await assert.rejects(run('2025-01-01T00:00:00'), err => err.code === 'INVALID_INPUT');  // 타임존 없음
+  await assert.rejects(run('2025-02-30T00:00:00Z'), err => err.code === 'INVALID_INPUT'); // 정규화되던 무효 날짜
+  assert.equal((await run('2025-01-15T00:00:00Z')).moduleId, 'saju');
+  assert.equal((await run('2025-01-15T09:00:00+09:00')).moduleId, 'saju');
+});
+
+test('judgeGanJi judges stem and branch axes separately and reports mixed verdicts', () => {
+  // 甲子 丁丑 己酉 壬申 — 용신 금·기신 화
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), {
+    now: new Date('2026-09-13T12:00:00+09:00'),
+  });
+  const mixed = esm.judgeGanJi(r, '辛', '巳');
+  assert.equal(mixed.verdict, 'mixed');
+  assert.equal(mixed.ganAxis.verdict, 'fit');      // 천간 辛(금) = 용신
+  assert.equal(mixed.jiAxis.verdict, 'tension');   // 지지 巳(화) = 기신
+  // 두 축이 같은 방향이면 그 방향으로 판정
+  assert.equal(esm.judgeGanJi(r, '庚', '申').verdict, 'fit');       // 庚申 = 금·금
+  assert.equal(esm.judgeGanJi(r, '丙', '午').verdict, 'tension');   // 丙午 = 화·화
+  // 한 축만 방향이 있으면 그 축을 따른다 — 巳화 기신 + 甲목 준기신
+  assert.equal(esm.judgeGanJi(r, '甲', '巳').verdict, 'tension');
+});
+
+test('judgeGanJi neutral axis exists and a directed axis dominates a neutral one', () => {
+  // 甲辰 일주 — 용신 금, 기신 토: 수는 양축 모두 중간이다
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 5 }), {
+    now: new Date('2026-09-13T12:00:00+09:00'),
+  });
+  const neutral = esm.judgeGanJi(r, '壬', '子');
+  assert.equal(neutral.verdict, 'neutral');
+  assert.equal(neutral.ganAxis.verdict, 'neutral');
+  assert.equal(neutral.jiAxis.verdict, 'neutral');
+  // 천간 甲목 용신 방향 + 지지 子수 중간 → 방향 있는 축을 따른다
+  const oneSided = esm.judgeGanJi(r, '甲', '子');
+  assert.equal(oneSided.verdict, 'fit');
+  assert.equal(oneSided.ganAxis.verdict, 'fit');
+  assert.equal(oneSided.jiAxis.verdict, 'neutral');
+});
+
+test('SajuResult.asOf pins the reference time so omitted now stays deterministic', () => {
+  const asOf = new Date('2032-10-01T12:00:00+09:00'); // 辛巳 대운 종료 직전 — 전환 임박 구간
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), { now: asOf });
+  assert.equal(r.asOf, asOf.toISOString());
+  const implicit = esm.buildTimingNarrative(r);          // now 생략 → asOf 기준
+  const explicit = esm.buildTimingNarrative(r, asOf);
+  assert.deepEqual(implicit, explicit, 'now 생략 시 asOf 기준과 동일해야 한다');
+  assert.ok(implicit.transition?.imminent, 'asOf 기준으로 전환 임박 판정');
+});
+
+test('gyeokguk exposes confidence, basis, and blockers metadata', () => {
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), {
+    now: new Date('2026-09-13T12:00:00+09:00'),
+  });
+  assert.ok(['확정', '유력', '참고'].includes(r.gyeokguk.confidence), `confidence: ${r.gyeokguk.confidence}`);
+  assert.ok(Array.isArray(r.gyeokguk.basis) && r.gyeokguk.basis.length > 0, '성립 근거');
+  assert.ok(Array.isArray(r.gyeokguk.blockers), '불성립 조건 배열');
+  // 화격 후보 — 甲己 간합 + 辰月(토)은 쟁합·극화 없이 성립해야 확정
+  const hw = esm.determineGyeokguk({
+    yearGan: '丙', yearJi: '子', monthGan: '己', monthJi: '辰', dayGan: '甲', dayJi: '午', hourGan: '丙', hourJi: '寅',
+  });
+  assert.equal(hw.name, '갑기합화토격');
+  assert.equal(hw.confidence, '확정');
+  // 쟁합 — 같은 甲이 년간에 중복되면 신뢰도가 낮아진다
+  const jang = esm.determineGyeokguk({
+    yearGan: '甲', yearJi: '子', monthGan: '己', monthJi: '辰', dayGan: '甲', dayJi: '午', hourGan: '丙', hourJi: '寅',
+  });
+  assert.equal(jang.name, '갑기합화토격');
+  assert.notEqual(jang.confidence, '확정');
+  assert.ok(jang.blockers.some(b => b.includes('쟁합')), `쟁합 blocker: ${jang.blockers}`);
+});
+
+test('report discloses which strength and yongsin models produced the output', () => {
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), {
+    now: new Date('2026-09-13T12:00:00+09:00'),
+  });
+  const rep = esm.assembleReport(r);
+  assert.ok(rep.context.strengthModel.includes('점유율'), '강약 모델 명시');
+  assert.ok(rep.context.yongsinModel.includes('용신'), '용신 모델 명시');
+  assert.ok(rep.context.modelNote.length > 10, '두 모델의 관계 안내');
+  const md = esm.renderReportMarkdown(rep);
+  assert.ok(md.includes('계산 모델'), '마크다운 리포트에 모델 명시');
+});
+
+test('jijanggan 子 follows the 子中單癸水 convention (single hidden stem)', () => {
+  assert.deepEqual(esm.JIJANGGAN_TABLE['子'], ['癸']);
+  const detail = esm.calculateJijangganSipsin({
+    yearGan: '甲', yearJi: '子', monthGan: '丙', monthJi: '寅', dayGan: '戊', dayJi: '辰', hourGan: '庚', hourJi: '午',
+  });
+  // 子는 본기 하나만 — 여기·중기 키가 없어야 한다
+  assert.deepEqual(Object.keys(detail.yearJi), ['bongi']);
+  assert.ok('junggi' in detail.monthJi && 'yeogi' in detail.monthJi, '寅은 여기·중기·본기');
+});

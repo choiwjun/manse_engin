@@ -3,7 +3,7 @@
 
 import type { BirthInputData, Daeun, Ohaeng, Palja } from '@/engine/types';
 import type { CalculateOptions } from '@/engine/saju/calculator';
-import { CHEONGAN, JIJI, getOhaengForGan } from '@/engine/adapter/hanja-mapper';
+import { CHEONGAN, JIJI, getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
 import { createNormalizedManseryeokContext } from '@/engine/core/normalized-context';
 import { getGanji, isForwardDirection } from '@/engine/core/ganji';
@@ -95,6 +95,7 @@ export function calculateDaeun(
     const idx = ((monthIdx + offset) % 60 + 60) % 60;
     const { gan, ji } = SEXAGENARY_CYCLE[idx];
     const ohaeng = getOhaengForGan(gan) as Ohaeng;
+    const jiOhaeng = getOhaengForJi(ji) as Ohaeng;
     const startAgeMonths = resolution.startAgeMonths + i * 120;
     const startsAt = yunStartTimestamp(resolution.birthKst, startAgeMonths);
     const endsAt = yunStartTimestamp(resolution.birthKst, startAgeMonths + 120);
@@ -105,6 +106,7 @@ export function calculateDaeun(
       gan,
       ji,
       ohaeng,
+      jiOhaeng,
       isCurrent,
       startAgeMonths,
       startsAt,

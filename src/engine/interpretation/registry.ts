@@ -1222,6 +1222,15 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     polarity: 'neutral',
     conclusion: '판이 크게 열리거나 닫히기보다 유지·정비의 구간입니다.',
   },
+  'saju/timing/daeun-mixed': {
+    category: 'timing',
+    priority: 50,
+    title: '혼재 대운(混在大運)',
+    defaultText:
+      '현재 대운의 천간과 지지가 용신·기신으로 갈립니다. 한 축만으로 판의 방향을 단정하기 어려운 구간으로, 구간 안의 완급을 함께 살핍니다.',
+    polarity: 'neutral',
+    conclusion: '한 축만으로 판의 방향을 단정하기 어려운 구간으로, 구간 안의 완급을 함께 살핍니다.',
+  },
   'saju/timing/daeun-seun-fit': {
     category: 'timing',
     priority: 49,

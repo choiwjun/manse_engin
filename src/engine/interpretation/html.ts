@@ -214,7 +214,9 @@ ${brandHeader}
     <li><span class="lbl">전체 구조</span> ${esc(report.headline)}</li>
     <li><span class="lbl">일간 강약</span> ${esc(report.meter.dayMaster.verdictLabel)} ${report.meter.dayMaster.score}% — 비겁 ${report.meter.groupPercents.bigeop}%, 인성 ${report.meter.groupPercents.insung}%</li>
     <li><span class="lbl">격국·용신</span> ${esc(report.context?.gyeokguk ?? '')} · 용신 ${esc(report.context?.yongsin ?? '확인 필요')}</li>
+${report.context?.gyeokgukConfidence && report.context.gyeokgukConfidence !== '확정' ? `    <li><span class="lbl">격국 신뢰도</span> ${esc(report.context.gyeokgukConfidence)}${report.context.gyeokgukBlockers?.length ? ` — 불성립 요소: ${esc(report.context.gyeokgukBlockers.join('·'))}` : ''}</li>` : ''}
 ${report.context?.yongsinReasoning ? `    <li><span class="lbl">용신 근거(${esc(report.context.yongsinSchool)})</span> ${esc(report.context.yongsinReasoning)}</li>` : ''}
+${report.context?.modelNote ? `    <li><span class="lbl">계산 모델</span> 강약=${esc(report.context.strengthModel)} · 용신=${esc(report.context.yongsinModel)} — ${esc(report.context.modelNote)}</li>` : ''}
 ${keyPatterns.length > 0 ? `    <li><span class="lbl">핵심 패턴</span><ul class="sub">\n${keyPatterns.map((p) => `      <li><strong>${esc(p.title)}</strong></li>`).join('\n')}\n    </ul></li>` : ''}
 ${plus.length > 0 ? `    <li><span class="lbl">주요 강점</span> ${esc(plus.map((p) => p.title).join(' · '))}</li>` : ''}
 ${caution.length > 0 ? `    <li><span class="lbl">주요 주의점</span> ${esc(caution.map((p) => p.title).join(' · '))}</li>` : ''}

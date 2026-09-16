@@ -220,10 +220,13 @@ function assessStrength(counts: Record<string, number>): { support: number; oppo
 
 /**
  * 화격(化格) 판별: 일간과 인접 천간이 간합하고, 화 오행이 월지에서 왕하면 화격 성립.
+ * 성립 조건만 보는 것이 아니라 쟁합·통근·극화 등 불성립 요소도 함께 반환한다 —
+ * 화격은 조건이 부분 충족될 때 확정으로 읽으면 위험하므로 confidence로 구분한다.
  */
 function detectHwagyeok(palja: Palja): Gyeokguk | null {
   const { dayGan, monthGan, monthJi } = palja;
   const monthJiOhaeng = getOhaengForJi(monthJi);
+  if (!monthJiOhaeng) return null;
 
   for (const pair of GANHAP_PAIRS) {
     // 일간-월간 간합 확인
@@ -234,12 +237,46 @@ function detectHwagyeok(palja: Palja): Gyeokguk | null {
     if (!isMatch) continue;
 
     // 화 오행이 월지에서 득령(같은 오행이거나 생하는 관계)하면 화격 성립
-    if (monthJiOhaeng === pair.ohaeng || SAENGSAENG[monthJiOhaeng!] === pair.ohaeng) {
-      const info = GYEOKGUK_INFO[pair.name];
-      if (info) {
-        return { name: pair.name, hanja: info.hanja, description: info.description };
+    const deukryeong = monthJiOhaeng === pair.ohaeng;
+    const saengjo = !deukryeong && SAENGSAENG[monthJiOhaeng] === pair.ohaeng;
+    if (!deukryeong && !saengjo) continue;
+
+    const info = GYEOKGUK_INFO[pair.name];
+    if (!info) continue;
+
+    const basis = [
+      `일간 ${dayGan}×월간 ${monthGan} 간합`,
+      `월지 ${monthJi}(${monthJiOhaeng}) — 화오행 ${pair.ohaeng} ${deukryeong ? '당령' : '생조(월지가 화오행을 생함 — 유파별 인정 범위 상이)'}`,
+    ];
+    const blockers: string[] = [];
+
+    // 쟁합(爭合) — 간합의 한 축과 같은 천간이 년간·시간에 중복되면 합이 흔들린다
+    for (const [pos, gan] of [['년간', palja.yearGan], ['시간', palja.hourGan]] as const) {
+      if (gan && (gan === dayGan || gan === monthGan)) {
+        blockers.push(`쟁합 가능 — ${pos} ${gan}이(가) 간합 축과 중복`);
       }
     }
+    // 일간 통근 — 일간이 지지 본기에 뿌리를 두면 화하기 어렵다
+    const dayOhaeng = getOhaengForGan(dayGan);
+    if (dayOhaeng) {
+      for (const [pos, ji] of [['일지', palja.dayJi], ['월지', monthJi]] as const) {
+        const bongi = JIJANGGAN_TABLE[ji]?.[0];
+        if (bongi && getOhaengForGan(bongi) === dayOhaeng) {
+          blockers.push(`일간 통근 — ${pos} ${ji} 본기 ${bongi}이(가) 일간 오행과 같음`);
+        }
+      }
+    }
+    // 극화 — 화오행을 극하는 천간이 투간되면 화기가 꺾인다
+    for (const [pos, gan] of [['년간', palja.yearGan], ['시간', palja.hourGan]] as const) {
+      const o = gan ? getOhaengForGan(gan) : null;
+      if (o && SANGGEUK[o] === pair.ohaeng) {
+        blockers.push(`극화 — ${pos} ${gan}(${o})이(가) 화오행 ${pair.ohaeng}을(를) 극함`);
+      }
+    }
+
+    const confidence =
+      blockers.length === 0 && deukryeong ? '확정' : blockers.length <= 1 ? '유력' : '참고';
+    return { name: pair.name, hanja: info.hanja, description: info.description, confidence, basis, blockers };
   }
 
   return null;
@@ -247,6 +284,7 @@ function detectHwagyeok(palja: Palja): Gyeokguk | null {
 
 /**
  * 종격(從格) 판별: 일간이 극약하면서 특정 십신 카테고리가 압도적일 때.
+ * 단순 카운트 임계치만으로는 확정이 어려우므로 근거·신뢰도·불성립 요소를 함께 반환한다.
  */
 function detectJongyeok(palja: Palja): Gyeokguk | null {
   const counts = countSipsinCategories(palja);
@@ -255,12 +293,24 @@ function detectJongyeok(palja: Palja): Gyeokguk | null {
 
   if (total === 0) return null;
 
+  const countsText = `비겁 ${counts['비겁']}·인성 ${counts['인성']}·식상 ${counts['식상']}·재성 ${counts['재성']}·관성 ${counts['관성']}`;
+
   // 종강격: 일간이 극강 (지지 세력의 80% 이상이 비겁+인성)
   if (support > 0 && oppose === 0) {
-    return lookupGyeokguk('종강격');
+    return {
+      ...lookupGyeokguk('종강격')!,
+      confidence: '확정',
+      basis: [`일간 세력(비겁+인성) ${support} — 대립 세력 0`, countsText],
+      blockers: [],
+    };
   }
   if (total >= 8 && support / total >= 0.8) {
-    return lookupGyeokguk('종강격');
+    return {
+      ...lookupGyeokguk('종강격')!,
+      confidence: '유력',
+      basis: [`일간 세력 ${support}/${total} (80% 이상)`, countsText],
+      blockers: [`대립 세력 ${oppose}개 잔존 — 완전한 종강은 아님`],
+    };
   }
 
   // 종격 (일간 극약): 비겁+인성이 거의 없고 특정 세력이 압도적
@@ -270,15 +320,41 @@ function detectJongyeok(palja: Palja): Gyeokguk | null {
     const gwanseong = counts['관성'] ?? 0;
     const siksang = counts['식상'] ?? 0;
 
+    let name: string | null = null;
+    let dominant = 0;
     if (jaeseong >= gwanseong && jaeseong >= siksang && jaeseong >= 4) {
-      return lookupGyeokguk('종재격');
+      name = '종재격';
+      dominant = jaeseong;
+    } else if (gwanseong >= jaeseong && gwanseong >= siksang && gwanseong >= 4) {
+      name = '종살격';
+      dominant = gwanseong;
+    } else if (siksang >= jaeseong && siksang >= gwanseong && siksang >= 4) {
+      name = '종아격';
+      dominant = siksang;
     }
-    if (gwanseong >= jaeseong && gwanseong >= siksang && gwanseong >= 4) {
-      return lookupGyeokguk('종살격');
+    if (!name) return null;
+
+    // 미세 통근 — 지지 지장간(중기·여기)에 일간 오행이 있으면 종격이 약해진다
+    const dayOhaeng = getOhaengForGan(palja.dayGan);
+    const blockers: string[] = [];
+    if (dayOhaeng) {
+      for (const [pos, ji] of [['년지', palja.yearJi], ['월지', palja.monthJi], ['일지', palja.dayJi], ['시지', palja.hourJi]] as const) {
+        const jijanggan = JIJANGGAN_TABLE[ji] ?? [];
+        for (let i = 1; i < jijanggan.length; i++) {
+          if (getOhaengForGan(jijanggan[i]) === dayOhaeng) {
+            blockers.push(`미세 통근 — ${pos} ${ji} 지장간 ${jijanggan[i]}`);
+            break;
+          }
+        }
+      }
     }
-    if (siksang >= jaeseong && siksang >= gwanseong && siksang >= 4) {
-      return lookupGyeokguk('종아격');
-    }
+
+    return {
+      ...lookupGyeokguk(name)!,
+      confidence: support === 0 && blockers.length === 0 ? '유력' : '참고',
+      basis: [`일간 세력(비겁+인성) ${support} — 우세 축 ${name.replace('격', '')} ${dominant}`, countsText],
+      blockers,
+    };
   }
 
   return null;
@@ -318,10 +394,20 @@ export function determineGyeokguk(palja: Palja): Gyeokguk {
 
   // ── Step 3: 건록격 / 양인격 확인 ──
   if (GEONROK_MAP[dayGan] === monthJi) {
-    return lookupGyeokguk('건록격')!;
+    return {
+      ...lookupGyeokguk('건록격')!,
+      confidence: '확정',
+      basis: [`월지 ${monthJi} = 일간 ${dayGan}의 건록`],
+      blockers: [],
+    };
   }
   if (isYangGan(dayGan) && YANGIN_MAP[dayGan] === monthJi) {
-    return lookupGyeokguk('양인격')!;
+    return {
+      ...lookupGyeokguk('양인격')!,
+      confidence: '확정',
+      basis: [`월지 ${monthJi} = 일간 ${dayGan}의 양인`],
+      blockers: [],
+    };
   }
 
   // ── Step 4: 정격 10격 판별 ──
@@ -339,11 +425,27 @@ export function determineGyeokguk(palja: Palja): Gyeokguk {
       // 비견격/겁재격은 이미 건록/양인으로 걸러졌으므로 그대로 반환
       const info = GYEOKGUK_INFO[gyeokgukName];
       if (info) {
-        return { name: gyeokgukName, hanja: info.hanja, description: info.description };
+        return {
+          name: gyeokgukName,
+          hanja: info.hanja,
+          description: info.description,
+          confidence: '확정',
+          basis: [
+            targetGan === bongi
+              ? `월지 ${monthJi} 본기 ${bongi} = ${sipsinName}`
+              : `월지 ${monthJi} 지장간 ${targetGan}이(가) 월간에 투출 = ${sipsinName}`,
+          ],
+          blockers: [],
+        };
       }
     }
   }
 
   // ── Step 5: 최종 폴백 ──
-  return OEGYEOK_DEFAULT;
+  return {
+    ...OEGYEOK_DEFAULT,
+    confidence: '참고',
+    basis: ['정격 10격·특수격(화격·종격·건록·양인) 조건 미충족'],
+    blockers: ['격국 미성립 — 명식을 개별 구조로 분석해야 함'],
+  };
 }

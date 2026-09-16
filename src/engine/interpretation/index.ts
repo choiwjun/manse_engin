@@ -23,13 +23,14 @@ export type {
   TimingNarrative,
   TimingVerdict,
   TimingVerdictInfo,
+  GanJiJudgement,
 } from './narrative';
 export { PATTERN_REGISTRY, isRegisteredPattern } from './registry';
 export { measureOhaeng } from './meter';
 export { runDetectors, interpretSaju } from './assemble';
 export { runAllDetectors, DETECTORS } from './detectors';
 export { renderPattern, strengthLabel, josa } from './sentence';
-export { judgeOhaeng, buildTimingNarrative } from './narrative';
+export { judgeOhaeng, judgeGanJi, buildTimingNarrative } from './narrative';
 export { assembleReport } from './report';
 export { renderReportMarkdown, renderCompatibilityMarkdown, renderNamingMarkdown, renderTaekilMarkdown, type RenderReportOptions } from './markdown';
 export { renderReportHtml, renderCompatibilityHtml, renderNamingHtml, renderTaekilHtml, type RenderReportHtmlOptions, type CounselorBrand } from './html';
