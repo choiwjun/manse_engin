@@ -84,6 +84,8 @@ try {
   const sess = await req('POST', `/clients/${clientId}/sessions`, { session: 'me' });
   const sessionId = sess.location.split('/sessions/')[1];
   check('세션 생성', /^ses_/.test(sessionId ?? ''), sess.location);
+  const sessPage0 = await req('GET', `/sessions/${sessionId}`, { session: 'me' });
+  check('세션 화면에 만세력표 렌더', sessPage0.text.includes('만세력표') && sessPage0.text.includes('class="ms"') && sessPage0.text.includes('지장간'));
   const dr = await req('POST', `/sessions/${sessionId}/drafts`, { session: 'me', body: { topics: ['career', 'wealth', 'year'] } });
   check('초안 생성 → 303', dr.status === 303);
   const sessPage = await req('GET', `/sessions/${sessionId}`, { session: 'me' });

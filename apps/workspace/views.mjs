@@ -50,6 +50,19 @@ const CSS = `
   .draft.auto { border-left-color:#f59e0b; }
   .section-body p { margin:.4em 0; line-height:1.7; }
   footer.foot { margin-top:32px; font-size:12px; color:var(--muted); }
+  .ms { width:100%; border-collapse:collapse; text-align:center; table-layout:fixed; }
+  .ms th,.ms td { border:1px solid var(--line); padding:4px 2px; text-align:center; }
+  .ms th { background:#f8fafc; }
+  .ms .ganji { font-size:30px; font-weight:700; font-family:'Noto Serif KR','Nanum Myeongjo',serif; line-height:1.15; }
+  .ms .sipsin { font-size:11px; color:var(--muted); }
+  .ms td.daycol { background:#fefce8; }
+  .ms th.daycol { background:#fef9c3; }
+  .daeun { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .daeun .du { border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-size:13px; text-align:center; min-width:52px; }
+  .daeun .du.cur { border-color:var(--accent); background:#eef2f7; font-weight:700; }
+  .daeun .du .age { display:block; font-size:11px; color:var(--muted); }
+  .ms-meta { display:flex; flex-wrap:wrap; gap:14px 26px; font-size:13px; margin-top:10px; }
+  .ms-meta b { color:var(--muted); font-weight:600; margin-right:4px; }
   @media print {
     header.top, form, .no-print, footer.foot { display:none !important; }
     body { background:#fff; } .card { border:0; padding:0; }
@@ -259,7 +272,7 @@ export function clientDetailPage({ client, snapshots, staleMap, sessions, timeli
 </div>
 <div class="card">
   <form class="inline" method="post" action="/clients/${client.id}/calc"><button type="submit">명식 계산 실행</button></form>
-  <form class="inline" method="post" action="/clients/${client.id}/sessions" style="margin-left:8px"><button type="submit" class="secondary">새 상담 세션</button></form>
+  <form class="inline" method="post" action="/clients/${client.id}/sessions" style="margin-left:8px"><button type="submit" class="secondary">상담 시작 (세션 생성)</button></form>
   <form class="inline" method="post" action="/clients/${client.id}/archive" style="margin-left:8px"><button type="submit" class="secondary">${client.status === 'archived' ? '보관 해제' : '보관'}</button></form>
   <form class="inline" method="post" action="/clients/${client.id}/deletion" style="margin-left:8px" onsubmit="return confirm('삭제 요청을 접수할까요?')"><button type="submit" class="danger">삭제 요청 접수</button></form>
   ${client.deletionRequest?.status === 'pending' ? `<form class="inline" method="post" action="/clients/${client.id}/erasure" style="margin-left:8px" onsubmit="return confirm('식별 정보를 삭제 처리합니다. 되돌릴 수 없습니다.')"><button type="submit" class="danger">삭제 처리 실행</button></form>` : ''}
@@ -277,11 +290,72 @@ export function clientDetailPage({ client, snapshots, staleMap, sessions, timeli
   ${portalRows || '<tr><td colspan="5" class="muted">포털 링크 없음</td></tr>'}</table>
 </div>
 <h2>계산 스냅샷</h2>
+${(() => { const s = snapshots.find((x) => x.envelope.moduleId === 'saju'); return s ? `<div class="card">${sajuChart(s.envelope.result)}</div>` : ''; })()}
 <div class="card"><table><tr><th>ID</th><th>모듈</th><th>계산 시각</th><th>엔진</th><th>경고</th><th>상태</th></tr>${snapRows || '<tr><td colspan="6" class="muted">스냅샷 없음 — 명식 계산을 실행하세요.</td></tr>'}</table></div>
 <h2>상담 세션</h2>
 <div class="card"><table><tr><th>세션</th><th>상태</th><th>생성</th><th>메모</th></tr>${sessRows || '<tr><td colspan="4" class="muted">세션 없음</td></tr>'}</table></div>
 <h2>타임라인</h2>
 <div class="card"><table><tr><th>시각</th><th>유형</th><th>ID</th></tr>${timelineRows || '<tr><td colspan="3" class="muted">이력 없음</td></tr>'}</table></div>`;
+}
+
+// ---------- 만세력표 ----------
+
+// 오행 색상 — 목=청록, 화=적, 토=황, 금=백(회청), 수=흑청
+const OHAENG_COLOR = { 목: '#15803d', 화: '#c62828', 토: '#b8860b', 금: '#64748b', 수: '#1e3a8a' };
+const GAN_OHAENG = { 甲: '목', 乙: '목', 丙: '화', 丁: '화', 戊: '토', 己: '토', 庚: '금', 辛: '금', 壬: '수', 癸: '수' };
+const JI_OHAENG = { 子: '수', 丑: '토', 寅: '목', 卯: '목', 辰: '토', 巳: '화', 午: '화', 未: '토', 申: '금', 酉: '금', 戌: '토', 亥: '수' };
+const JIJI_HANJA_KO = { 子: '자', 丑: '축', 寅: '인', 卯: '묘', 辰: '진', 巳: '사', 午: '오', 未: '미', 申: '신', 酉: '유', 戌: '술', 亥: '해' };
+const GAN_HANJA_KO = { 甲: '갑', 乙: '을', 丙: '병', 丁: '정', 戊: '무', 己: '기', 庚: '경', 辛: '신', 壬: '임', 癸: '계' };
+
+function msCell(ch, table, extra = '') {
+  if (!ch) return '<span class="muted">—</span>';
+  const color = OHAENG_COLOR[table[ch]] ?? 'inherit';
+  const ko = (table === GAN_OHAENG ? GAN_HANJA_KO : JIJI_HANJA_KO)[ch] ?? '';
+  return `<span class="ganji" style="color:${color}">${ch}</span><br><span class="sipsin">${ko}${extra}</span>`;
+}
+
+// SajuResult → 만세력표 HTML. 열 순서는 시·일·월·년(일주 강조).
+export function sajuChart(r) {
+  if (!r?.palja) return '<p class="muted">명식 데이터가 없습니다.</p>';
+  const POS = [
+    { gan: 'hourGan', ji: 'hourJi', label: '시주' },
+    { gan: 'dayGan', ji: 'dayJi', label: '일주', day: true },
+    { gan: 'monthGan', ji: 'monthJi', label: '월주' },
+    { gan: 'yearGan', ji: 'yearJi', label: '년주' },
+  ];
+  const sinsalAt = (pos) => (r.sinsal ?? []).filter((s) => s.position === pos).map((s) => esc(s.name)).join('<br>') || '—';
+  const jijangganAt = (pos) => (r.jijanggan?.[pos] ?? []).join(' ') || '—';
+  const row = (label, fn, cls = 'sipsin') =>
+    `<tr><th>${label}</th>${POS.map((p) => `<td class="${cls} ${p.day ? 'daycol' : ''}">${fn(p)}</td>`).join('')}</tr>`;
+  const daeunCells = (r.daeun ?? []).map((d) =>
+    `<span class="du ${d.isCurrent ? 'cur' : ''}"><span class="ganji-sm" style="color:${OHAENG_COLOR[JI_OHAENG[d.ji]] ?? 'inherit'};font-weight:700">${d.gan}${d.ji}</span><span class="age">${d.age}세${d.isCurrent ? ' · 현재' : ''}</span></span>`,
+  ).join('');
+  const rels = (r.jijiRelations ?? []).map((j) => `${esc(j.type)} ${j.jijis.map(esc).join('·')} — ${esc(j.description)}`).join('<br>');
+  const strength = r.strengthAssessment;
+  const deuk = strength ? ['득령', '득지', '득세'].filter((_, i) => [strength.deukryeong, strength.deukji, strength.deukse][i]).join('·') || '없음' : '';
+  const naeum = r.naeum?.day ? `${esc(r.naeum.day.name)}(${esc(r.naeum.day.hanja)})` : '';
+  return `
+<table class="ms">
+  <tr><th style="width:64px"></th>${POS.map((p) => `<th class="${p.day ? 'daycol' : ''}">${p.label}</th>`).join('')}</tr>
+  ${row('십신', (p) => p.day ? '<b>일간</b>' : esc(r.sipsin?.[p.gan] ?? '') || '—')}
+  <tr><th>천간</th>${POS.map((p) => `<td class="${p.day ? 'daycol' : ''}">${msCell(r.palja[p.gan], GAN_OHAENG)}</td>`).join('')}</tr>
+  <tr><th>지지</th>${POS.map((p) => `<td class="${p.day ? 'daycol' : ''}">${msCell(r.palja[p.ji], JI_OHAENG)}</td>`).join('')}</tr>
+  ${row('십신', (p) => esc(r.sipsin?.[p.ji] ?? '') || '—')}
+  ${row('지장간', jijangganAt)}
+  ${row('운성', (p) => esc(r.unsung?.[p.ji] ?? '') || '—')}
+  ${row('신살', (p) => sinsalAt(p.ji))}
+</table>
+<div class="ms-meta">
+  ${r.gyeokguk?.name ? `<span><b>격국</b>${esc(r.gyeokguk.name)}${r.gyeokguk.confidence ? ` <span class="badge ${r.gyeokguk.confidence === '확정' ? 'ok' : 'warn'}">${esc(r.gyeokguk.confidence)}</span>` : ''}</span>` : ''}
+  ${r.yongsin ? `<span><b>용신</b>${esc(r.yongsin.yongsin)} · <b>기신</b>${esc(r.yongsin.gisin)}</span>` : ''}
+  ${strength ? `<span><b>강약</b>${esc(strength.label)}(${strength.score}) · ${deuk}</span>` : ''}
+  ${r.gongmang?.length ? `<span><b>공망</b>${r.gongmang.map(esc).join(' ')}</span>` : ''}
+  ${r.seun ? `<span><b>세운</b>${esc(r.seun.gan)}${esc(r.seun.ji)}</span>` : ''}
+  ${r.wolun ? `<span><b>월운</b>${esc(r.wolun.gan)}${esc(r.wolun.ji)}</span>` : ''}
+  ${naeum ? `<span><b>일주 납음</b>${naeum}</span>` : ''}
+</div>
+${rels ? `<p class="muted" style="margin-top:8px">지지 관계: ${rels}</p>` : ''}
+${daeunCells ? `<div class="daeun">${daeunCells}</div>` : ''}`;
 }
 
 // ---------- 세션 작업 화면 ----------
@@ -335,11 +409,12 @@ export function sessionPage({ session, client, snapshot, drafts, reports, stale 
 <p class="muted">고객: <a href="/clients/${client.id}">${esc(client.displayName)}</a> · 생성 ${fmtDate(session.createdAt)} · 시작 ${fmtDate(session.startedAt)} · 종료 ${fmtDate(session.endedAt)}</p>
 ${stale ? `<div class="flash error">출생정보가 명식 계산 후 수정됐습니다. 재계산이 필요합니다.</div>` : ''}
 <div class="card">${transButtons || '<span class="muted">전이 가능한 상태가 없습니다.</span>'}</div>
-<h2>명식 스냅샷</h2>
+<h2>만세력표</h2>
 <div class="card">${snapshot
-    ? `<span class="mono muted">${esc(snapshot.id)}</span> · 엔진 ${esc(snapshot.envelope.engineVersion)} · ${fmtDate(snapshot.envelope.calculatedAt)}
+    ? `${sajuChart(snapshot.envelope.result)}
+       <p class="muted" style="margin-top:10px"><span class="mono">${esc(snapshot.id)}</span> · 엔진 ${esc(snapshot.envelope.engineVersion)} · ${fmtDate(snapshot.envelope.calculatedAt)}</p>
        ${snapshot.envelope.warnings.map((w) => `<div class="warn" style="margin-top:6px">⚠ ${esc(w.message)}</div>`).join('')}`
-    : '<span class="muted">스냅샷 없음 — 고객 화면에서 명식 계산을 실행하세요.</span>'}</div>
+    : '<span class="muted">명식이 없습니다 — 고객 화면에서 명식 계산을 먼저 실행하세요.</span>'}</div>
 <h2>자동 초안 생성</h2>
 <div class="card">
   <form method="post" action="/sessions/${session.id}/drafts">
