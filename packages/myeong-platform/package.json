@@ -1,0 +1,42 @@
+{
+  "name": "myeong-manseryeok-platform",
+  "version": "0.1.0",
+  "description": "MYEONG 상담사 워크스페이스 도메인 코어 — 고객·세션·계산 스냅샷·검수 리포트·예약/결제 원장의 저장 계약과 상태기계 (순수 TypeScript, 런타임 의존성 없음)",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "pretest": "npm run build",
+    "test": "node --test platform.test.mjs",
+    "prepack": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [
+    "saju",
+    "manseryeok",
+    "counselor-workspace",
+    "사주",
+    "상담사"
+  ],
+  "license": "UNLICENSED",
+  "private": true
+}

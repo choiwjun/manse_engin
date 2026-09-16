@@ -1,0 +1,10 @@
+{
+  "name": "myeong-workspace-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MYEONG 상담사 워크스페이스 — 내부 프로토타입 서버 (준비→검수 리포트 수직 슬라이스)",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}

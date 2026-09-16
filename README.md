@@ -5,12 +5,15 @@
 ## 구조
 
 ```
-src/engine/                엔진 소스 (canonical)
-packages/myeong-engine/    배포용 npm 패키지 (빌드·번들·타입 선언)
+src/engine/                  엔진 소스 (canonical)
+src/platform/                상담사 워크스페이스 도메인 코어 (canonical)
+packages/myeong-engine/      배포용 npm 패키지 (빌드·번들·타입 선언)
+packages/myeong-platform/    플랫폼 도메인 npm 패키지
 ```
 
-- `src/engine/`이 유일한 소스입니다. 엔진 수정은 여기서 합니다.
-- `packages/myeong-engine/build.mjs`가 `src/engine`을 복사해 `@/engine/*` 별칭을 상대 경로로 재작성한 뒤 ESM/CJS 번들과 `.d.ts`를 생성합니다.
+- `src/engine/`이 엔진의 유일한 소스입니다. 엔진 수정은 여기서 합니다.
+- `src/platform/`이 상담사 워크스페이스 도메인 코어의 유일한 소스입니다 — 고객·세션·계산 스냅샷·검수 리포트·예약/결제 원장의 타입·상태기계·저장소 계약(`PlatformStore`)과 인메모리 구현을 제공합니다. 엔진 결과는 `CalculationEnvelope`로 불투명하게 보존합니다 ([docs/product-plan-counselor-workspace-2026-09-16.md](docs/product-plan-counselor-workspace-2026-09-16.md) §5~§7).
+- 각 `build.mjs`가 canonical 소스를 패키지 `src/`로 복사한 뒤 ESM/CJS 번들과 `.d.ts`를 생성합니다.
 
 ## 빌드 & 패킹
 

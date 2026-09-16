@@ -3,8 +3,8 @@
   "private": true,
   "description": "MYEONG manseryeok/saju engine workspace",
   "scripts": {
-    "build": "npm --prefix packages/myeong-engine run build",
-    "test": "npm --prefix packages/myeong-engine test",
+    "build": "npm --prefix packages/myeong-engine run build && npm --prefix packages/myeong-platform run build",
+    "test": "npm --prefix packages/myeong-engine test && npm --prefix packages/myeong-platform test",
     "pack": "npm --prefix packages/myeong-engine pack"
   }
 }
