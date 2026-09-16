@@ -593,6 +593,20 @@ describe('상담사 계정·포털·리마인더·반복·통계', () => {
     })).code, 'INVALID_INPUT');
   });
 
+  it('월 반복 — 말일이 없는 달은 해당 월 말일로 클램프된다 (1/31→2/28, 3/3 오버플로 없음)', () => {
+    const { platform, workspace } = makePlatform();
+    const client = makeClient(platform, workspace.id);
+    const service = platform.createService(workspace.id, { name: '상담', durationMinutes: 60 });
+    const { appointments } = platform.createRecurringAppointments(workspace.id, {
+      clientId: client.id, serviceId: service.id,
+      startAt: '2026-01-31T10:00:00.000Z', freq: 'monthly', count: 4,
+    });
+    assert.deepEqual(appointments.map((a) => a.scheduledAt.slice(0, 10)), [
+      '2026-01-31', '2026-02-28', '2026-03-31', '2026-04-30',
+    ]);
+    assert.ok(appointments.every((a) => a.scheduledAt.endsWith('T10:00:00.000Z')));
+  });
+
   it('운영 통계 — 상태별 집계와 수금 합계', () => {
     const { platform, workspace } = makePlatform();
     const client = makeClient(platform, workspace.id);

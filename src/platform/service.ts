@@ -1480,7 +1480,13 @@ export function createPlatform(store: PlatformStore, deps: PlatformDeps = {}) {
       const at = new Date(start);
       if (input.freq === 'weekly') at.setUTCDate(at.getUTCDate() + 7 * i);
       else if (input.freq === 'biweekly') at.setUTCDate(at.getUTCDate() + 14 * i);
-      else at.setUTCMonth(at.getUTCMonth() + i);
+      else {
+        // 월 반복: 말일이 없는 달로 넘어갈 때 오버플로(1/31→3/3)를 막기 위해
+        // 목표 월의 실제 말일로 일자를 클램프한다.
+        at.setUTCFullYear(start.getUTCFullYear(), start.getUTCMonth() + i, 1);
+        const lastDay = new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth() + 1, 0)).getUTCDate();
+        at.setUTCDate(Math.min(start.getUTCDate(), lastDay));
+      }
       const { appointment, warnings: w } = createAppointment(
         workspaceId,
         { ...input, scheduledAt: at.toISOString(), seriesId },

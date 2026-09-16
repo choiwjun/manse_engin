@@ -109,9 +109,7 @@ try {
   check('공개 리포트 200·검수 표기', pubPage.status === 200 && pubPage.text.includes('검수'));
 
   console.log('== 금칙어·검수 게이트 ==');
-  const badDraft = await req('POST', `/sessions/${sessionId}/drafts`, { session: 'me', body: { topics: ['__none__'] } });
-  void badDraft;
-  // 금칙어 초안 직접 생성 경로가 없으므로 도메인 테스트에서 검증됨 — 여기서는 미발행 리포트 인쇄 차단 확인
+  // 금칙어 게이트는 도메인 테스트에서 검증됨 — 여기서는 미발행 리포트 인쇄 차단 확인
   const sess2 = await req('POST', `/clients/${clientId}/sessions`, { session: 'me' });
   const sid2 = sess2.location.split('/sessions/')[1];
   const rep2 = await req('POST', `/sessions/${sid2}/report`, { session: 'me' });
@@ -177,6 +175,15 @@ try {
   check('반복 예약 → 303', rec.status === 303);
   check('반복 배지 표시', (await req('GET', '/appointments', { session: 'me' })).text.includes('반복'));
 
+  // 월 반복 말일 클램프 회귀 — 1/31 시작 시 3/3 오버플로 없이 2/28이어야 한다
+  const mrec = await req('POST', '/appointments/recurring', { session: 'me', body: {
+    clientId, serviceId: svcIdFromForm, scheduledAt: '2026-01-31T10:00', freq: 'monthly', count: '3', counselorId: '',
+  }});
+  check('월 반복 → 303', mrec.status === 303);
+  const apPageM = await req('GET', '/appointments', { session: 'me' });
+  check('월 반복 말일 클램프(2/28 표시·3/3 오버플로 없음)',
+    apPageM.text.includes('2026. 2. 28.') && !apPageM.text.includes('2026. 3. 3.'));
+
   // 결제: 예약 → 결제 기록 → 수금 확인 → 환불
   const apPage2 = await req('GET', '/appointments', { session: 'me' });
   const payBtn = apPage2.text.match(/action="\/appointments\/(apt_[a-z0-9-]+)\/payment"/)?.[1];
@@ -203,9 +210,23 @@ try {
   check('비소유자 계정 생성 차단 → 403', staffSettings.status === 403);
   check('비밀번호 변경', (await req('POST', '/settings/password', { session: 'staff', body: { password: 'staff-pass-999' } })).status === 303);
   check('새 비밀번호로 로그인', (await req('POST', '/login', { body: { loginId: 'staff', password: 'staff-pass-999' }, session: 's2' })).status === 303);
+
+  // 비활성화된 계정의 기존 세션 즉시 무효화 (보안 회귀)
+  const settingsPage = await req('GET', '/settings', { session: 'me' });
+  const staffRow = settingsPage.text.match(/counselors\/(cn_[a-z0-9-]+)\/toggle/g) ?? [];
+  // 직원 계정 id는 목록에서 loginId 'staff' 행과 짝지어야 하지만, QA 계정이 유일한 비소유자이므로 토글 경로 사용
+  const togglePath = staffRow[0];
+  check('직원 토글 경로 존재', !!togglePath);
+  await req('POST', `/settings/${togglePath}`, { session: 'me' });
+  check('비활성 후 직원 세션 무효 → /login', (await req('GET', '/', { session: 'staff' })).status === 303);
+
   check('통계 페이지 200', (await req('GET', '/stats', { session: 'me' })).status === 200);
   const exp = await req('GET', `/clients/${clientId}/export?for=client`, { session: 'me' });
   check('고객 export JSON', exp.status === 200 && JSON.parse(exp.text).scope === 'client');
+
+  // owner 행위의 감사 actorRole이 올바르게 기록되는지 (회귀 — 이전엔 항상 'counselor')
+  const auditPage = await req('GET', '/audit', { session: 'me' });
+  check('owner 행위 actorRole=owner 기록', /<span class="muted">owner<\/span>/.test(auditPage.text));
 
   console.log(`\n=== 결과: ${pass} PASS / ${fail} FAIL ===`);
 } finally {

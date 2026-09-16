@@ -74,13 +74,16 @@ function sessionCounselor(req) {
   const s = sid ? sessions.get(sid) : null;
   if (!s) return null;
   if (s.expiresAt < Date.now()) { sessions.delete(sid); return null; }
-  return store.counselors.find(WS(), s.counselorId) ?? null;
+  const c = store.counselors.find(WS(), s.counselorId);
+  // 계정이 비활성화되면 남은 세션도 즉시 무효화한다.
+  if (!c || !c.active) { sessions.delete(sid); return null; }
+  return c;
 }
 
 // 요청의 행위자 — 로그인 세션 상담사 또는 부트스트랩 토큰(소유자).
 function actorOf(req) {
   const c = sessionCounselor(req);
-  return { id: c?.id ?? owner()?.id ?? 'system', role: 'counselor' };
+  return { id: c?.id ?? owner()?.id ?? 'system', role: c?.role ?? 'owner' };
 }
 
 // ---------- HTTP 유틸 ----------
@@ -428,6 +431,7 @@ post('/appointments/recurring', async (req, res) => {
     clientId: f.clientId, serviceId: f.serviceId,
     startAt: new Date(`${f.scheduledAt}:00+09:00`).toISOString(),
     freq: f.freq, count: Number(f.count) || 1,
+    channel: f.channel || null,
     counselorId: f.counselorId || null,
   }, actorOf(req));
   redirect(res, '/appointments', warnings.length
