@@ -101,7 +101,21 @@
           "saju/relation/jiji-hap",
           "saju/timing/daeun-mixed"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "금(식상)",
+          "조후": "화(丙火)",
+          "강약": "화(인성)",
+          "물상": "화"
+        },
+        "strengthAssessment": {
+          "label": "중화신약",
+          "score": 7,
+          "wangState": "旺",
+          "deukryeong": true,
+          "deukji": false,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,
@@ -212,7 +226,21 @@
           "saju/relation/jiji-hae",
           "saju/relation/wonjin"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "금(식상)",
+          "조후": "수(壬水)",
+          "강약": "금(식상)",
+          "물상": "화"
+        },
+        "strengthAssessment": {
+          "label": "태강",
+          "score": 8.7,
+          "wangState": "旺",
+          "deukryeong": true,
+          "deukji": true,
+          "deukse": true
+        }
       },
       "expertFill": {
         "palja": null,
@@ -326,7 +354,21 @@
           "saju/timing/daeun-seun-fit",
           "saju/timing/daeun-fit"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "화(관성)",
+          "조후": "수(壬水)",
+          "강약": "수(식상)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "태강",
+          "score": 7.7,
+          "wangState": "相",
+          "deukryeong": true,
+          "deukji": true,
+          "deukse": true
+        }
       },
       "expertFill": {
         "palja": null,
@@ -443,7 +485,21 @@
           "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(인성)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "태약",
+          "score": 1,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,
@@ -558,7 +614,21 @@
           "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(재성)",
+          "조후": "화(丙火)",
+          "강약": "화(관성)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "중화신약",
+          "score": 4.2,
+          "wangState": "休",
+          "deukryeong": false,
+          "deukji": true,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,
@@ -669,7 +739,21 @@
           "saju/timing/daeun-seun-fit",
           "saju/timing/daeun-fit"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "화(관성)",
+          "조후": "화(丙火)",
+          "강약": "수(식상)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "태강",
+          "score": 8.2,
+          "wangState": "相",
+          "deukryeong": true,
+          "deukji": true,
+          "deukse": true
+        }
       },
       "expertFill": {
         "palja": null,
@@ -782,7 +866,21 @@
           "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(관성)",
+          "조후": "화(丙火)",
+          "강약": "금(식상)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "신강",
+          "score": 5.4,
+          "wangState": "囚",
+          "deukryeong": false,
+          "deukji": true,
+          "deukse": true
+        }
       },
       "expertFill": {
         "palja": null,
@@ -886,7 +984,21 @@
           "saju/relation/wonjin",
           "saju/timing/daeun-mixed"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "금(재성)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "신약",
+          "score": 3.5,
+          "wangState": "休",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,
@@ -995,7 +1107,21 @@
           "saju/relation/jiji-hap",
           "saju/timing/daeun-mixed"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "금(재성)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "태약",
+          "score": 0,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,
@@ -1095,7 +1221,21 @@
           "saju/relation/gan-hap-gabgi",
           "saju/timing/daeun-mixed"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "금(관성)",
+          "조후": "화(丙火)",
+          "강약": "목(비겁)",
+          "물상": "수"
+        },
+        "strengthAssessment": {
+          "label": "중화신약",
+          "score": 3,
+          "wangState": "囚",
+          "deukryeong": false,
+          "deukji": true,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,
@@ -1208,7 +1348,21 @@
           "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(인성)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "태약",
+          "score": 0.5,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,
@@ -1325,7 +1479,21 @@
           "saju/timing/daeun-seun-tension",
           "saju/timing/daeun-tension"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(인성)",
+          "조후": "목(甲木)",
+          "강약": "목(인성)",
+          "물상": "토"
+        },
+        "strengthAssessment": {
+          "label": "중화신약",
+          "score": 1.7,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": true
+        }
       },
       "expertFill": {
         "palja": null,
@@ -1439,7 +1607,21 @@
           "saju/timing/daeun-seun-fit",
           "saju/timing/daeun-fit"
         ],
-        "asOf": "2026-09-15T00:00:00.000Z"
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "토(식상)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "태약",
+          "score": 0,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
       },
       "expertFill": {
         "palja": null,

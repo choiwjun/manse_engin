@@ -562,3 +562,84 @@ test('jijanggan 子 follows the 子中單癸水 convention (single hidden stem)'
   assert.deepEqual(Object.keys(detail.yearJi), ['bongi']);
   assert.ok('junggi' in detail.monthJi && 'yeogi' in detail.monthJi, '寅은 여기·중기·본기');
 });
+
+test('daeun direction follows the 陽男陰女順行 / 陰男陽女逆行 rule', () => {
+  const GANS = '甲乙丙丁戊己庚辛壬癸', JIS = '子丑寅卯辰巳午未申酉戌亥';
+  const step = (g, j, d) =>
+    GANS[(GANS.indexOf(g) + d + 10) % 10] + JIS[(JIS.indexOf(j) + d + 12) % 12];
+  const at = (year, gender) =>
+    esm.buildSajuResult(birth({ year, month: 6, day: 15, gender }), { now: new Date('2026-09-12T00:00:00Z') });
+  // 1990 = 庚午년 — 庚은 양간: 남자 순행(월주 다음 간지부터), 여자 역행
+  const yangM = at(1990, 'male'), yangF = at(1990, 'female');
+  for (const [r, dir, label] of [[yangM, +1, '양남 순행'], [yangF, -1, '양녀 역행']]) {
+    const expected0 = step(r.palja.monthGan, r.palja.monthJi, dir);
+    assert.equal(r.daeun[0].gan + r.daeun[0].ji, expected0, `${label} 첫 대운 — 월주 ${r.palja.monthGan}${r.palja.monthJi}에서 ${dir > 0 ? '다음' : '이전'} 간지`);
+    for (let i = 1; i < r.daeun.length; i++) {
+      const prev = r.daeun[i - 1], cur = r.daeun[i];
+      assert.equal(cur.gan + cur.ji, step(prev.gan, prev.ji, dir), `${label} ${i}번째 대운 연속 ${dir > 0 ? '순' : '역'}행`);
+    }
+  }
+  // 1991 = 辛未년 — 辛은 음간: 남자 역행, 여자 순행
+  const yinM = at(1991, 'male'), yinF = at(1991, 'female');
+  assert.equal(yinM.daeun[0].gan + yinM.daeun[0].ji, step(yinM.palja.monthGan, yinM.palja.monthJi, -1), '음남 역행');
+  assert.equal(yinF.daeun[0].gan + yinF.daeun[0].ji, step(yinF.palja.monthGan, yinF.palja.monthJi, +1), '음녀 순행');
+});
+
+test('대운 개시 나이가 0~10세 범위이고 각 대운의 지지 오행이 함께 실린다', () => {
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), { now: new Date('2025-12-13T00:00:00+09:00') });
+  assert.ok(r.daeun[0].age > 0 && r.daeun[0].age <= 10, `개시 나이 ${r.daeun[0].age}`);
+  for (const d of r.daeun) {
+    assert.ok(d.ohaeng && d.jiOhaeng, `대운 ${d.gan}${d.ji} 양축 오행`);
+    assert.ok(['목','화','토','금','수'].includes(d.jiOhaeng), `jiOhaeng=${d.jiOhaeng}`);
+  }
+  // 현재 대운에는 isCurrent 표시가 있어야 한다
+  assert.ok(r.daeun.some(d => d.isCurrent), 'asOf 기준 현재 대운 표시');
+});
+
+test('지지 육합·육충 전체 매트릭스가 감지된다', () => {
+  const mk = (a, b) => ({ yearGan:'甲', yearJi:a, monthGan:'丙', monthJi:b, dayGan:'戊', dayJi:'辰', hourGan:'庚', hourJi:'戌' });
+  const rel = (a, b, t) => esm.analyzeJijiRelations(mk(a, b)).filter(x => x.type === t && x.jijis.includes(a) && x.jijis.includes(b));
+  for (const [a, b] of [['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']])
+    assert.ok(rel(a, b, '합').length > 0, `육합 ${a}${b}`);
+  for (const [a, b] of [['子','午'],['丑','未'],['寅','申'],['卯','酉'],['辰','戌'],['巳','亥']])
+    assert.ok(rel(a, b, '충').length > 0, `육충 ${a}${b}`);
+  // 해(害) 6쌍
+  for (const [a, b] of [['子','未'],['丑','午'],['寅','巳'],['卯','辰'],['申','亥'],['酉','戌']])
+    assert.ok(rel(a, b, '해').length > 0, `육해 ${a}${b}`);
+  // 파(破) 6쌍
+  for (const [a, b] of [['子','酉'],['丑','辰'],['寅','亥'],['卯','午'],['巳','申'],['未','戌']])
+    assert.ok(rel(a, b, '파').length > 0, `육파 ${a}${b}`);
+});
+
+test('세운·월운 간지가 60갑자 규칙과 일치한다', () => {
+  // 2026년은 丙午년 — 세운 간지로 丙午가 와야 한다
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), { now: new Date('2026-06-15T12:00:00+09:00') });
+  assert.equal(r.seun.gan + r.seun.ji, '丙午', `2026년 세운 — 실제 ${r.seun.gan}${r.seun.ji}`);
+  assert.equal(r.wolun.gan + r.wolun.ji, '甲午', `2026년 6월(입양력 기준) 월운 — 실제 ${r.wolun.gan}${r.wolun.ji}`);
+});
+
+test('학파별 용신 스프레드와 점수제 강약이 결과에 함께 실린다', () => {
+  const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), { now: new Date('2025-12-13T00:00:00+09:00') });
+  // 4학파 전부 존재하고 각각 오행을 결정한다
+  for (const s of ['gyeokguk', 'johu', 'gangyak', 'mulsang']) {
+    assert.ok(r.yongsinBySchool?.[s]?.ohaeng, `${s} 학파 용신`);
+    assert.ok(['목','화','토','금','수'].includes(r.yongsinBySchool[s].ohaeng));
+  }
+  // 기본값은 선택 학파(격국)의 결과와 같아야 한다
+  assert.equal(r.yongsin.ohaeng, r.yongsinBySchool.gyeokguk.ohaeng);
+  // 점수제 강약 — 구조와 필드 존재
+  const sa = r.strengthAssessment;
+  assert.ok(sa && ['strong','neutral','weak'].includes(sa.level) && sa.label && Number.isFinite(sa.score));
+  assert.ok(['旺','相','休','囚','死'].includes(sa.wangState), `왕상휴수사: ${sa.wangState}`);
+  // 리포트에도 병기된다
+  const rep = esm.assembleReport(r);
+  assert.ok(rep.context.yongsinSchoolSpread.includes('격국') && rep.context.yongsinSchoolSpread.includes('조후'), '학파 스프레드');
+  assert.ok(rep.context.strengthScoreLabel.includes(sa.label), '점수제 강약 병기');
+});
+
+test('루트 소스와 패키지 미러의 생성 콘텐츠 DB가 동일하다', () => {
+  const root = JSON.parse(readFileSync(new URL('../../src/engine/interpretation/content-db.generated.json', import.meta.url)));
+  const pkg = JSON.parse(readFileSync(new URL('./src/engine/interpretation/content-db.generated.json', import.meta.url)));
+  assert.deepEqual(pkg, root, 'build.mjs가 루트·미러에 같은 DB를 생성해야 한다');
+  assert.ok(Object.keys(root).length >= 160, `엔트리 수: ${Object.keys(root).length}`);
+});

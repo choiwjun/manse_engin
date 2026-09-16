@@ -54,7 +54,7 @@ export {
   calculateWolun,
 } from './saju/daeun';
 export { determineGyeokguk } from './saju/gyeokguk';
-export { determineYongsin } from './saju/yongsin';
+export { determineYongsin, determineYongsinBySchool, assessDayganStrength } from './saju/yongsin';
 export {
   calculateSipsin,
   calculateJijangganSipsin,

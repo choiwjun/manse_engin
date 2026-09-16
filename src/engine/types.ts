@@ -83,6 +83,31 @@ export interface Yongsin {
   reasoning: string;
 }
 
+/** 왕상휴수사(旺相休囚死) — 월령 대비 일간 오행의 5단계 상태 */
+export type WangState = '旺' | '相' | '休' | '囚' | '死';
+
+/** 점수제 강약 3분류 */
+export type StrengthLevel = 'strong' | 'neutral' | 'weak';
+/** 점수제 강약 6단계 라벨 */
+export type StrengthLabel = '태강' | '신강' | '중화신강' | '중화신약' | '신약' | '태약';
+
+/**
+ * 점수제 강약 판정 결과 — 득령(旺相休囚死)·득지(통근)·득세(투출) 가중 모델.
+ * 오행 점유율 계량(interpretation/meter)과는 별개 알고리즘이며 둘을 병기한다.
+ */
+export interface StrengthAssessment {
+  level: StrengthLevel;
+  label: StrengthLabel;
+  score: number;
+  /** 일간을 설기·극·극당하는 방향의 세력 합 — 클수록 일간이 소모됨 */
+  hostilePressure: number;
+  wangState: WangState;
+  deukryeong: boolean;
+  deukji: boolean;
+  deuksi: boolean;
+  deukse: boolean;
+}
+
 export interface Wolun {
   gan: string;
   ji: string;
@@ -152,6 +177,13 @@ export interface SajuResult {
   wonjin?: WonjinResult;
   gyeokguk: Gyeokguk;
   yongsin: Yongsin;
+  /**
+   * 학파별 용신 판정 — 격국/조후/강약/물상 4학파 결과를 나란히 노출한다.
+   * 기본값 하나만 보여주면 학파 차이가 숨겨지므로, 리포트는 이 스프레드를 함께 표기한다.
+   */
+  yongsinBySchool?: Partial<Record<SajuSubSchool, Yongsin>>;
+  /** 점수제 강약 판정 — 점유율 계량 결과와 별개 모델. 병기해서 두 모델의 차이를 드러낸다. */
+  strengthAssessment?: StrengthAssessment;
 }
 
 export interface BirthInputData {

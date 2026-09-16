@@ -1,7 +1,7 @@
 // @TASK P2-R3-T5 - 용신(用神) 판별 (4학파별 분기)
 // @SPEC docs/planning/02-trd.md#격국-용신-판별
 
-import type { Palja, Gyeokguk, Yongsin, Ohaeng, SajuSubSchool } from '@/engine/types';
+import type { Palja, Gyeokguk, Yongsin, Ohaeng, SajuSubSchool, WangState, StrengthLevel, StrengthLabel, StrengthAssessment } from '@/engine/types';
 import { getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';
 import { JIJANGGAN_TABLE } from '@/engine/saju/sipsin';
 
@@ -70,8 +70,6 @@ const JI_MULSANG: Record<string, { image: string; ohaeng: Ohaeng }> = {
 };
 
 // ---------- 旺相休囚死 상태 매핑 ----------
-
-type WangState = '旺' | '相' | '休' | '囚' | '死';
 
 /** 월지 오행과 일간 오행의 관계로 旺相休囚死 판정 */
 function getWangState(dayOhaeng: Ohaeng, monthJiOhaeng: Ohaeng | null): WangState {
@@ -390,21 +388,6 @@ function getJohuTableLegacy(dayOhaeng: Ohaeng, season: string): JohuEntry {
 }
 
 // ---------- 강약용신파 로직 (旺相休囚死 5단계) ----------
-
-type StrengthLevel = 'strong' | 'neutral' | 'weak';
-type StrengthLabel = '태강' | '신강' | '중화신강' | '중화신약' | '신약' | '태약';
-
-interface StrengthAssessment {
-  level: StrengthLevel;
-  label: StrengthLabel;
-  score: number;
-  hostilePressure: number;
-  wangState: WangState;
-  deukryeong: boolean;
-  deukji: boolean;
-  deuksi: boolean;
-  deukse: boolean;
-}
 
 /**
  * 강약용신파: 일간의 강약을 旺相休囚死 5단계로 판단하여 용신 결정
@@ -994,4 +977,30 @@ export function determineYongsin(
       return fallbackYongsin(String(_exhaustive));
     }
   }
+}
+
+/**
+ * 4개 하위 학파(격국/조후/강약/물상)의 용신 판정을 전부 계산해 나란히 반환한다.
+ * 기본 학파 하나만 쓰면 학파 간 차이가 숨겨지므로, 리포트는 이 스프레드를 그대로 노출한다.
+ */
+export function determineYongsinBySchool(
+  palja: Palja,
+  gyeokguk: Gyeokguk,
+): Record<SajuSubSchool, Yongsin> {
+  return {
+    gyeokguk: determineYongsin(palja, gyeokguk, 'gyeokguk'),
+    johu: determineYongsin(palja, gyeokguk, 'johu'),
+    gangyak: determineYongsin(palja, gyeokguk, 'gangyak'),
+    mulsang: determineYongsin(palja, gyeokguk, 'mulsang'),
+  };
+}
+
+/**
+ * 점수제 강약 판정 공개 래퍼 — 득령(旺相休囚死)·득지(통근)·득세(투출) 가중 모델.
+ * 오행 점유율 계량(measureOhaeng)과는 별개 알고리즘이며, 리포트에서 둘을 병기한다.
+ */
+export function assessDayganStrength(palja: Palja): StrengthAssessment | null {
+  const dayOhaeng = getOhaengForGan(palja.dayGan);
+  if (!dayOhaeng) return null;
+  return assessDayganStrengthDetailed(palja, dayOhaeng);
 }

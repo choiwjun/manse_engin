@@ -2,7 +2,7 @@
 // 감지 패턴(renderPattern 동적 문장) + 1층 facts(궁·십신·계량 수치)를 축별로 엮는다.
 // interpretSaju가 "패턴 목록"이라면 assembleReport는 "상담 문서"다.
 
-import type { SajuResult } from '@/engine/types';
+import type { SajuResult, SajuSubSchool } from '@/engine/types';
 import type { DetectedPattern, SipsinGroup } from './types';
 import { runDetectors } from './assemble';
 import { measureOhaeng, type OhaengMeter } from './meter';
@@ -68,6 +68,12 @@ export interface SajuReport {
     yongsinModel: string;
     /** 두 모델의 관계 — 계량 강약과 용신 판정은 별도 알고리즘 */
     modelNote: string;
+    /** 학파별 용신 스프레드 — '격국 금(식상)·조후 화(인성)·강약 수(재성)·물상 금(…)' 형태 */
+    yongsinSchoolSpread?: string;
+    /** 학파 합의 — 선택된 용신 오행과 같은 오행을 지목한 학파 수 (예: '4학파 중 2학파') */
+    yongsinConsensus?: string;
+    /** 점수제 강약 병기 — 득령·득지·득세 가중 모델의 라벨 (점유율 모델과 별개) */
+    strengthScoreLabel?: string;
   };
 }
 
@@ -414,6 +420,25 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
   const schoolMatch = rawYongsinReasoning.match(/^(\S+?용신)\s*:/);
   const yongsinSchool = schoolMatch ? schoolMatch[1] : '용신';
   const yongsinReasoning = rawYongsinReasoning.replace(/^\S+?용신\s*:\s*/, '');
+  // 학파별 용신 스프레드 — 학파 차이를 숨기지 않고 나란히 표기
+  const SCHOOL_LABEL: Record<SajuSubSchool, string> = { gyeokguk: '격국', johu: '조후', gangyak: '강약', mulsang: '물상' };
+  const bySchool = result.yongsinBySchool ?? {};
+  const schoolEntries = (Object.keys(SCHOOL_LABEL) as SajuSubSchool[])
+    .filter((s) => bySchool[s]?.ohaeng)
+    .map((s) => `${SCHOOL_LABEL[s]} ${bySchool[s]!.yongsin}`);
+  const yongsinSchoolSpread = schoolEntries.length > 0 ? schoolEntries.join(' · ') : undefined;
+  const agreedCount = (Object.keys(SCHOOL_LABEL) as SajuSubSchool[])
+    .filter((s) => bySchool[s]?.ohaeng === result.yongsin.ohaeng).length;
+  const yongsinConsensus =
+    schoolEntries.length > 0
+      ? `${schoolEntries.length}학파 중 ${agreedCount}학파가 용신 ${result.yongsin.ohaeng} 지목`
+      : undefined;
+  // 점수제 강약 병기 — 점유율 계량과 별개 모델의 결과를 함께 보여준다
+  const sa = result.strengthAssessment;
+  const strengthScoreLabel = sa
+    ? `${sa.label} — ${sa.wangState}·점수 ${sa.score.toFixed(1)} (득령${sa.deukryeong ? 'O' : 'X'}·득지${sa.deukji ? 'O' : 'X'}·득세${sa.deukse ? 'O' : 'X'})`
+    : undefined;
+
   const context = {
     gyeokguk: result.gyeokguk.name,
     gyeokgukGroup: groupLabel(gyeokgukGroup),
@@ -429,7 +454,10 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     strengthModel: '오행 점유율 계량(비겁+인성 %)',
     yongsinModel: `${yongsinSchool}(점수·학파 기반 판정)`,
     modelNote:
-      '강약(점유율 계량)과 용신(격국·강약·조후·물상 학파)은 서로 다른 모델의 결과입니다 — 신강·신약 표기는 점유율 기준이며 용신 판정의 강약 점수식과 다를 수 있습니다.',
+      '강약은 점유율 계량·점수제(득령·득지·득세) 두 모델을 병기하며 결과가 다를 수 있습니다 — 용신은 학파별 판정을 나란히 표기합니다.',
+    yongsinSchoolSpread,
+    yongsinConsensus,
+    strengthScoreLabel,
   };
 
   return {

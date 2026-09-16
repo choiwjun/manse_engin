@@ -20,7 +20,7 @@ import {
   getNaeumOhaeng,
 } from '@/engine/saju/sinsal';
 import { analyzeWonjin } from '@/engine/saju/wonjin';
-import { determineYongsin } from '@/engine/saju/yongsin';
+import { determineYongsin, determineYongsinBySchool, assessDayganStrength } from '@/engine/saju/yongsin';
 
 const EMPTY_PALJA: Palja = {
   yearGan: '',
@@ -100,6 +100,10 @@ export function buildSajuResult(
     wonjin: analyzeWonjin(palja.yearJi, palja.monthJi, palja.dayJi, palja.hourJi),
     gyeokguk,
     yongsin: determineYongsin(palja, gyeokguk, subSchool),
+    // 4학파 용신 스프레드 — 학파 차이를 숨기지 않고 나란히 노출
+    yongsinBySchool: determineYongsinBySchool(palja, gyeokguk),
+    // 점수제 강약 — 점유율 계량(meter)과 별개 모델. 리포트에서 병기한다.
+    strengthAssessment: assessDayganStrength(palja) ?? undefined,
   };
 }
 
@@ -143,5 +147,7 @@ export function normalizeSajuResult(value: unknown): SajuResult | null {
     wonjin: source.wonjin ?? { hasWonjin: false, pairs: [] },
     gyeokguk,
     yongsin,
+    yongsinBySchool: source.yongsinBySchool,
+    strengthAssessment: source.strengthAssessment,
   };
 }

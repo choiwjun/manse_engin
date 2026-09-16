@@ -121,6 +121,12 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   if (report.context?.yongsinReasoning) {
     out.push(`- 용신 근거(${report.context.yongsinSchool}): ${report.context.yongsinReasoning}`);
   }
+  if (report.context?.yongsinSchoolSpread) {
+    out.push(`- 학파별 용신: ${report.context.yongsinSchoolSpread}${report.context.yongsinConsensus ? ` (${report.context.yongsinConsensus})` : ''}`);
+  }
+  if (report.context?.strengthScoreLabel) {
+    out.push(`- 강약 병기: 점유율 ${report.meter.dayMaster.verdictLabel} ${report.meter.dayMaster.score}% / 점수제 ${report.context.strengthScoreLabel}`);
+  }
   if (report.context?.modelNote) {
     out.push(`- 계산 모델: 강약=${report.context.strengthModel} · 용신=${report.context.yongsinModel} — ${report.context.modelNote}`);
   }

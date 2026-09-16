@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/timing/daeun-mixed
+title: 혼재 대운(混在大運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 금
+body:
+  short: 대운의 천간과 지지가 용신·기신으로 엇갈려, 구간의 방향을 한 축으로 단정하지 않는 판입니다.
+  medium: 현재 대운이 천간은 용신 방향·지지는 기신 방향(또는 그 반대)으로 갈리는 혼재 구간입니다. 겉으로 오는 기회와 발밑의 부담이 함께 작동할 수 있어, 같은 구간 안에서도 완급이 갈립니다. 상담에서는 어느 축의 일이 잘 풀리고 어느 축에서 소모가 컸는지 나눠 물어보는 것이 정확합니다.
+tags: [대운, 혼재]
