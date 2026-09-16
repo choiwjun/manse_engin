@@ -164,7 +164,8 @@ export function dashboardPage({ clients, appointments, services, todayAppts, rem
     const svc = services.find((s) => s.id === a.serviceId);
     return `<tr><td>${fmtDate(a.scheduledAt)}</td><td>${esc(client?.displayName ?? a.clientId)}</td>
       <td>${esc(svc?.name ?? '')}</td><td>${badge(APPOINTMENT_STATUS[a.status])}</td>
-      <td><a class="btn small secondary" href="/appointments#${a.id}">관리</a></td></tr>`;
+      <td><form class="inline" method="post" action="/appointments/${a.id}/start"><button class="small" type="submit">상담 시작</button></form>
+      <a class="btn small secondary" href="/appointments#${a.id}">관리</a></td></tr>`;
   }).join('');
   return `
 <h1>워크스페이스</h1>
@@ -360,7 +361,15 @@ ${daeunCells ? `<div class="daeun">${daeunCells}</div>` : ''}`;
 
 // ---------- 세션 작업 화면 ----------
 
-export function sessionPage({ session, client, snapshot, drafts, reports, stale }) {
+export function sessionPage({ session, client, snapshot, drafts, reports, stale, appointment }) {
+  // 상태별 주 행동 — 상담사는 다음 단계 버튼 하나만 누르면 된다.
+  const PRIMARY = {
+    planned: { to: 'prepared', label: '준비 완료 — 상담 대기' },
+    prepared: { to: 'in_progress', label: '▶ 상담 시작' },
+    in_progress: { to: 'review', label: '■ 상담 종료 — 정리·검수로' },
+    review: { to: 'delivered', label: '고객에게 전달 완료' },
+    delivered: { to: 'archived', label: '세션 보관' },
+  };
   const nextMap = {
     planned: ['prepared', 'archived'],
     prepared: ['in_progress', 'archived'],
@@ -369,9 +378,18 @@ export function sessionPage({ session, client, snapshot, drafts, reports, stale 
     delivered: ['archived'],
     archived: [],
   };
-  const transButtons = (nextMap[session.status] ?? []).map((to) =>
-    `<form class="inline" method="post" action="/sessions/${session.id}/transition"><input type="hidden" name="to" value="${to}"><button type="submit" class="${to === 'archived' ? 'secondary' : ''}">${SESSION_STATUS[to]}로</button></form>`,
+  const primary = PRIMARY[session.status];
+  const primaryBtn = primary
+    ? `<form class="inline" method="post" action="/sessions/${session.id}/transition"><input type="hidden" name="to" value="${primary.to}"><button type="submit" style="font-size:15px;padding:10px 20px">${primary.label}</button></form>` : '';
+  const secondaryBtns = (nextMap[session.status] ?? []).filter((to) => to !== primary?.to).map((to) =>
+    `<form class="inline" method="post" action="/sessions/${session.id}/transition"><input type="hidden" name="to" value="${to}"><button type="submit" class="secondary">${SESSION_STATUS[to]}로</button></form>`,
   ).join(' ');
+  const actionBar = `<div class="card" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">${primaryBtn}${secondaryBtns || ''}
+    ${session.status === 'in_progress' && session.startedAt ? `<span class="muted" id="elapsed" style="margin-left:auto;font-size:15px"></span>` : ''}</div>`;
+  const timerScript = session.status === 'in_progress' && session.startedAt ? `<script>
+    (function(){var t0=${new Date(session.startedAt).getTime()};var el=document.getElementById('elapsed');
+    function tick(){var s=Math.max(0,Math.floor((Date.now()-t0)/1000));el.textContent='상담 경과 '+Math.floor(s/60)+'분 '+(s%60)+'초';}
+    tick();setInterval(tick,1000);})();</script>` : '';
   const topicChecks = TOPICS.map((t) => `<label style="display:inline-block;margin-right:14px"><input type="checkbox" name="topics" value="${t.id}"> ${esc(t.label)}</label>`).join('');
   const draftCards = drafts.map((d) => {
     const finalText = d.edit?.text ?? d.auto.text;
@@ -404,50 +422,62 @@ export function sessionPage({ session, client, snapshot, drafts, reports, stale 
   const reportRows = reports.map((r) => `
     <tr><td><a href="/reports/${r.id}">v${r.version}</a></td><td>${badge(REPORT_STATUS[r.status], r.status === 'published' ? 'ok' : '')}</td>
     <td>${r.sections ?? r.renderInput.sections.length}개 섹션</td><td>${fmtDate(r.createdAt)}</td></tr>`).join('');
-  return `
-<h1>상담 세션 ${badge(SESSION_STATUS[session.status])}</h1>
-<p class="muted">고객: <a href="/clients/${client.id}">${esc(client.displayName)}</a> · 생성 ${fmtDate(session.createdAt)} · 시작 ${fmtDate(session.startedAt)} · 종료 ${fmtDate(session.endedAt)}</p>
-${stale ? `<div class="flash error">출생정보가 명식 계산 후 수정됐습니다. 재계산이 필요합니다.</div>` : ''}
-<div class="card">${transButtons || '<span class="muted">전이 가능한 상태가 없습니다.</span>'}</div>
-<h2>만세력표</h2>
+  const inProgress = session.status === 'in_progress';
+  const chartCard = `<h2>만세력표</h2>
 <div class="card">${snapshot
     ? `${sajuChart(snapshot.envelope.result)}
        <p class="muted" style="margin-top:10px"><span class="mono">${esc(snapshot.id)}</span> · 엔진 ${esc(snapshot.envelope.engineVersion)} · ${fmtDate(snapshot.envelope.calculatedAt)}</p>
        ${snapshot.envelope.warnings.map((w) => `<div class="warn" style="margin-top:6px">⚠ ${esc(w.message)}</div>`).join('')}`
-    : '<span class="muted">명식이 없습니다 — 고객 화면에서 명식 계산을 먼저 실행하세요.</span>'}</div>
-<h2>자동 초안 생성</h2>
+    : '<span class="muted">명식이 없습니다 — 고객 화면에서 명식 계산을 먼저 실행하세요.</span>'}</div>`;
+  const notesCard = `<h2>내부 메모 (고객 리포트에 포함되지 않음)</h2>
+<div class="card">
+  ${session.notes.map((n) => `<p>${badge(n.phase, 'gray')} ${esc(n.text)} <span class="muted">${fmtDate(n.updatedAt)}</span></p>`).join('') || '<p class="muted">메모 없음</p>'}
+  <form method="post" action="/sessions/${session.id}/notes">
+    <div class="row">
+      <div><select name="phase"><option value="before" ${session.status === 'planned' || session.status === 'prepared' ? 'selected' : ''}>상담 전</option><option value="during" ${inProgress ? 'selected' : ''}>상담 중</option><option value="after">상담 후</option></select></div>
+      <div style="flex:3"><input name="text" required placeholder="${inProgress ? '상담 중 메모 — 고객이 말한 포인트' : '내부 메모'}"></div>
+    </div>
+    <div style="margin-top:8px"><button type="submit" class="small">메모 추가</button></div>
+  </form>
+</div>`;
+  const draftsFormCard = `<h2>자동 초안 생성</h2>
 <div class="card">
   <form method="post" action="/sessions/${session.id}/drafts">
     ${topicChecks}
     <div style="margin-top:10px"><button type="submit">선택 주제 초안 생성</button></div>
   </form>
-</div>
-<h2>해석 초안 (${drafts.length})</h2>
-${draftCards || '<div class="card muted">초안이 없습니다.</div>'}
-<h2>내부 메모 (고객 리포트에 포함되지 않음)</h2>
-<div class="card">
-  ${session.notes.map((n) => `<p>${badge(n.phase, 'gray')} ${esc(n.text)} <span class="muted">${fmtDate(n.updatedAt)}</span></p>`).join('') || '<p class="muted">메모 없음</p>'}
-  <form method="post" action="/sessions/${session.id}/notes">
-    <div class="row">
-      <div><select name="phase"><option value="before">상담 전</option><option value="during">상담 중</option><option value="after">상담 후</option></select></div>
-      <div style="flex:3"><input name="text" required placeholder="내부 메모"></div>
-    </div>
-    <div style="margin-top:8px"><button type="submit" class="small">메모 추가</button></div>
-  </form>
-</div>
-<h2>상담 결과 정리</h2>
+</div>`;
+  const draftSection = `<h2>해석 초안 (${drafts.length})</h2>
+${draftCards || '<div class="card muted">초안이 없습니다.</div>'}`;
+  const outcomeCard = `<h2>상담 결과 정리</h2>
 <div class="card">
   <form method="post" action="/sessions/${session.id}/outcome">
     <label>핵심 요약</label><textarea name="summary">${esc(session.summary ?? '')}</textarea>
-    <label>후속 메모</label><input name="followUp" value="${esc(session.followUp ?? '')}">
+    <label>후속 메모 (재방문 포인트·다음 상담 제안)</label><input name="followUp" value="${esc(session.followUp ?? '')}">
     <div style="margin-top:8px"><button type="submit" class="small">저장</button></div>
   </form>
-</div>
-<h2>리포트 버전</h2>
+</div>`;
+  const reportCard = `<h2>리포트 버전</h2>
 <div class="card">
   <form class="inline" method="post" action="/sessions/${session.id}/report"><button type="submit">검수된 초안으로 발행본 작성</button></form>
   <table style="margin-top:10px"><tr><th>버전</th><th>상태</th><th>섹션</th><th>생성</th></tr>${reportRows || '<tr><td colspan="4" class="muted">리포트 없음</td></tr>'}</table>
 </div>`;
+  // 상담 중: 만세력·메모·초안 순. 정리·검수: 요약→초안→발행본 순. 그 외 기본 순서.
+  const flow = inProgress
+    ? chartCard + notesCard + draftsFormCard + draftSection + outcomeCard + reportCard
+    : session.status === 'review'
+      ? outcomeCard + draftSection + draftsFormCard + reportCard + chartCard + notesCard
+      : chartCard + notesCard + draftsFormCard + draftSection + outcomeCard + reportCard;
+  return `
+<h1>상담 세션 ${badge(SESSION_STATUS[session.status], inProgress ? 'ok' : '')}</h1>
+<p class="muted">고객: <a href="/clients/${client.id}">${esc(client.displayName)}</a>${client.intake.purpose ? ` · 목적: ${esc(client.intake.purpose)}` : ''}
+${appointment ? ` · 예약 ${fmtDate(appointment.scheduledAt)}` : ''} · 생성 ${fmtDate(session.createdAt)} · 시작 ${fmtDate(session.startedAt)} · 종료 ${fmtDate(session.endedAt)}</p>
+${stale ? `<div class="flash error">출생정보가 명식 계산 후 수정됐습니다. 재계산이 필요합니다.</div>` : ''}
+${inProgress ? '<div class="flash ok">상담 진행 중 — 만세력표를 보며 풀이하고, 아래에 상담 중 메모를 남기세요. 끝나면 "상담 종료"를 누르세요.</div>' : ''}
+${session.status === 'review' ? '<div class="flash ok">상담이 끝났습니다 — 요약을 정리하고 초안을 검수해 발행본을 만드세요.</div>' : ''}
+${actionBar}
+${timerScript}
+${flow}`;
 }
 
 // ---------- 리포트 ----------
@@ -523,6 +553,7 @@ export function appointmentsPage({ appointments, clients, services, payments, co
       <td>${badge(APPOINTMENT_STATUS[a.status])}${a.cancelReason ? `<br><span class="muted">${esc(a.cancelReason)}</span>` : ''}</td>
       <td>${pay ? `${badge(PAYMENT_STATUS[pay.status])} ${pay.amount.toLocaleString()}${pay.currency === 'KRW' ? '원' : pay.currency}${pay.externalTransactionId ? `<br><span class="muted">${esc(pay.externalTransactionId)}</span>` : ''}` : '<span class="muted">-</span>'}</td>
       <td>
+        ${a.status === 'requested' || a.status === 'confirmed' ? `<form class="inline" method="post" action="/appointments/${a.id}/start"><button class="small" type="submit">상담 시작</button></form> ` : ''}
         ${next.map((to) => `<form class="inline" method="post" action="/appointments/${a.id}/transition">
           <input type="hidden" name="to" value="${to}">
           ${to === 'cancelled' ? `<input type="hidden" name="reason" value="상담사 취소">` : ''}

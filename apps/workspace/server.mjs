@@ -245,8 +245,12 @@ post('/clients/:id/calc', async (req, res, url, { id }) => {
   redirect(res, `/clients/${id}`, { kind: 'msg', text: '명식을 계산해 스냅샷으로 보존했습니다.' });
 });
 
+// 고객 화면의 "상담 시작" — 세션을 만들고 바로 상담 화면(진행 중)으로 들어간다.
 post('/clients/:id/sessions', async (req, res, url, { id }) => {
-  const session = platform.createSession(WS(), { clientId: id }, actorOf(req));
+  const actor = actorOf(req);
+  const session = platform.createSession(WS(), { clientId: id }, actor);
+  platform.transitionSession(WS(), session.id, 'prepared', actor);
+  platform.transitionSession(WS(), session.id, 'in_progress', actor);
   redirect(res, `/sessions/${session.id}`);
 });
 
@@ -281,15 +285,22 @@ get('/sessions/:id', async (req, res, url, { id }) => {
   const stale = snapshot ? await platform.isSnapshotStale(WS(), snapshot.id) : false;
   const drafts = platform.listDrafts(WS(), id);
   const reports = platform.listReportVersions(WS(), { sessionId: id }).sort((a, b) => b.version - a.version);
+  const appointment = session.appointmentId ? store.appointments.find(WS(), session.appointmentId) : null;
   html(res, V.layout({
     title: `세션 — ${client.displayName}`, brand: sessionCounselor(req)?.brand.name ?? owner()?.brand.name, flash: flashOf(url),
-    body: V.sessionPage({ session, client, snapshot, drafts, reports, stale }),
+    body: V.sessionPage({ session, client, snapshot, drafts, reports, stale, appointment }),
   }));
 });
 
 post('/sessions/:id/transition', async (req, res, url, { id }) => {
   const f = await readForm(req);
-  platform.transitionSession(WS(), id, f.to, actorOf(req));
+  const actor = actorOf(req);
+  const session = platform.transitionSession(WS(), id, f.to, actor);
+  // 상담 종료(정리·검수)로 넘어가면 연결된 예약을 완료 처리한다.
+  if (f.to === 'review' && session.appointmentId) {
+    const appt = store.appointments.find(WS(), session.appointmentId);
+    if (appt && appt.status === 'confirmed') platform.transitionAppointment(WS(), appt.id, 'completed', {}, actor);
+  }
   redirect(res, `/sessions/${id}`);
 });
 
@@ -437,6 +448,19 @@ post('/appointments/recurring', async (req, res) => {
   redirect(res, '/appointments', warnings.length
     ? { kind: 'err', text: `반복 예약 ${appointments.length}건을 등록했으나 경고가 있습니다: ${warnings.map((w) => w.message).join(' / ')}` }
     : { kind: 'msg', text: `반복 예약 ${appointments.length}건을 등록했습니다.` });
+});
+
+// 예약 → 상담 시작: 세션을 만들고 바로 진행 상태로 둔다. 이미 연결된 세션이 있으면 그 화면으로 이동.
+post('/appointments/:id/start', async (req, res, url, { id }) => {
+  const appt = store.appointments.get(WS(), id);
+  const existing = store.sessions.list(WS(), (s) => s.appointmentId === id && s.status !== 'archived')[0];
+  if (existing) return redirect(res, `/sessions/${existing.id}`);
+  const actor = actorOf(req);
+  const session = platform.createSession(WS(), { clientId: appt.clientId, appointmentId: id }, actor);
+  platform.transitionSession(WS(), session.id, 'prepared', actor);
+  platform.transitionSession(WS(), session.id, 'in_progress', actor);
+  if (appt.status === 'requested') platform.transitionAppointment(WS(), id, 'confirmed', {}, actor);
+  redirect(res, `/sessions/${session.id}`);
 });
 
 post('/appointments/:id/remind', async (req, res, url, { id }) => {

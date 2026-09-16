@@ -166,6 +166,18 @@ try {
     clientId, serviceId: svcIdFromForm, scheduledAt: in48, channel: '',
   }});
   check('중복 예약 경고 플래시', dup.location.includes('err='));
+  // 예약 → 상담 시작 → 종료 플로우 (세션 자동 생성·예약 자동 완료)
+  const start = await req('POST', `/appointments/${apptId}/start`, { session: 'me' });
+  check('상담 시작 → 세션 화면', start.status === 303 && start.location.includes('/sessions/'));
+  const liveId = start.location.split('/sessions/')[1];
+  const live = await req('GET', `/sessions/${liveId}`, { session: 'me' });
+  check('상담 화면: 진행중·만세력·타이머', live.text.includes('상담 진행 중') && live.text.includes('class="ms"') && live.text.includes('id="elapsed"'));
+  const again = await req('POST', `/appointments/${apptId}/start`, { session: 'me' });
+  check('상담 시작 재클릭 → 같은 세션', again.location.includes(liveId));
+  await req('POST', `/sessions/${liveId}/transition`, { session: 'me', body: { to: 'review' } });
+  const apAfter = await req('GET', '/appointments', { session: 'me' });
+  check('상담 종료 → 예약 자동 완료', new RegExp(`id="${apptId}"[\\s\\S]*?badge[^>]*>완료`).test(apAfter.text));
+
   const remind = await req('POST', `/appointments/${apptId}/remind`, { session: 'me' });
   check('리마인더 기록 → 303', remind.status === 303);
   const audit1 = await req('GET', '/audit', { session: 'me' });
