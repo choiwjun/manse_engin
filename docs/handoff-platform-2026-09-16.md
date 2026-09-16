@@ -106,6 +106,7 @@ curl 엔드투엔드 검증 완료: 고객 등록→명식 계산→세션→주
 
 - `npm test` (루트): 엔진 전체(스모크+회귀 55+해석 골든+콘텐츠 160건) + 플랫폼 34건 전량 통과
 - 플랫폼 단독: `cd packages/myeong-platform && npm test`
+- E2E QA: `node apps/workspace/e2e-qa.mjs` — 별도 서버(8090)·임시 DB로 49개 HTTP 시나리오 검증 (인증·계산·검수·발행·공유·사전입력·포털·예약·결제·리마인더·반복·계정·통계·export)
 - 앱 구동: `node apps/workspace/server.mjs`
 
 ## 6. 다음 작업 (PRD 게이트 순서)
