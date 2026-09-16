@@ -68,6 +68,14 @@ const CSS = `
     body { background:#fff; } .card { border:0; padding:0; }
     main { max-width:100%; padding:0; }
   }
+  @media (max-width: 720px) {
+    main { padding:12px 10px 48px; }
+    .row { flex-wrap:wrap; } .row>* { flex:1 1 46%; min-width:140px; }
+    .ms .ganji { font-size:22px; }
+    th,td { padding:6px 6px; font-size:13px; }
+    header.top a { margin-right:10px; font-size:13px; }
+    .card { padding:12px; }
+  }
 `;
 
 export function layout({ title, brand, body, flash }) {
@@ -84,6 +92,7 @@ export function layout({ title, brand, body, flash }) {
   <span class="brand">${esc(brand ?? 'MYEONG 워크스페이스')}</span>
   <nav style="display:inline-block;margin-left:24px">
     <a href="/">고객</a>
+    <a href="/sessions">상담</a>
     <a href="/appointments">예약</a>
     <a href="/services">서비스</a>
     <a href="/intake">사전 입력</a>
@@ -143,7 +152,15 @@ function textToHtml(text) {
 
 // ---------- 고객 목록 / 대시보드 ----------
 
-export function dashboardPage({ clients, appointments, services, todayAppts, reminders = [] }) {
+export function dashboardPage({ clients, appointments, services, todayAppts, reminders = [], liveSessions = [] }) {
+  const liveRows = liveSessions.map((s) => {
+    const client = clients.find((c) => c.id === s.clientId);
+    const mins = s.startedAt ? Math.max(0, Math.floor((Date.now() - new Date(s.startedAt).getTime()) / 60000)) : null;
+    return `<tr><td><a href="/sessions/${s.id}"><strong>${esc(client?.displayName ?? s.clientId)}</strong></a></td>
+      <td>${badge(SESSION_STATUS[s.status], s.status === 'in_progress' ? 'ok' : 'warn')}</td>
+      <td class="muted">${mins != null ? `${mins}분 경과` : '-'}</td>
+      <td><a class="btn small" href="/sessions/${s.id}">${s.status === 'in_progress' ? '상담 계속' : '정리·검수로'}</a></td></tr>`;
+  }).join('');
   const reminderRows = reminders.map((a) => {
     const client = clients.find((c) => c.id === a.clientId);
     const svc = services.find((s) => s.id === a.serviceId);
@@ -173,6 +190,8 @@ export function dashboardPage({ clients, appointments, services, todayAppts, rem
   <a class="btn" href="/clients/new">+ 새 고객</a>
   <a class="btn secondary" href="/appointments">예약 관리</a>
 </div>
+${liveRows ? `<h2>지금 진행 중인 상담</h2>
+<div class="card"><table><tr><th>고객</th><th>상태</th><th>경과</th><th></th></tr>${liveRows}</table></div>` : ''}
 <h2>48시간 내 예약 — 리마인더</h2>
 <div class="card">${reminderRows ? `<table><tr><th>일시</th><th>고객</th><th>서비스</th><th>연락처</th><th></th></tr>${reminderRows}</table>` : '<p class="muted">48시간 내 예약이 없습니다.</p>'}</div>
 <h2>다가오는 예약</h2>
@@ -291,7 +310,7 @@ export function clientDetailPage({ client, snapshots, staleMap, sessions, timeli
   ${portalRows || '<tr><td colspan="5" class="muted">포털 링크 없음</td></tr>'}</table>
 </div>
 <h2>계산 스냅샷</h2>
-${(() => { const s = snapshots.find((x) => x.envelope.moduleId === 'saju'); return s ? `<div class="card">${sajuChart(s.envelope.result)}</div>` : ''; })()}
+${(() => { const s = snapshots.find((x) => x.envelope.moduleId === 'saju'); return s ? `<div class="card">${sajuChart(s.envelope.result)}<p class="no-print" style="margin-top:10px"><a class="btn small secondary" href="/snapshots/${s.id}/print" target="_blank">만세력표 인쇄/PDF</a></p></div>` : ''; })()}
 <div class="card"><table><tr><th>ID</th><th>모듈</th><th>계산 시각</th><th>엔진</th><th>경고</th><th>상태</th></tr>${snapRows || '<tr><td colspan="6" class="muted">스냅샷 없음 — 명식 계산을 실행하세요.</td></tr>'}</table></div>
 <h2>상담 세션</h2>
 <div class="card"><table><tr><th>세션</th><th>상태</th><th>생성</th><th>메모</th></tr>${sessRows || '<tr><td colspan="4" class="muted">세션 없음</td></tr>'}</table></div>
@@ -426,7 +445,8 @@ export function sessionPage({ session, client, snapshot, drafts, reports, stale,
   const chartCard = `<h2>만세력표</h2>
 <div class="card">${snapshot
     ? `${sajuChart(snapshot.envelope.result)}
-       <p class="muted" style="margin-top:10px"><span class="mono">${esc(snapshot.id)}</span> · 엔진 ${esc(snapshot.envelope.engineVersion)} · ${fmtDate(snapshot.envelope.calculatedAt)}</p>
+       <p class="muted" style="margin-top:10px"><span class="mono">${esc(snapshot.id)}</span> · 엔진 ${esc(snapshot.envelope.engineVersion)} · ${fmtDate(snapshot.envelope.calculatedAt)}
+       <a class="no-print" href="/snapshots/${snapshot.id}/print" target="_blank" style="margin-left:8px">인쇄</a></p>
        ${snapshot.envelope.warnings.map((w) => `<div class="warn" style="margin-top:6px">⚠ ${esc(w.message)}</div>`).join('')}`
     : '<span class="muted">명식이 없습니다 — 고객 화면에서 명식 계산을 먼저 실행하세요.</span>'}</div>`;
   const notesCard = `<h2>내부 메모 (고객 리포트에 포함되지 않음)</h2>
@@ -478,6 +498,42 @@ ${session.status === 'review' ? '<div class="flash ok">상담이 끝났습니다
 ${actionBar}
 ${timerScript}
 ${flow}`;
+}
+
+// ---------- 상담 세션 목록 ----------
+
+export function sessionsPage({ sessions, clients, filter }) {
+  const rows = sessions.map((s) => {
+    const client = clients.find((c) => c.id === s.clientId);
+    return `<tr>
+      <td><a href="/sessions/${s.id}"><strong>${esc(client?.displayName ?? s.clientId)}</strong></a></td>
+      <td>${badge(SESSION_STATUS[s.status], s.status === 'in_progress' ? 'ok' : s.status === 'review' ? 'warn' : '')}</td>
+      <td>${fmtDate(s.startedAt ?? s.createdAt)}</td>
+      <td class="muted">${s.notes.length}개 메모</td>
+      <td class="muted">${s.summary ? '요약 있음' : '-'}</td>
+      <td><a class="btn small ${s.status === 'in_progress' ? '' : 'secondary'}" href="/sessions/${s.id}">${s.status === 'in_progress' ? '상담 계속' : '열기'}</a></td>
+    </tr>`;
+  }).join('');
+  const tab = (v, label) => `<a class="btn small ${filter === v ? '' : 'secondary'}" href="/sessions?f=${v}">${label}</a>`;
+  return `
+<h1>상담 세션</h1>
+<div class="card" style="display:flex;gap:8px">${tab('active', '진행 중·정리 중')}${tab('today', '오늘')}${tab('all', '전체')}</div>
+<div class="card"><table><tr><th>고객</th><th>상태</th><th>시작/생성</th><th>메모</th><th>요약</th><th></th></tr>
+${rows || '<tr><td colspan="6" class="muted">해당하는 세션이 없습니다.</td></tr>'}</table></div>`;
+}
+
+// ---------- 만세력표 인쇄 ----------
+
+export function printChartPage({ result, clientName, brandName }) {
+  return `<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>만세력표 — ${esc(clientName)}</title>
+<style>${CSS} body{background:#fff} main{max-width:760px} .ms .ganji{font-size:26px}</style></head>
+<body><main>
+<h1>${esc(clientName)} — 만세력표</h1>
+<p class="muted">${esc(brandName)} · 출력 ${fmtDate(new Date().toISOString())}</p>
+${sajuChart(result)}
+<script>window.print()</script>
+</main></body></html>`;
 }
 
 // ---------- 리포트 ----------

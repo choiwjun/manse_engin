@@ -184,7 +184,11 @@ get('/', async (req, res, url) => {
   const upcoming = appointments.filter((a) => a.status === 'requested' || a.status === 'confirmed');
   html(res, V.layout({
     title: '워크스페이스', brand: sessionCounselor(req)?.brand.name ?? owner()?.brand.name, flash: flashOf(url),
-    body: V.dashboardPage({ clients, appointments, services: platform.listServices(WS()), todayAppts: upcoming, reminders: platform.listDueReminders(WS(), 48) }),
+    body: V.dashboardPage({
+      clients, appointments, services: platform.listServices(WS()), todayAppts: upcoming,
+      reminders: platform.listDueReminders(WS(), 48),
+      liveSessions: store.sessions.list(WS(), (s) => s.status === 'in_progress' || s.status === 'review'),
+    }),
   }));
 });
 
@@ -276,6 +280,38 @@ post('/clients/:id/erasure', async (req, res, url, { id }) => {
 });
 
 // --- 세션 ---
+// 상담 목록 — ?f=active(기본, 진행 중·정리 중) | today | all
+get('/sessions', async (req, res, url) => {
+  const filter = ['today', 'all'].includes(url.searchParams.get('f')) ? url.searchParams.get('f') : 'active';
+  const kstToday = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+  const sessions = store.sessions.list(WS())
+    .filter((s) => {
+      if (filter === 'all') return true;
+      if (filter === 'today') {
+        const at = s.startedAt ?? s.createdAt;
+        return new Date(at).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }) === kstToday;
+      }
+      return s.status === 'in_progress' || s.status === 'review';
+    })
+    .sort((a, b) => (b.startedAt ?? b.createdAt).localeCompare(a.startedAt ?? a.createdAt));
+  html(res, V.layout({
+    title: '상담 세션', brand: sessionCounselor(req)?.brand.name ?? owner()?.brand.name, flash: flashOf(url),
+    body: V.sessionsPage({ sessions, clients: platform.listClients(WS()), filter }),
+  }));
+});
+
+// 만세력표 인쇄 — 스냅샷을 인쇄용 단독 페이지로 출력
+get('/snapshots/:id/print', async (req, res, url, { id }) => {
+  const snap = store.snapshots.get(WS(), id);
+  if (snap.envelope.moduleId !== 'saju') throw new PlatformError({ code: 'INVALID_INPUT', message: '사주 스냅샷만 인쇄할 수 있습니다.' });
+  const client = store.clients.get(WS(), snap.clientId);
+  html(res, V.printChartPage({
+    result: snap.envelope.result,
+    clientName: client.displayName,
+    brandName: sessionCounselor(req)?.brand.name ?? owner()?.brand.name,
+  }));
+});
+
 get('/sessions/:id', async (req, res, url, { id }) => {
   const session = platform.getSession(WS(), id);
   const client = platform.getClient(WS(), session.clientId);

@@ -51,7 +51,11 @@ function check(name, cond, extra = '') {
   else { fail++; console.log(`  FAIL ${name} ${extra}`); }
 }
 
-await new Promise((r) => setTimeout(r, 1500));
+// 서버 기동 대기 — 준비될 때까지 폴링(최대 15초)
+for (let i = 0; i < 75; i++) {
+  try { const r = await fetch(`${BASE}/login`); if (r.status) break; } catch { /* not ready */ }
+  await new Promise((r) => setTimeout(r, 200));
+}
 
 try {
   console.log('== 인증 ==');
@@ -86,6 +90,11 @@ try {
   check('세션 생성', /^ses_/.test(sessionId ?? ''), sess.location);
   const sessPage0 = await req('GET', `/sessions/${sessionId}`, { session: 'me' });
   check('세션 화면에 만세력표 렌더', sessPage0.text.includes('만세력표') && sessPage0.text.includes('class="ms"') && sessPage0.text.includes('지장간'));
+  const sessList = await req('GET', '/sessions', { session: 'me' });
+  check('상담 목록 페이지', sessList.status === 200 && sessList.text.includes('진행 중·정리 중'));
+  const snapPrintPath = sessPage0.text.match(/snapshots\/[^"]+\/print/)?.[0];
+  const snapPrint = snapPrintPath ? await req('GET', `/${snapPrintPath}`, { session: 'me' }) : { status: 0, text: '' };
+  check('만세력표 인쇄 페이지', snapPrint.status === 200 && snapPrint.text.includes('window.print') && snapPrint.text.includes('만세력표 —'));
   const dr = await req('POST', `/sessions/${sessionId}/drafts`, { session: 'me', body: { topics: ['career', 'wealth', 'year'] } });
   check('초안 생성 → 303', dr.status === 303);
   const sessPage = await req('GET', `/sessions/${sessionId}`, { session: 'me' });
