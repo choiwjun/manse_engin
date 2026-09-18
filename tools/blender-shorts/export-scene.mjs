@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,7 +30,7 @@ if (!fs.existsSync(enginePath)) {
   process.exit(1);
 }
 
-const engine = await import(`file://${enginePath.replaceAll('\\\\', '/')}`);
+const engine = await import(pathToFileURL(enginePath).href);
 const { buildSajuResult, assembleReport, runDetectors } = engine;
 
 const birth = {
