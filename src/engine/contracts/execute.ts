@@ -7,6 +7,7 @@ import { calculateHarak } from '@/engine/harak';
 import { analyzeHongyeon } from '@/engine/hongyeon';
 import { divineByName, divineByNumber, divineByTime } from '@/engine/maehwa';
 import { analyzeNamesExtended } from '@/engine/naming';
+import { recommendNames } from '@/engine/naming/recommend';
 import { calculateQimen } from '@/engine/qimen';
 import { buildSajuResult } from '@/engine/saju/result-builder';
 import { analyzeTojeong } from '@/engine/tojeong';
@@ -103,10 +104,16 @@ function collectWarnings<M extends EngineModuleId>(moduleId: M, input: EngineMod
       message: '하락리수의 하도수→팔괘·낙서수→팔괘 매핑은 단일 참조 학파 기준이며, 년간지는 입춘이 아닌 역년(曆年) 기준입니다.',
     });
   }
+  if (moduleId === 'naming') {
+    warnings.push({ code: 'POLICY_ASSUMPTION', message: '원형이정은 실획수 사격, 오격은 가성수 별도 규칙입니다. 획수 출처와 자원오행 유파·인명 허용 여부를 확인하세요.' });
+    const value = input as EngineModuleInputMap['naming'];
+    if (value.mode === 'recommend' && (value.birth.hour == null || value.birth.minute == null)) warnings.push({ code: 'TIME_UNKNOWN', message: '출생시각 미상: 용신과 작명 추천은 잠정값입니다.' });
+    if (value.mode !== 'recommend' && value.candidates.some(c => !c.hanjaChars?.length)) warnings.push({ code: 'MISSING_OPTIONAL_DATA', message: '한자 미입력 후보는 한글 획수 분석입니다. 한자 강희자전 결과와 구별하세요.' });
+  }
   if (moduleId === 'tojeong') {
     warnings.push({
       code: 'POLICY_ASSUMPTION',
-      message: '토정비결은 전통 작괘법(태세수·월건수·일진수)을 사용하며, 음력 월은 평달 기준·생일이 소월 말일을 넘으면 말일로 당겨 계산합니다.',
+      message: '토정비결은 상·중·하 144괘를 개인별로 계산합니다. 대상 생월은 평달 기준이며 소월의 30일 생일은 29일로 당깁니다. 해설 원문 대응은 미검증으로 제공하지 않습니다.',
     });
   }
   return warnings;
@@ -132,7 +139,7 @@ function executeUnsafe<M extends EngineModuleId>(moduleId: M, input: EngineModul
       return calculateCompatibility(input as EngineModuleInputMap['compatibility']) as EngineModuleResultMap[M];
     case 'tojeong': {
       const value = input as EngineModuleInputMap['tojeong'];
-      return analyzeTojeong(value.birthYear, value.birthMonth, value.birthDay, value.targetYear) as EngineModuleResultMap[M];
+      return analyzeTojeong(value.birthYear, value.birthMonth, value.birthDay, value.targetYear, value) as EngineModuleResultMap[M];
     }
     case 'ziwei': {
       const value = input as EngineModuleInputMap['ziwei'];
@@ -164,6 +171,7 @@ function executeUnsafe<M extends EngineModuleId>(moduleId: M, input: EngineModul
       return calculateDaejeong((input as EngineModuleInputMap['daejeong']).palja) as EngineModuleResultMap[M];
     case 'naming': {
       const value = input as EngineModuleInputMap['naming'];
+      if (value.mode === 'recommend') return recommendNames(value) as EngineModuleResultMap[M];
       return analyzeNamesExtended(value.surname, value.candidates, value.school) as EngineModuleResultMap[M];
     }
     case 'calendar': {

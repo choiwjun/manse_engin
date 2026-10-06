@@ -1,4 +1,4 @@
-// @TASK P6-R1-T1 - 토정비결 144괘 원문 해설 (1~48)
+// @TASK P6-R1-T1 - 토정비결 144괘 미검증 보관 해설 (1~48)
 import type { TojeongInterpretation } from '@/engine/types';
 
 /** 괘 1~48 해설 데이터 */

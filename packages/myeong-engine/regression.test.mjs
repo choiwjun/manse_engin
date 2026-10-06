@@ -342,7 +342,8 @@ test('tojeong derives a collision-free 8x6x3 gwae from traditional formulas', ()
     (r.gwae.sangGwae - 1) * 18 + (r.gwae.jungGwae - 1) * 3 + r.gwae.haGwae;
   assert.equal(r.gwae.gwaeNumber, expected);
   assert.equal(r.gwae.gwaeCode, `${r.gwae.sangGwae}${r.gwae.jungGwae}${r.gwae.haGwae}`);
-  assert.ok(r.interpretation && r.interpretation.title);
+  assert.equal(r.interpretation, null);
+  assert.equal(r.contentStatus, 'unverified');
   // 생년이 결과에 반영된다
   const other = esm.analyzeTojeong(1991, 5, 15, 2024);
   assert.notEqual(other.gwae.sangGwae, r.gwae.sangGwae);

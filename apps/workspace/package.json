@@ -6,6 +6,6 @@
   "description": "MYEONG 상담사 워크스페이스 — 내부 프로토타입 서버 (준비→검수 리포트 수직 슬라이스)",
   "scripts": {
     "start": "node server.mjs",
-    "qa": "node e2e-qa.mjs"
+    "qa": "node --test personal-tools.test.mjs && node e2e-qa.mjs"
   }
 }

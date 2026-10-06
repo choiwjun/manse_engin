@@ -412,3 +412,17 @@ export function renderNamingMarkdown(
 
   return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
+
+/** 개인별 토정 계산 풀이 → Markdown 문서. 미검증 원문은 렌더링하지 않는다. */
+export function renderTojeongMarkdown(
+  result: import('@/engine/types').TojeongResult,
+  narrative: import('./tojeong').TojeongInterpretationReport,
+  opts: { title?: string } = {},
+): string {
+  return [
+    `# ${opts.title ?? `${result.targetYear}년 토정비결 계산 풀이`}`, '', narrative.headline, '',
+    '## 계산 근거', '', ...narrative.lines.map(l => `- **${l.label}** ${l.text}`), '',
+    '## 확인 사항', '', ...narrative.cautions.map(t => `- ${t}`), '',
+    ...narrative.guidance, '', '## 근거 식별자', '', ...narrative.basisRefs.map(t => `- ${t}`), '',
+  ].join('\n');
+}

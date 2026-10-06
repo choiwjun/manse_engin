@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: Kangxi dictionary examples and Korean surname glyphs use their own strokes
+ok 1 - Kangxi dictionary examples and Korean surname glyphs use their own strokes
+  ---
+  duration_ms: 3.208562
+  type: 'test'
+  ...
+# Subtest: Tojeong converts solar birthdays, explains policy and withholds unverified prose
+ok 2 - Tojeong converts solar birthdays, explains policy and withholds unverified prose
+  ---
+  duration_ms: 30.360145
+  type: 'test'
+  ...
+# Subtest: recommendation uses the supplied birth chart and provides bounded, traceable candidates
+ok 3 - recommendation uses the supplied birth chart and provides bounded, traceable candidates
+  ---
+  duration_ms: 108.324632
+  type: 'test'
+  ...
+# Subtest: naming keeps stroke schools separate, checks readings and never mixes unknown glyphs
+ok 4 - naming keeps stroke schools separate, checks readings and never mixes unknown glyphs
+  ---
+  duration_ms: 1.300815
+  type: 'test'
+  ...
+# Subtest: Tojeong leap birthdays require explicit supported policy and real input dates
+ok 5 - Tojeong leap birthdays require explicit supported policy and real input dates
+  ---
+  duration_ms: 4.41821
+  type: 'test'
+  ...
+# Subtest: recommendations honor preferred reading, limit and changed yongsin
+ok 6 - recommendations honor preferred reading, limit and changed yongsin
+  ---
+  duration_ms: 125.220102
+  type: 'test'
+  ...
+# Subtest: all 2137 stroke entries agree with the committed raw reference and retain positive counts
+ok 7 - all 2137 stroke entries agree with the committed raw reference and retain positive counts
+  ---
+  duration_ms: 43.848284
+  type: 'test'
+  ...
+# Subtest: contract rejects oversized requests and preserves explicit Hangul-only basis
+ok 8 - contract rejects oversized requests and preserves explicit Hangul-only basis
+  ---
+  duration_ms: 4.054182
+  type: 'test'
+  ...
+# Subtest: Tojeong upper trigrams match published worked examples
+ok 9 - Tojeong upper trigrams match published worked examples
+  ---
+  duration_ms: 2.278932
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1155.15883

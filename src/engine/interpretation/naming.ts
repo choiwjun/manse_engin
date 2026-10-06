@@ -2,7 +2,7 @@
 // 사주·궁합 해석 계층과 같은 품질 규칙: 근거는 1층 facts(수리·오행·길흉),
 // 문장은 이름을 단정하지 않는 운영 가이드 톤.
 
-import type { NamingAnalysis, NamingResult, SajuResult } from '@/engine/types';
+import type { NamingAnalysis, NamingAnalysisExtended, NamingResult, NamingResultExtended, SajuResult } from '@/engine/types';
 import { measureOhaeng } from './meter';
 import { getContentEntry } from './content';
 
@@ -21,6 +21,8 @@ export interface NamingLine {
 export interface NamingInterpretation {
   /** '{이름} — {총점}점 {등급} ({구조 요약})' */
   headline: string;
+  /** 계산·선정 근거 식별자 */
+  basisRefs: string[];
   /** 이름 구조 해석 — 사격·수리·오행·발음 */
   lines: NamingLine[];
   /** 잘 되는 축 */
@@ -138,21 +140,53 @@ export function interpretName(analysis: NamingAnalysis, surname: string): Naming
 
   const headline = `${fullName} — ${analysis.totalScore}점 ${grade} (${suri.hyung === 0 ? '4격 길수' : `${suri.hyung}격 흉수`} · 상극 ${ohaeng.sanggeuk}쌍)`;
 
-  return { headline, lines, strengths, cautions, guidance };
+  const extended = analysis as NamingAnalysis & Partial<NamingAnalysisExtended>;
+  const basisRefs = ['naming:suri81:v1', 'naming:balum-ohaeng'];
+  if (extended.policy) {
+    basisRefs.push(extended.policy.id);
+    const strokeLabel = extended.strokeBasis === 'hangul' ? '한글 획수' : extended.school === 'modern' ? '현대 획수(G 기준)' : '강희 기준';
+    const strokes = extended.hanjaChars?.map((char, i) => `${char} ${extended.hanjaStrokes?.[i] ?? '미확인'}획`).join(' · ');
+    lines.unshift({ label: '획수 기준', text: `${strokeLabel}${strokes ? ` — ${strokes}` : ''}. ${extended.strokeBasis === 'hangul' ? '한자 획수·자원오행 분석은 포함하지 않습니다.' : extended.policy[extended.school ?? 'kangxi']}` });
+    lines.push({ label: '사격 산식', text: `${extended.policy.grids}. ${extended.policy.singleName}` });
+    if (extended.fiveGrids) {
+      const f = extended.fiveGrids;
+      lines.push({ label: '오격 참고', text: `천격 ${f.cheon} · 인격 ${f.in} · 지격 ${f.ji} · 외격 ${f.oe} · 총격 ${f.chong}. 단성·외자에 가성수(+1)를 적용한 별도 오격이며, 위 사격 길흉 점수와 구별합니다.` });
+    }
+    if (extended.jawonOhaeng) {
+      lines.push({ label: '자원오행', text: `${extended.hanjaChars?.map((char, i) => `${char}(${extended.jawonOhaeng?.ohaengs[i] ?? '미분류'})`).join(' · ')}. ${extended.policy.elements}` });
+    }
+    cautions.push(extended.policy.suri81, extended.policy.registration);
+  }
+  if (extended.recommendationDetails) {
+    const d = extended.recommendationDetails;
+    lines.push({ label: '추천 이유', text: `${d.reason} 글자 뜻: ${d.meanings.join(' · ')}.` });
+  }
+  cautions.push('점수와 길흉은 채택한 전통 규칙의 비교 지표이며 이름의 실제 효과나 삶의 결과를 예측하는 확률이 아닙니다.');
+  return { headline, lines, strengths, cautions, guidance, basisRefs };
 }
 
 /** 여러 후보 비교 해석 — 각 후보를 interpretName으로 돌리고 순위 요약을 붙인다 */
 export function interpretNaming(result: NamingResult, opts: InterpretNamingOptions = {}): NamingInterpretation[] {
   const surname = opts.surnameLabel ?? result.surname;
-  return result.candidates.map((c) => interpretName(c, surname));
+  return result.candidates.map((c) => withRecommendationBasis(interpretName(c, surname), result));
+}
+
+function withRecommendationBasis(narrative: NamingInterpretation, result: NamingResult): NamingInterpretation {
+  const recommendation = (result as NamingResult & Partial<NamingResultExtended>).recommendation;
+  if (!recommendation) return narrative;
+  narrative.lines.push({ label: '추천 기준', text: `용신 ${recommendation.targetElement} · 용신 학파 ${recommendation.yongsinSchool} · 검토 조합 ${recommendation.considered}개. ${recommendation.reasons.map(reason => reason.replaceAll('반드시 필요하다', '필요하다고 보는 전통 해석입니다')).join(' ')}` });
+  narrative.basisRefs.push(`naming:yongsin:${recommendation.yongsinSchool}:${recommendation.targetElement}`);
+  return narrative;
 }
 
 // ---------- 사주 교차 — 이름 오행이 사주의 빈 곳/용신과 맞물리는지 ----------
 
-/** 이름의 대표 오행 — 수리오행 다수결, 동률이면 발음오행 첫 글자 */
+/** 이름 글자의 자원오행 우선. 한자 없는 기존 분석만 수리오행을 사용한다. 동률은 첫 등장 순서. */
 function dominantOhaeng(a: NamingAnalysis): string | null {
   const freq = new Map<string, number>();
-  for (const o of a.suriOhaeng) freq.set(o, (freq.get(o) ?? 0) + 1);
+  const extended = a as NamingAnalysis & { jawonOhaeng?: { ohaengs: (string | null)[] } | null };
+  const source = extended.jawonOhaeng?.ohaengs.slice(-[...a.name].length).filter((o): o is string => o !== null) ?? a.suriOhaeng.slice(-[...a.name].length);
+  for (const o of source) freq.set(o, (freq.get(o) ?? 0) + 1);
   let best: string | null = null;
   let bestN = 0;
   for (const [o, n] of freq) {
@@ -220,6 +254,7 @@ export function interpretNameWithSaju(
 
   return {
     headline: base.headline + headlineSuffix,
+    basisRefs: [...base.basisRefs, `naming:saju-yongsin:${yongsin}`],
     lines,
     strengths,
     cautions,
@@ -234,5 +269,5 @@ export function interpretNamingWithSaju(
   opts: InterpretNamingOptions = {},
 ): NamingInterpretation[] {
   const surname = opts.surnameLabel ?? result.surname;
-  return result.candidates.map((c) => interpretNameWithSaju(c, surname, saju));
+  return result.candidates.map((c) => withRecommendationBasis(interpretNameWithSaju(c, surname, saju), result));
 }

@@ -1,6 +1,6 @@
 {
   "name": "myeong-manseryeok-engine",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "MYEONG 만세력/사주 계산 엔진 — 한국 법정시·DST·진태양시·자시 학파를 처리하는 순수 TypeScript 역학 엔진 (13개 모듈)",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -26,7 +26,7 @@
     "generate:data": "node generate-data.mjs",
     "content:validate": "node build.mjs && node validate-content.mjs",
     "pretest": "npm run build",
-    "test": "node smoke.test.mjs && node --test regression.test.mjs && node --test interpretation.test.mjs && node validate-content.mjs",
+    "test": "node smoke.test.mjs && node --test regression.test.mjs && node --test naming-tojeong.test.mjs && node --test interpretation.test.mjs && node --test personal-interpretation.test.mjs && node validate-content.mjs",
     "prepack": "node build.mjs"
   },
   "devDependencies": {

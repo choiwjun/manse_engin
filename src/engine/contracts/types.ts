@@ -1,3 +1,4 @@
+import type { TojeongOptions } from '@/engine/types';
 import type { CalculateOptions } from '@/engine/saju/calculator';
 import type { CompatibilityInput, CompatibilityResult } from '@/engine/compatibility/types';
 import type {
@@ -72,7 +73,7 @@ export interface SajuModuleInput {
   subSchool?: SajuSubSchool;
 }
 
-export interface TojeongModuleInput {
+export interface TojeongModuleInput extends TojeongOptions {
   birthYear: number;
   birthMonth: number;
   birthDay: number;
@@ -115,7 +116,10 @@ export interface HarakModuleInput {
   day: number;
 }
 
-export interface NamingModuleInput {
+export type NamingModuleInput = NamingAnalysisInput | (import('@/engine/naming/recommend').NamingRecommendationInput & { mode: 'recommend' });
+
+export interface NamingAnalysisInput {
+  mode?: 'analyze';
   surname: string;
   candidates: Array<{ givenName: string; hanjaChars?: string[] | null }>;
   school?: 'kangxi' | 'modern';

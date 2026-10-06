@@ -327,9 +327,12 @@ export function validateEngineModuleInput(moduleId: EngineModuleId, input: unkno
       }
       validateDataYearRange(input.birthYear as number, 'birthYear');
       requireIntegerInRange(input, 'birthMonth', 1, 12);
-      requireIntegerInRange(input, 'birthDay', 1, 30);
+      requireIntegerInRange(input, 'birthDay', 1, input.calendarType === 'solar' ? 31 : 30);
+      if (input.calendarType !== undefined) validateEnum(input.calendarType, new Set(['solar', 'lunar']), 'calendarType');
+      if (input.isLeapMonth !== undefined && typeof input.isLeapMonth !== 'boolean') invalidInput('윤달 여부는 참/거짓이어야 합니다.');
+      if (input.leapMonthPolicy !== undefined) validateEnum(input.leapMonthPolicy, new Set(['regular-month', 'reject']), 'leapMonthPolicy');
       validateDataYearRange(input.targetYear as number, 'targetYear');
-      if ((input.birthYear as number) > (input.targetYear as number)) {
+      if (input.calendarType !== 'solar' && (input.birthYear as number) > (input.targetYear as number)) {
         invalidInput('토정비결 생년은 대상 연도 이하여야 합니다.', { birthYear: input.birthYear, targetYear: input.targetYear });
       }
       break;
@@ -354,11 +357,22 @@ export function validateEngineModuleInput(moduleId: EngineModuleId, input: unkno
       validatePalja(input.palja);
       break;
     case 'naming':
+      if (input.mode !== undefined && input.mode !== 'analyze' && input.mode !== 'recommend') invalidInput('작명 실행 모드를 확인하세요.');
+      if (input.mode === 'recommend') {
+        if (!isRecord(input.birth)) invalidInput('작명 추천에는 출생정보가 필요합니다.');
+        validatePerson(input.birth, 'birth');
+        if (typeof input.surname !== 'string' || typeof input.surnameHanja !== 'string') invalidInput('한글 성과 한자 성이 필요합니다.');
+        if (input.limit !== undefined) requireIntegerInRange(input, 'limit', 1, 6);
+        if (input.yongsinSchool !== undefined) validateEnum(input.yongsinSchool, VALID_SUB_SCHOOLS, 'yongsinSchool');
+        if (input.school !== undefined) validateEnum(input.school, new Set(['kangxi', 'modern']), 'school');
+        if (input.givenName !== undefined && (typeof input.givenName !== 'string' || !/^[가-힣]{1,2}$/.test(input.givenName))) invalidInput('희망 이름은 한글 1~2음절이어야 합니다.');
+        break;
+      }
       if (typeof input.surname !== 'string' || input.surname.length === 0 || !Array.isArray(input.candidates)) {
         throw new EngineContractError({ code: 'INVALID_INPUT', message: '성과 이름 후보가 필요합니다.' });
       }
-      if (input.candidates.length === 0) {
-        invalidInput('이름 후보가 하나 이상 필요합니다.');
+      if (input.candidates.length === 0 || input.candidates.length > 6) {
+        invalidInput('이름 후보는 1~6개여야 합니다.');
       }
       const surnameLen = [...(input.surname as string)].length;
       for (const candidate of input.candidates) {

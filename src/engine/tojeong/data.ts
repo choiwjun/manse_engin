@@ -1,4 +1,4 @@
-// @TASK P6-R1-T1 - 토정비결 144괘 원문 해설 데이터 (통합)
+// @TASK P6-R1-T1 - 토정비결 144괘 미검증 보관 해설 데이터 (통합)
 // @SPEC docs/planning/06-tasks.md#P6-R1-T1
 
 import type { TojeongInterpretation } from '@/engine/types';
@@ -35,7 +35,7 @@ export const NAPEUM_NAMES: Record<number, string> = {
 /**
  * 144괘 해설 데이터 (1~144)
  *
- * 각 괘별 고유한 원문 해설을 포함합니다.
+ * 각 괘별 고유한 미검증 보관 해설을 포함합니다.
  * data-1.ts (1~48), data-2.ts (49~96), data-3.ts (97~144)에서 통합합니다.
  */
 export const TOJEONG_DATA: Record<number, TojeongInterpretation> = {

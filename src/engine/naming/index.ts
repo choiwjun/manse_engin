@@ -11,10 +11,11 @@ import type {
   Suri81Entry,
   TripleOhaengComparison,
 } from '@/engine/types';
-import { analyzeJawonOhaeng, getHanjaStrokes } from './jawon-ohaeng';
+import { analyzeJawonOhaeng, getHanjaStrokes, lookupHanja, matchesHanjaReading } from './jawon-ohaeng';
+import { NAMING_POLICY } from './policy';
 import { ManseryeokRangeError } from '@/engine/core/errors';
 
-// ---------- 한글 자모 획수 데이터 (강희자전 기준 자모 획수) ----------
+// ---------- 한글 자모 획수 데이터 (프로젝트 한글 획수 규칙, 한자 강희자전과 별개) ----------
 
 /** 초성(자음) 획수 - 유니코드 초성 인덱스 순서 (ㄱ~ㅎ, 19개) */
 const CHOSEONG_STROKES: Record<number, number> = {
@@ -264,12 +265,12 @@ export function getStrokeCount(char: string): number {
 /**
  * 원형이정(元亨利貞) 사격을 계산한다.
  *
- * - 원격(元格): 성 + 이름 첫째 글자 획수 (초년운)
- * - 형격(亨格): 이름 첫째 + 이름 둘째 글자 획수 (청년운)
+ * - 원격(元格): 이름 전체 획수 (초년운)
+ * - 형격(亨格): 성 + 이름 첫째 글자 획수 (청년운)
  * - 이격(利格): 성 + 이름 마지막 글자 획수 (중년운)
  * - 정격(貞格): 성 + 이름 전체 획수 합 (말년운/총운)
  *
- * 외자 이름일 경우 형격은 이름 한 글자의 획수만 사용한다.
+ * 외자 이름에는 가성수를 넣지 않는다. 원격=이름, 형/이/정격=성+이름.
  *
  * @param surname - 성 (한 글자)
  * @param givenName - 이름 (1~2글자)
@@ -279,7 +280,7 @@ export function calculateWonhyeong(
   surname: string,
   givenName: string
 ): { won: number; hyeong: number; yi: number; jeong: number } {
-  const surnameStrokes = getStrokeCount(surname);
+  const surnameStrokes = [...surname].reduce((sum, ch) => sum + getStrokeCount(ch), 0);
   const givenChars = [...givenName];
   const givenStrokes = givenChars.map(getStrokeCount);
 
@@ -287,18 +288,11 @@ export function calculateWonhyeong(
   const lastGiven = givenStrokes[givenStrokes.length - 1] ?? 0;
   const totalGiven = givenStrokes.reduce((sum, s) => sum + s, 0);
 
-  // 원격: 성 + 이름 첫째
-  const won = surnameStrokes + firstGiven;
-
-  // 형격: 이름 첫째 + 이름 둘째 (외자면 이름 획수만)
-  const hyeong = givenStrokes.length >= 2
-    ? firstGiven + givenStrokes[1]
-    : firstGiven;
-
-  // 이격: 성 + 이름 마지막
+  // 원형이정: 원=이름 합, 형=성+첫 이름, 이=성+끝 이름, 정=전체.
+  // 외자는 가성수를 넣지 않는 실획수 사격 정책을 명시한다.
+  const won = totalGiven;
+  const hyeong = surnameStrokes + firstGiven;
   const yi = surnameStrokes + lastGiven;
-
-  // 정격: 전체 합
   const jeong = surnameStrokes + totalGiven;
 
   return { won, hyeong, yi, jeong };
@@ -416,6 +410,9 @@ export function getOhaengRelation(a: Ohaeng, b: Ohaeng): '상생' | '상극' | '
  * @returns 이름 분석 결과
  */
 export function analyzeName(surname: string, givenName: string): NamingAnalysis {
+  if (!/^[가-힣]{1,2}$/.test(surname) || !/^[가-힣]{1,2}$/.test(givenName)) {
+    throw new ManseryeokRangeError('성·이름은 각각 한글 1~2음절이어야 합니다.', { surname, givenName });
+  }
   const fullName = surname + givenName;
   const chars = [...fullName];
 
@@ -513,6 +510,7 @@ export function analyzeNameExtended(
   // 1. 기존 분석 수행 (한글 자모 기준 — 폴백)
   const base = analyzeName(surname, givenName);
   const school = options.school ?? 'kangxi';
+  if (!['kangxi', 'modern'].includes(school)) throw new ManseryeokRangeError('획수 기준을 선택하세요.', { school });
   const hanjaChars = options.hanjaChars ?? null;
 
   // 2. 한자가 제공되지 않으면 기본 결과 반환
@@ -524,6 +522,9 @@ export function analyzeNameExtended(
       tripleOhaeng: null,
       school,
       hanjaStrokes: null,
+      fiveGrids: calculateFiveGrids([...surname].map(getStrokeCount), [...givenName].map(getStrokeCount)),
+      policy: NAMING_POLICY,
+      strokeBasis: 'hangul',
     };
   }
 
@@ -537,21 +538,24 @@ export function analyzeNameExtended(
     );
   }
 
+  hanjaChars.forEach((ch, index) => {
+    if ([...ch].length !== 1 || !lookupHanja(ch)) {
+      throw new ManseryeokRangeError('등록된 한자를 모든 글자에 지정하세요. 한글 획수로 대체하지 않습니다.', { char: ch, index });
+    }
+    if (!matchesHanjaReading(ch, [...(surname + givenName)][index])) {
+      throw new ManseryeokRangeError('한자와 한글 독음이 일치하지 않습니다.', { char: ch, index });
+    }
+  });
+
   // 3. 자원오행 분석
   const jawonOhaeng = analyzeJawonOhaeng(hanjaChars);
 
   // 4. 한자 획수 (학파 기반)
   const hanjaStrokes = hanjaChars.map(c => getHanjaStrokes(c, school));
 
-  // 5. 한자 획수가 유효하면 원형이정/수리/점수를 한자 기준으로 재계산
-  //    한자가 빈 문자열('')이면 한글 획수로 폴백
-  const fullName = surname + givenName;
-  const chars = [...fullName];
-  const effectiveStrokes = chars.map((ch, idx) => {
-    const hStroke = hanjaStrokes[idx];
-    if (hStroke !== null && hStroke > 0) return hStroke;
-    return getStrokeCount(ch); // 한글 폴백
-  });
+  // 전체 한자가 검증된 경우에만 계산한다. 기준을 혼합하지 않는다.
+  const chars = [...(surname + givenName)];
+  const effectiveStrokes = hanjaStrokes as number[];
 
   // 성씨 획수 / 이름 획수 분리
   const surnameLen = [...surname].length;
@@ -562,8 +566,8 @@ export function analyzeNameExtended(
   const totalGiven = givenStrokesArr.reduce((a, b) => a + b, 0);
 
   const wonhyeong = {
-    won: surnameStrokesSum + firstGiven,
-    hyeong: givenStrokesArr.length >= 2 ? firstGiven + givenStrokesArr[1] : firstGiven,
+    won: totalGiven,
+    hyeong: surnameStrokesSum + firstGiven,
     yi: surnameStrokesSum + lastGiven,
     jeong: surnameStrokesSum + totalGiven,
   };
@@ -608,6 +612,9 @@ export function analyzeNameExtended(
     tripleOhaeng,
     school,
     hanjaStrokes,
+    fiveGrids: calculateFiveGrids(effectiveStrokes.slice(0, surnameLen), givenStrokesArr),
+    policy: NAMING_POLICY,
+    strokeBasis: school,
   };
 }
 
@@ -636,6 +643,7 @@ export function analyzeNamesExtended(
   return {
     surname,
     school,
+    policy: NAMING_POLICY,
     candidates: analyzed,
   };
 }
@@ -690,4 +698,17 @@ function calculateTotalScore(
   const ohaengPoints = Math.round(ohaengScore * 0.4);
 
   return suriPoints + ohaengPoints;
+}
+
+/** 오격부상법 수치. 실획수 원형이정과 섞지 않고 별도 반환한다. */
+export function calculateFiveGrids(surname: number[], given: number[]) {
+  if (![surname, given].every(a => a.length >= 1 && a.length <= 2 && a.every(n => Number.isInteger(n) && n > 0))) {
+    throw new ManseryeokRangeError('성과 이름 각각 1~2개의 양의 획수가 필요합니다.', {});
+  }
+  const s = surname.reduce((a, b) => a + b, 0);
+  const g = given.reduce((a, b) => a + b, 0);
+  const person = surname[surname.length - 1] + given[0];
+  return { cheon: s + (surname.length === 1 ? 1 : 0), in: person,
+    ji: g + (given.length === 1 ? 1 : 0),
+    oe: s + g - person + (surname.length === 1 ? 1 : 0) + (given.length === 1 ? 1 : 0), chong: s + g };
 }

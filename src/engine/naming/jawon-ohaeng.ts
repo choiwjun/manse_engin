@@ -2,6 +2,9 @@
 // @SPEC 성명학 확장: 자원오행 (부수 기반 오행 판별)
 
 import { HANJA_DB, type HanjaEntry } from './hanja-data';
+import strokeSource from './stroke-source.json';
+
+const sourceEntries: Record<string, { readings: string[] }> = strokeSource.entries;
 import type { Ohaeng } from '@/engine/types';
 
 // ---------------------------------------------------------------------------
@@ -170,4 +173,22 @@ export function analyzeJawonOhaeng(hanjaChars: string[]): {
   }
 
   return { ohaengs, pairs, harmony, score };
+}
+
+/** 사전 독음과 한국 두음법칙을 허용한다. 한자를 다른 글자로 치환하지 않는다. */
+export function matchesHanjaReading(char: string, reading: string): boolean {
+  const entry = lookupHanja(char);
+  if (!entry) return false;
+  const readings = [entry.reading, ...(sourceEntries[char]?.readings ?? [])];
+  return readings.some((sound) => {
+    if (sound === reading) return true;
+    const code = sound.charCodeAt(0) - 0xAC00;
+    if (code < 0 || code >= 11172) return false;
+    const cho = Math.floor(code / 588);
+    const jung = Math.floor((code % 588) / 28);
+    // ㄹ→ㄴ, ㄹ/ㄴ+i/y→ㅇ. 두음 표기는 사전 후보 독음으로만 확장.
+    if (cho === 5 && String.fromCharCode(0xAC00 + code - 3 * 588) === reading) return true;
+    return (cho === 5 || cho === 2) && [2, 6, 7, 12, 17, 20].includes(jung)
+      && String.fromCharCode(0xAC00 + code + (11 - cho) * 588) === reading;
+  });
 }

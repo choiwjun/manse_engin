@@ -1,0 +1,123 @@
+
+> myeong-workspace-app@0.1.0 qa
+> node --test personal-tools.test.mjs && node e2e-qa.mjs
+
+TAP version 13
+# Subtest: personal service snapshots use their actual client, persist conditions, and reject erased clients
+ok 1 - personal service snapshots use their actual client, persist conditions, and reject erased clients
+  ---
+  duration_ms: 134.089114
+  type: 'test'
+  ...
+# Subtest: old naming results are withheld for recalculation and user text is escaped
+ok 2 - old naming results are withheld for recalculation and user text is escaped
+  ---
+  duration_ms: 11.742931
+  type: 'test'
+  ...
+# Subtest: personal interpretations bind their own snapshots, need no saju snapshot, and require review for reports
+ok 3 - personal interpretations bind their own snapshots, need no saju snapshot, and require review for reports
+  ---
+  duration_ms: 108.538506
+  type: 'test'
+  ...
+# Subtest: draft generation does not borrow another client results or allow empty/unknown topics
+ok 4 - draft generation does not borrow another client results or allow empty/unknown topics
+  ---
+  duration_ms: 5.981674
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1340.031855
+[srv] (node:860337) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+== 인증 ==
+  PASS 비로그인 → 로그인 리다이렉트
+  PASS 잘못된 비밀번호 → 401
+  PASS owner 로그인 → 303
+  PASS 로그인 후 대시보드 200
+  PASS bootstrap+토큰 로그인 → 303
+== 고객·계산 ==
+  PASS 고객 등록 → 303
+  PASS 고객 ID 발급
+  PASS 고객 페이지 200
+  PASS 명식 계산 → 303
+  PASS 스냅샷 "최신" 표시
+== 토정비결·작명 ==
+  PASS 개인 토정비결 실행·저장
+  PASS 괘·계산 근거·해설 미검증 표시
+  PASS 용신 작명 후보 추천·저장
+  PASS 작명 추천·기준·오격 표시
+  PASS 지정한 한자 이름 분석
+  PASS 교정 획수 표시
+  PASS 한자·독음 불일치 차단
+  PASS 잘못된 대상 연도 차단
+  PASS 비로그인 작명 실행 차단
+== 세션·초안·검수 ==
+  PASS 세션 생성
+  PASS 세션 화면에 만세력표 렌더
+  PASS 상담 목록 페이지
+  PASS 만세력표 인쇄 페이지
+  PASS 초안 생성 → 303
+  PASS 초안 5건 생성
+  PASS 토정·작명 풀이 근거 노출
+  PASS 승인 완료 배지
+  PASS 발행본 생성
+  PASS 리포트 발행 → 303
+  PASS 인쇄 뷰 200 (발행본)
+  PASS 공유 링크 생성
+  PASS 공유 토큰 추출
+  PASS 공개 리포트 200·검수 표기
+  PASS 승인된 토정·작명 풀이 공개 리포트 포함
+== 금칙어·검수 게이트 ==
+  PASS 미발행 리포트 인쇄 → 409
+== 사전 입력 링크 ==
+  PASS 사전입력 토큰 발급
+  PASS 공개 폼 200
+  PASS 고객 제출 → 201
+  PASS 제출 고객 목록에 표시
+  PASS 철회된 링크 → 410
+== 고객 포털 ==
+  PASS 포털 링크 발급
+  PASS 포털 열람 200·본인 정보
+  PASS 포털에 발행 리포트 링크
+  PASS 포털 동의 철회 → 303
+  PASS 철회 표기
+== 예약·결제·리마인더·반복 ==
+  PASS 서비스 등록
+  PASS 예약 등록 → 303
+  PASS 예약 표시
+  PASS 중복 예약 경고 플래시
+  PASS 상담 시작 → 세션 화면
+  PASS 상담 화면: 진행중·만세력·타이머
+  PASS 상담 시작 재클릭 → 같은 세션
+  PASS 상담 종료 → 예약 자동 완료
+  PASS 리마인더 기록 → 303
+  PASS appointment.remind 감사
+  PASS 반복 예약 → 303
+  PASS 반복 배지 표시
+  PASS 월 반복 → 303
+  PASS 월 반복 말일 클램프(2/28 표시·3/3 오버플로 없음)
+  PASS 결제 기록 생성
+  PASS 수금 확인 배지
+  PASS 환불 배지
+== 설정·계정·통계·export ==
+  PASS 직원 계정 생성
+  PASS 직원 로그인 → 303
+  PASS 비소유자 계정 생성 차단 → 403
+  PASS 비밀번호 변경
+  PASS 새 비밀번호로 로그인
+  PASS 직원 토글 경로 존재
+  PASS 비활성 후 직원 세션 무효 → /login
+  PASS 통계 페이지 200
+  PASS 고객 export JSON
+  PASS owner 행위 actorRole=owner 기록
+
+=== 결과: 72 PASS / 0 FAIL ===

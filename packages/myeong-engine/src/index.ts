@@ -160,6 +160,9 @@ export {
   interpretCompatibility,
   interpretName,
   interpretNaming,
+  interpretTojeong,
+  renderTojeongMarkdown,
+  renderTojeongHtml,
   interpretNameWithSaju,
   interpretNamingWithSaju,
   interpretTaekil,
@@ -194,6 +197,8 @@ export type {
   CompatibilityLine,
   InterpretCompatibilityOptions,
   NamingInterpretation,
+  TojeongInterpretationReport,
+  TojeongLine,
   NamingLine,
   InterpretNamingOptions,
   TaekilInterpretation,
@@ -202,3 +207,9 @@ export type {
   ContentBody,
   ContentDb,
 } from './engine/interpretation';
+
+export { recommendNames } from './engine/naming/recommend';
+export type { NamingRecommendationInput, RecommendationBasis } from './engine/naming/recommend';
+export { calculateFiveGrids } from './engine/naming';
+export { lookupHanja, getHanjaStrokes, searchHanjaByReading } from './engine/naming/jawon-ohaeng';
+export { NAMING_POLICY } from './engine/naming/policy';

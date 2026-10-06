@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "customer-specific Tojeong form/result",
+    "recommendation form and 6 candidates",
+    "all new visible controls labelled",
+    "390px stacked rows",
+    "keyboard tab order",
+    "no page errors"
+  ],
+  "screenshots": [
+    "desktop.png",
+    "mobile.png"
+  ]
+}

@@ -12,7 +12,7 @@ npm test           # 빌드 + 스모크·회귀 테스트
 npm pack           # myeong-manseryeok-engine-<version>.tgz 생성
 
 # 소비 프로젝트에서
-npm install /path/to/myeong-manseryeok-engine-0.3.0.tgz
+npm install /path/to/myeong-manseryeok-engine-0.4.0.tgz
 ```
 
 ## 사용
@@ -102,3 +102,64 @@ listSolarTermsForYear(2024);                        // 24절기 시각(표준시
 오프라인 재생성합니다. 일반 빌드는 저장된 표만 사용하므로 런타임 의존성은 없습니다.
 재생성 시 한국 기준표의 월 시작일과 NASA 삭망표를 대조합니다.
 출처와 라이선스는 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)에 수록합니다.
+
+## 0.4.0 토정비결·작명
+
+계약 버전 2.0.0: 토정비결의 `interpretation`은 검증된 해설이 없으므로 `null`입니다.
+`contentStatus: 'unverified'`를 확인하고 이전 144괘 초안을 공개하지 마세요.
+기존 음력 입력은 유지하며 `calendarType: 'solar'`, `isLeapMonth`,
+`leapMonthPolicy: 'regular-month' | 'reject'`를 지원합니다. `calculation`에 음력 변환·
+태세/월건/일진수와 윤달/말일 보정 내역이 포함됩니다.
+
+작명은 원격(이름 합)/형격(성+첫 이름)을 교정했습니다. `wonhyeong`은
+가성수 없는 원형이정이며 `fiveGrids`는 천/인/지/외/총격(가성수 별도 규칙)입니다.
+한자를 제공하면 전 글자 등록/독음 일치가 필요하며 한글 획수로 혼합 대체하지 않습니다.
+한자가 전혀 없으면 기존 한글 분석을 유지하고 `strokeBasis: 'hangul'`로 표시합니다.
+강희=Unicode 13 kRSKangXi 부수원획수+나머지, 현대=Unicode 17 kTotalStrokes 첫 값(G).
+현대획수는 한국 자형의 통일 표준이 아닙니다. 각 결과의 `policy`를 표시하세요.
+
+```ts
+const env = await executeEngineModule('naming', {
+  mode: 'recommend', surname: '김', surnameHanja: '金', birth,
+  school: 'kangxi', yongsinSchool: 'gyeokguk', limit: 6,
+  // givenName: '서연', // 선택: 편집 후보군에 해당 독음이 있는 경우만 추천
+});
+// env.result.recommendation: 선택 용신·검토 조합 수·순위 규칙
+// candidates[].recommendationDetails: 일치 수·뜻·추천 이유
+```
+
+추천은 60자 편집 후보군 내 조합입니다. 자원오행/81수리 표는 프로젝트의 단일 유파 규칙이며
+법적 인명용 한자 허용 여부나 삶의 결과를 보증하지 않습니다.
+획수 재생성: `python3 scripts/refresh-hanja-strokes.py` (저장소 루트).
+검증: `--check`는 원자료 해시와 2,137자 추출 결과의 일치를 확인합니다.
+
+### 토정비결·작명 풀이
+
+계산 결과를 해석 계층에 전달하면 근거와 확인 사항을 포함한 문서를 만들 수 있습니다.
+
+```js
+import {
+  executeEngineModule, interpretTojeong, renderTojeongMarkdown, renderTojeongHtml,
+  interpretNaming, renderNamingMarkdown, renderNamingHtml,
+} from 'myeong-manseryeok-engine';
+
+const { result: tojeong } = await executeEngineModule('tojeong', {
+  birthYear: 1990, birthMonth: 1, birthDay: 15,
+  calendarType: 'lunar', targetYear: 2026,
+});
+const explanation = interpretTojeong(tojeong);
+const markdown = renderTojeongMarkdown(tojeong, explanation);
+const html = renderTojeongHtml(tojeong, explanation);
+
+const { result: naming } = await executeEngineModule('naming', {
+  surname: '박', school: 'kangxi',
+  candidates: [{ givenName: '화해', hanjaChars: ['朴', '花', '海'] }],
+});
+const candidates = interpretNaming(naming);
+const namingMarkdown = renderNamingMarkdown(naming, candidates);
+const namingHtml = renderNamingHtml(naming, candidates);
+```
+
+`interpretTojeong`는 개인별 괘와 산식·윤달·말일 처리만 설명합니다. 원문 해설은 미검증이므로 연간·월별 길흉 문구를 생성하지 않습니다. `interpretNaming`은 기존 한글 분석도 지원하며, 확장 결과를 주면 획수 기준·한자별 획수·사격/오격·자원오행을 추가합니다. 추천 결과의 용신 기준과 후보별 추천 이유도 풀이에 포함됩니다. 두 풀이의 `basisRefs`로 계산 정책과 선택 근거를 추적할 수 있습니다.
+
+워크스페이스에서는 고객 화면에서 해당 계산을 실행한 뒤 상담 화면의 자동 초안에서 **토정비결·작명**을 선택합니다. 가장 최근의 해당 고객 계산을 사용하며, 출생정보 또는 계산 정책이 바뀐 결과는 재계산해야 합니다. 생성한 풀이는 기존 상담사 검수와 리포트 절차를 따릅니다.

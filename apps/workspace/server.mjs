@@ -14,8 +14,9 @@ import {
 } from '../../packages/myeong-platform/dist/index.js';
 import { createFileStore, DEFAULT_STORE_PATH } from './file-store.mjs';
 import { createSqliteStore, DEFAULT_SQLITE_PATH } from './sqlite-store.mjs';
-import { runSajuCalculation, generateTopicDrafts, latestSajuSnapshot } from './engine-adapter.mjs';
+import { runSajuCalculation, runTojeongCalculation, runNamingCalculation, generateTopicDrafts, latestSajuSnapshot } from './engine-adapter.mjs';
 import * as V from './views.mjs';
+import { ENGINE_VERSION } from '../../packages/myeong-engine/dist/index.js';
 
 const PORT = Number(process.env.PORT ?? 8080);
 const TOKEN = process.env.MYEONG_TOKEN ?? randomBytes(12).toString('hex');
@@ -222,7 +223,7 @@ get('/clients/:id', async (req, res, url, { id }) => {
   const client = platform.getClient(WS(), id);
   const snapshots = platform.listSnapshots(WS(), id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const staleMap = new Map();
-  for (const s of snapshots) staleMap.set(s.id, await platform.isSnapshotStale(WS(), s.id));
+  for (const s of snapshots) staleMap.set(s.id, (await platform.isSnapshotStale(WS(), s.id)) || s.envelope.engineVersion !== ENGINE_VERSION);
   const timeline = platform.getClientTimeline(WS(), id);
   const sessions = timeline.sessions.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const base = `${req.headers['x-forwarded-proto'] ?? 'http'}://${req.headers.host}`;
@@ -247,6 +248,23 @@ post('/clients/:id/portal-links/:lid/revoke', async (req, res, url, { id, lid })
 post('/clients/:id/calc', async (req, res, url, { id }) => {
   await runSajuCalculation(platform, WS(), id, { actor: actorOf(req) });
   redirect(res, `/clients/${id}`, { kind: 'msg', text: '명식을 계산해 스냅샷으로 보존했습니다.' });
+});
+
+post('/clients/:id/tojeong', async (req, res, url, { id }) => {
+  const f = await readForm(req);
+  await runTojeongCalculation(platform, WS(), id, {
+    targetYear: Number(f.targetYear), leapMonthPolicy: f.leapMonthPolicy, actor: actorOf(req),
+  });
+  redirect(res, `/clients/${id}`, { kind: 'msg', text: '개인별 토정비결 계산과 적용 기준을 저장했습니다.' });
+});
+post('/clients/:id/naming', async (req, res, url, { id }) => {
+  const f = await readForm(req);
+  await runNamingCalculation(platform, WS(), id, {
+    mode: f.mode, surname: f.surname, surnameHanja: f.surnameHanja,
+    givenName: f.givenName || undefined, givenHanja: f.givenHanja,
+    school: f.school, yongsinSchool: f.yongsinSchool, actor: actorOf(req),
+  });
+  redirect(res, `/clients/${id}`, { kind: 'msg', text: '작명 결과와 계산 기준을 저장했습니다.' });
 });
 
 // 고객 화면의 "상담 시작" — 세션을 만들고 바로 상담 화면(진행 중)으로 들어간다.
@@ -354,7 +372,7 @@ post('/sessions/:id/outcome', async (req, res, url, { id }) => {
 
 post('/sessions/:id/drafts', async (req, res, url, { id }) => {
   const f = await readForm(req);
-  const { created } = generateTopicDrafts(platform, WS(), id, asArray(f.topics), actorOf(req));
+  const { created } = await generateTopicDrafts(platform, WS(), id, asArray(f.topics), actorOf(req));
   redirect(res, `/sessions/${id}`, { kind: 'msg', text: `초안 ${created.length}건을 생성했습니다.` });
 });
 

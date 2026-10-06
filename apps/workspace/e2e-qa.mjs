@@ -84,6 +84,25 @@ try {
   const detail = await req('GET', `/clients/${clientId}`, { session: 'me' });
   check('스냅샷 "최신" 표시', detail.text.includes('최신'));
 
+  console.log('== 토정비결·작명 ==');
+  const tojeong = await req('POST', `/clients/${clientId}/tojeong`, { session: 'me', body: { targetYear: '2026', leapMonthPolicy: 'regular-month' } });
+  check('개인 토정비결 실행·저장', tojeong.status === 303);
+  const personal = await req('GET', `/clients/${clientId}`, { session: 'me' });
+  check('괘·계산 근거·해설 미검증 표시', personal.text.includes('토정비결 계산 결과') && personal.text.includes('태세수') && personal.text.includes('해설 검증 대기'));
+  const naming = await req('POST', `/clients/${clientId}/naming`, { session: 'me', body: { mode: 'recommend', surname: '김', surnameHanja: '金', school: 'kangxi', yongsinSchool: 'gyeokguk' } });
+  check('용신 작명 후보 추천·저장', naming.status === 303);
+  const named = await req('GET', `/clients/${clientId}`, { session: 'me' });
+  check('작명 추천·기준·오격 표시', named.text.includes('작명 결과') && named.text.includes('용신') && named.text.includes('천격') && named.text.includes('데이터 출처'));
+  const analyze = await req('POST', `/clients/${clientId}/naming`, { session: 'me', body: { mode: 'analyze', surname: '박', surnameHanja: '朴', givenName: '화해', givenHanja: '花海', school: 'kangxi' } });
+  check('지정한 한자 이름 분석', analyze.status === 303);
+  const analyzed = await req('GET', `/clients/${clientId}`, { session: 'me' });
+  check('교정 획수 표시', analyzed.text.includes('6 · 10 · 11'));
+  const invalidName = await req('POST', `/clients/${clientId}/naming`, { session: 'me', body: { mode: 'analyze', surname: '박', surnameHanja: '朴', givenName: '화해', givenHanja: '明海', school: 'kangxi' } });
+  check('한자·독음 불일치 차단', invalidName.status === 303 && decodeURIComponent(invalidName.location).includes('독음'));
+  const invalidYear = await req('POST', `/clients/${clientId}/tojeong`, { session: 'me', body: { targetYear: 'no-year' } });
+  check('잘못된 대상 연도 차단', invalidYear.status === 303 && invalidYear.location.includes('err='));
+  check('비로그인 작명 실행 차단', (await req('POST', `/clients/${clientId}/naming`, { body: { mode: 'recommend' } })).status === 401);
+
   console.log('== 세션·초안·검수 ==');
   const sess = await req('POST', `/clients/${clientId}/sessions`, { session: 'me' });
   const sessionId = sess.location.split('/sessions/')[1];
@@ -95,14 +114,15 @@ try {
   const snapPrintPath = sessPage0.text.match(/snapshots\/[^"]+\/print/)?.[0];
   const snapPrint = snapPrintPath ? await req('GET', `/${snapPrintPath}`, { session: 'me' }) : { status: 0, text: '' };
   check('만세력표 인쇄 페이지', snapPrint.status === 200 && snapPrint.text.includes('window.print') && snapPrint.text.includes('만세력표 —'));
-  const dr = await req('POST', `/sessions/${sessionId}/drafts`, { session: 'me', body: { topics: ['career', 'wealth', 'year'] } });
+  const dr = await req('POST', `/sessions/${sessionId}/drafts`, { session: 'me', body: { topics: ['career', 'wealth', 'year', 'tojeong', 'naming'] } });
   check('초안 생성 → 303', dr.status === 303);
   const sessPage = await req('GET', `/sessions/${sessionId}`, { session: 'me' });
   const approvePaths = [...sessPage.text.matchAll(/action="(\/drafts\/[^/]+\/approve)"/g)].map((m) => m[1]);
-  check('초안 3건 생성', approvePaths.length === 3, `got ${approvePaths.length}`);
+  check('초안 5건 생성', approvePaths.length === 5, `got ${approvePaths.length}`);
+  check('토정·작명 풀이 근거 노출', sessPage.text.includes('해설 상태:') && sessPage.text.includes('획수 기준:') && sessPage.text.includes('花 10획'));
   for (const p of approvePaths) await req('POST', p, { session: 'me' });
   const sessPage2 = await req('GET', `/sessions/${sessionId}`, { session: 'me' });
-  check('승인 완료 배지', (sessPage2.text.match(/검수 완료/g) ?? []).length >= 3);
+  check('승인 완료 배지', (sessPage2.text.match(/검수 완료/g) ?? []).length >= 5);
 
   const rep = await req('POST', `/sessions/${sessionId}/report`, { session: 'me' });
   const reportId = rep.location.split('/reports/')[1];
@@ -118,6 +138,8 @@ try {
   check('공유 토큰 추출', !!shareToken);
   const pubPage = await req('GET', `/r/${shareToken}`);
   check('공개 리포트 200·검수 표기', pubPage.status === 200 && pubPage.text.includes('검수'));
+
+  check('승인된 토정·작명 풀이 공개 리포트 포함', pubPage.text.includes('토정비결') && pubPage.text.includes('해설 상태:') && pubPage.text.includes('작명') && pubPage.text.includes('花 10획'));
 
   console.log('== 금칙어·검수 게이트 ==');
   // 금칙어 게이트는 도메인 테스트에서 검증됨 — 여기서는 미발행 리포트 인쇄 차단 확인

@@ -227,13 +227,13 @@ export interface BirthInputData {
 // --- 토정비결 (土亭秘訣) 타입 ---
 
 export interface TojeongGwae {
-  /** 상괘 - 태세수/납음오행 수 (1~5) */
+  /** 상괘 - 나이+태세수 (1~8) */
   sangGwae: number;
-  /** 중괘 - 음력 월 기반 (1~8) */
+  /** 중괘 - 대상 생월 날수+월건수 (1~6) */
   jungGwae: number;
-  /** 하괘 - 음력 일 기반 (1~8) */
+  /** 하괘 - 생일+일진수 (1~3) */
   haGwae: number;
-  /** 괘 조합 코드 (예: "1-3-5") */
+  /** 괘 조합 코드 (예: "531") */
   gwaeCode: string;
   /** 144괘 중 번호 (1~144) */
   gwaeNumber: number;
@@ -252,6 +252,12 @@ export interface TojeongInterpretation {
   monthly: string[];
 }
 
+export interface TojeongOptions {
+  calendarType?: 'solar' | 'lunar';
+  isLeapMonth?: boolean;
+  leapMonthPolicy?: 'regular-month' | 'reject';
+}
+
 export interface TojeongResult {
   /** 음력 생년 */
   birthYear: number;
@@ -260,7 +266,22 @@ export interface TojeongResult {
   /** 괘 정보 */
   gwae: TojeongGwae;
   /** 해석 */
-  interpretation: TojeongInterpretation;
+  interpretation: TojeongInterpretation | null;
+  contentStatus: 'unverified';
+  calculation: {
+    lunarBirth: { year: number; month: number; day: number; isLeapMonth: boolean };
+    koreanAge: number;
+    monthDays: number;
+    effectiveDay: number;
+    dayAdjusted: boolean;
+    leapMonthAdjusted: boolean;
+    leapMonthPolicy: 'regular-month' | 'reject';
+    taeseSu: number;
+    wolgeonSu: number;
+    iljinSu: number;
+    policyId: string;
+    source: string;
+  };
 }
 
 // --- 작명 분석 (作名分析) 타입 ---
@@ -373,6 +394,10 @@ export interface TripleOhaengComparison {
 
 /** 확장 이름 분석 (기존 + 자원오행) */
 export interface NamingAnalysisExtended extends NamingAnalysis {
+  policy: import('./naming/policy').NamingPolicy;
+  strokeBasis: 'hangul' | StrokeSchool;
+  recommendationDetails?: { targetMatches: number; meanings: string[]; reason: string };
+  fiveGrids: { cheon: number; in: number; ji: number; oe: number; chong: number };
   /** 한자 입력 (성 포함) */
   hanjaChars: string[] | null;
   /** 자원오행 분석 (한자 입력 시) */
@@ -387,6 +412,8 @@ export interface NamingAnalysisExtended extends NamingAnalysis {
 
 /** 확장 작명 결과 */
 export interface NamingResultExtended {
+  policy?: import('./naming/policy').NamingPolicy;
+  recommendation?: import('./naming/recommend').RecommendationBasis;
   /** 성씨 */
   surname: string;
   /** 학파 */

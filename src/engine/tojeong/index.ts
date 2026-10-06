@@ -3,9 +3,9 @@
 
 import type { TojeongResult, TojeongGwae } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
-import { getLunarMonthDays, lunarToSolar } from '@/engine/core/lunar-solar';
+import { getLunarMonthDays, lunarToSolar, solarToLunar } from '@/engine/core/lunar-solar';
 import { ManseryeokRangeError } from '@/engine/core/errors';
-import { TOJEONG_DATA } from './data';
+import type { TojeongOptions } from '@/engine/types';
 
 const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const;
 const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const;
@@ -173,7 +173,38 @@ export function analyzeTojeong(
   birthMonth: number,
   birthDay: number,
   targetYear: number,
+  options: TojeongOptions = {},
 ): TojeongResult {
+  if (!Number.isInteger(birthYear) || !Number.isInteger(targetYear)) {
+    throw new ManseryeokRangeError('생년과 대상 연도는 정수여야 합니다.', { birthYear, targetYear });
+  }
+  if (options.calendarType !== undefined && !['solar', 'lunar'].includes(options.calendarType)) {
+    throw new ManseryeokRangeError('양력 또는 음력을 선택하세요.', {});
+  }
+  if (options.isLeapMonth !== undefined && typeof options.isLeapMonth !== 'boolean') {
+    throw new ManseryeokRangeError('윤달 여부는 참/거짓이어야 합니다.', {});
+  }
+  const leapMonthPolicy = options.leapMonthPolicy ?? 'regular-month';
+  if (!['regular-month', 'reject'].includes(leapMonthPolicy)) {
+    throw new ManseryeokRangeError('윤달 처리 기준을 선택하세요.', {});
+  }
+  if (options.calendarType === 'solar' && options.isLeapMonth) {
+    throw new ManseryeokRangeError('양력 입력에는 윤달을 지정할 수 없습니다.', {});
+  }
+  const lunarBirth = options.calendarType === 'solar'
+    ? solarToLunar({ year: birthYear, month: birthMonth, day: birthDay })
+    : { year: birthYear, month: birthMonth, day: birthDay, isLeapMonth: options.isLeapMonth ?? false };
+  // 실제 출생 음력 날짜의 존재를 먼저 검증한다. 대상 연도 말일 보정과 구별한다.
+  lunarToSolar(lunarBirth);
+  if (lunarBirth.year > targetYear) {
+    throw new ManseryeokRangeError('대상 연도는 음력 생년 이후여야 합니다.', {});
+  }
+  if (lunarBirth.isLeapMonth && leapMonthPolicy === 'reject') {
+    throw new ManseryeokRangeError('윤달 출생: 평달 환산 정책을 선택해야 계산할 수 있습니다.', {});
+  }
+  birthYear = lunarBirth.year;
+  birthMonth = lunarBirth.month;
+  birthDay = lunarBirth.day;
   if (!Number.isInteger(birthMonth) || birthMonth < 1 || birthMonth > 12) {
     throw new ManseryeokRangeError(`토정비결 생월은 1~12 범위여야 합니다: ${birthMonth}`, { birthMonth });
   }
@@ -198,12 +229,29 @@ export function analyzeTojeong(
     gwaeNumber,
   };
 
-  const interpretation = TOJEONG_DATA[gwaeNumber] ?? TOJEONG_DATA[1];
+  // 기존 144괘 문구에는 문헌·판본·원문 대응 근거가 없다.
+  // 확인되지 않은 해설을 원문으로 노출하거나 다른 괘로 대체하지 않는다.
+  const interpretation = null;
 
   return {
     birthYear,
     targetYear,
     gwae,
     interpretation,
+    contentStatus: 'unverified',
+    calculation: {
+      lunarBirth,
+      koreanAge: targetYear - birthYear + 1,
+      monthDays,
+      effectiveDay,
+      dayAdjusted: effectiveDay !== birthDay,
+      leapMonthPolicy,
+      leapMonthAdjusted: lunarBirth.isLeapMonth,
+      taeseSu: getTaeseSu(targetYear),
+      wolgeonSu: getWolgeonSu(targetYear, birthMonth),
+      iljinSu: getIljinSu(targetYear, birthMonth, effectiveDay),
+      policyId: 'tojeong-8x6x3-regular-clamp-v2',
+      source: 'https://www.nfm.go.kr/_Upload/BALGANBOOK/817/sesi01.pdf',
+    },
   };
 }

@@ -1,0 +1,783 @@
+
+> test
+> npm --prefix packages/myeong-engine test && npm --prefix packages/myeong-platform test
+
+
+> myeong-manseryeok-engine@0.4.0 pretest
+> npm run build
+
+
+> myeong-manseryeok-engine@0.4.0 build
+> node build.mjs
+
+generated content-db.generated.json (160 entries)
+copied src/engine → packages/myeong-engine/src/engine
+rewrote 161 '@/engine/*' import specifiers
+bundled dist/index.js (esm) + dist/index.cjs (cjs)
+emitted dist/**/*.d.ts
+
+> myeong-manseryeok-engine@0.4.0 test
+> node smoke.test.mjs && node --test regression.test.mjs && node --test naming-tojeong.test.mjs && node --test interpretation.test.mjs && node --test personal-interpretation.test.mjs && node validate-content.mjs
+
+smoke test: all assertions passed
+TAP version 13
+# Subtest: esm: Korean lunar fixtures convert both ways and produce the same palja
+ok 1 - esm: Korean lunar fixtures convert both ways and produce the same palja
+  ---
+  duration_ms: 36.582995
+  type: 'test'
+  ...
+# Subtest: esm: true solar time changes the hour pillar, not the ipchun instant or yun direction
+ok 2 - esm: true solar time changes the hour pillar, not the ipchun instant or yun direction
+  ---
+  duration_ms: 4.242488
+  type: 'test'
+  ...
+# Subtest: esm: UTC+08:30 birth labels use the actual instant for solar terms
+ok 3 - esm: UTC+08:30 birth labels use the actual instant for solar terms
+  ---
+  duration_ms: 0.652499
+  type: 'test'
+  ...
+# Subtest: esm: all 12 jeol boundaries agree across legal/DST/true-solar clocks
+ok 4 - esm: all 12 jeol boundaries agree across legal/DST/true-solar clocks
+  ---
+  duration_ms: 80.549929
+  type: 'test'
+  ...
+# Subtest: esm: historical transition labels use half-open gaps and folds
+ok 5 - esm: historical transition labels use half-open gaps and folds
+  ---
+  duration_ms: 4.405628
+  type: 'test'
+  ...
+# Subtest: esm: unknown times preserve the date and do not create transition errors
+ok 6 - esm: unknown times preserve the date and do not create transition errors
+  ---
+  duration_ms: 71.520159
+  type: 'test'
+  ...
+# Subtest: esm: known midnight correction and both zi-hour schools remain effective
+ok 7 - esm: known midnight correction and both zi-hour schools remain effective
+  ---
+  duration_ms: 3.868312
+  type: 'test'
+  ...
+# Subtest: esm: current daeun switches at its fractional start age, including the exact boundary
+ok 8 - esm: current daeun switches at its fractional start age, including the exact boundary
+  ---
+  duration_ms: 11.124752
+  type: 'test'
+  ...
+# Subtest: esm: full results support both directions throughout the 2101 upper boundary
+ok 9 - esm: full results support both directions throughout the 2101 upper boundary
+  ---
+  duration_ms: 26.891614
+  type: 'test'
+  ...
+# Subtest: cjs: Korean lunar fixtures convert both ways and produce the same palja
+ok 10 - cjs: Korean lunar fixtures convert both ways and produce the same palja
+  ---
+  duration_ms: 19.615698
+  type: 'test'
+  ...
+# Subtest: cjs: true solar time changes the hour pillar, not the ipchun instant or yun direction
+ok 11 - cjs: true solar time changes the hour pillar, not the ipchun instant or yun direction
+  ---
+  duration_ms: 3.087894
+  type: 'test'
+  ...
+# Subtest: cjs: UTC+08:30 birth labels use the actual instant for solar terms
+ok 12 - cjs: UTC+08:30 birth labels use the actual instant for solar terms
+  ---
+  duration_ms: 1.002249
+  type: 'test'
+  ...
+# Subtest: cjs: all 12 jeol boundaries agree across legal/DST/true-solar clocks
+ok 13 - cjs: all 12 jeol boundaries agree across legal/DST/true-solar clocks
+  ---
+  duration_ms: 157.991162
+  type: 'test'
+  ...
+# Subtest: cjs: historical transition labels use half-open gaps and folds
+ok 14 - cjs: historical transition labels use half-open gaps and folds
+  ---
+  duration_ms: 1.663993
+  type: 'test'
+  ...
+# Subtest: cjs: unknown times preserve the date and do not create transition errors
+ok 15 - cjs: unknown times preserve the date and do not create transition errors
+  ---
+  duration_ms: 71.548801
+  type: 'test'
+  ...
+# Subtest: cjs: known midnight correction and both zi-hour schools remain effective
+ok 16 - cjs: known midnight correction and both zi-hour schools remain effective
+  ---
+  duration_ms: 1.454629
+  type: 'test'
+  ...
+# Subtest: cjs: current daeun switches at its fractional start age, including the exact boundary
+ok 17 - cjs: current daeun switches at its fractional start age, including the exact boundary
+  ---
+  duration_ms: 2.042061
+  type: 'test'
+  ...
+# Subtest: cjs: full results support both directions throughout the 2101 upper boundary
+ok 18 - cjs: full results support both directions throughout the 2101 upper boundary
+  ---
+  duration_ms: 18.64775
+  type: 'test'
+  ...
+# Subtest: all 74,144 solar dates round-trip; all dates through 2050 agree with the Korean reference
+ok 19 - all 74,144 solar dates round-trip; all dates through 2050 agree with the Korean reference
+  ---
+  duration_ms: 648.099131
+  type: 'test'
+  ...
+# Subtest: projected lunar month starts agree with NASA new-moon dates in KST
+ok 20 - projected lunar month starts agree with NASA new-moon dates in KST
+  ---
+  duration_ms: 4.126338
+  type: 'test'
+  ...
+# Subtest: ziwei derives the five-elements class from the ming-gong stem-branch naeum
+ok 21 - ziwei derives the five-elements class from the ming-gong stem-branch naeum
+  ---
+  duration_ms: 19.082747
+  type: 'test'
+  ...
+# Subtest: ziwei places 丙子·丁丑 stems and palace names in reverse branch order
+ok 22 - ziwei places 丙子·丁丑 stems and palace names in reverse branch order
+  ---
+  duration_ms: 17.809551
+  type: 'test'
+  ...
+# Subtest: ziwei star position follows the quotient-and-offset rule
+ok 23 - ziwei star position follows the quotient-and-offset rule
+  ---
+  duration_ms: 3.5201
+  type: 'test'
+  ...
+# Subtest: qimen places all nine stems including 乙 and honors the term instant
+ok 24 - qimen places all nine stems including 乙 and honors the term instant
+  ---
+  duration_ms: 127.370769
+  type: 'test'
+  ...
+# Subtest: daeyukim switches woljang at the exact term instant
+ok 25 - daeyukim switches woljang at the exact term instant
+  ---
+  duration_ms: 11.702827
+  type: 'test'
+  ...
+# Subtest: gyeokguk reaches special formations before ordinary classification
+ok 26 - gyeokguk reaches special formations before ordinary classification
+  ---
+  duration_ms: 2.808837
+  type: 'test'
+  ...
+# Subtest: contract validation rejects invalid and non-finite inputs
+ok 27 - contract validation rejects invalid and non-finite inputs
+  ---
+  duration_ms: 8.994822
+  type: 'test'
+  ...
+# Subtest: compatibility scores unknown-time charts against the valid-character count
+ok 28 - compatibility scores unknown-time charts against the valid-character count
+  ---
+  duration_ms: 8.890066
+  type: 'test'
+  ...
+# Subtest: 2024 solar-term timestamps remain within one minute of the KASI reference
+ok 29 - 2024 solar-term timestamps remain within one minute of the KASI reference
+  ---
+  duration_ms: 1.57838
+  type: 'test'
+  ...
+# Subtest: tojeong derives a collision-free 8x6x3 gwae from traditional formulas
+ok 30 - tojeong derives a collision-free 8x6x3 gwae from traditional formulas
+  ---
+  duration_ms: 3.038167
+  type: 'test'
+  ...
+# Subtest: lunar month length helper returns 29 or 30 and matches conversion range
+ok 31 - lunar month length helper returns 29 or 30 and matches conversion range
+  ---
+  duration_ms: 1.068177
+  type: 'test'
+  ...
+# Subtest: harak hexagram lookup respects the lower*10+upper key convention
+ok 32 - harak hexagram lookup respects the lower*10+upper key convention
+  ---
+  duration_ms: 1.716965
+  type: 'test'
+  ...
+# Subtest: daeyukim applies the nine-gates derivation with jeok-first priority
+ok 33 - daeyukim applies the nine-gates derivation with jeok-first priority
+  ---
+  duration_ms: 1.62781
+  type: 'test'
+  ...
+# Subtest: naming rejects partial hanja arrays and non-hangul characters
+ok 34 - naming rejects partial hanja arrays and non-hangul characters
+  ---
+  duration_ms: 8.089869
+  type: 'test'
+  ...
+# Subtest: calendar emits the twelve officers (十二直) names
+ok 35 - calendar emits the twelve officers (十二直) names
+  ---
+  duration_ms: 11.209196
+  type: 'test'
+  ...
+# Subtest: package version matches ENGINE_VERSION
+ok 36 - package version matches ENGINE_VERSION
+  ---
+  duration_ms: 14.86292
+  type: 'test'
+  ...
+# Subtest: 旺相休囚死 direction follows the classical rule (五行精紀)
+ok 37 - 旺相休囚死 direction follows the classical rule (五行精紀)
+  ---
+  duration_ms: 14.789577
+  type: 'test'
+  ...
+# Subtest: 삼형 두 글자 조합도 형으로 감지하고 완성형은 중복 보고하지 않는다
+ok 38 - 삼형 두 글자 조합도 형으로 감지하고 완성형은 중복 보고하지 않는다
+  ---
+  duration_ms: 1.733368
+  type: 'test'
+  ...
+# Subtest: lunar birth dates are validated by lunar month length and leap-month existence
+ok 39 - lunar birth dates are validated by lunar month length and leap-month existence
+  ---
+  duration_ms: 15.410512
+  type: 'test'
+  ...
+# Subtest: now requires RFC 3339 with an explicit UTC designator and a real date
+ok 40 - now requires RFC 3339 with an explicit UTC designator and a real date
+  ---
+  duration_ms: 4.938036
+  type: 'test'
+  ...
+# Subtest: judgeGanJi judges stem and branch axes separately and reports mixed verdicts
+ok 41 - judgeGanJi judges stem and branch axes separately and reports mixed verdicts
+  ---
+  duration_ms: 3.770861
+  type: 'test'
+  ...
+# Subtest: judgeGanJi neutral axis exists and a directed axis dominates a neutral one
+ok 42 - judgeGanJi neutral axis exists and a directed axis dominates a neutral one
+  ---
+  duration_ms: 3.245508
+  type: 'test'
+  ...
+# Subtest: SajuResult.asOf pins the reference time so omitted now stays deterministic
+ok 43 - SajuResult.asOf pins the reference time so omitted now stays deterministic
+  ---
+  duration_ms: 2.53808
+  type: 'test'
+  ...
+# Subtest: gyeokguk exposes confidence, basis, and blockers metadata
+ok 44 - gyeokguk exposes confidence, basis, and blockers metadata
+  ---
+  duration_ms: 1.425523
+  type: 'test'
+  ...
+# Subtest: report discloses which strength and yongsin models produced the output
+ok 45 - report discloses which strength and yongsin models produced the output
+  ---
+  duration_ms: 30.992494
+  type: 'test'
+  ...
+# Subtest: jijanggan 子 follows the 子中單癸水 convention (single hidden stem)
+ok 46 - jijanggan 子 follows the 子中單癸水 convention (single hidden stem)
+  ---
+  duration_ms: 0.33288
+  type: 'test'
+  ...
+# Subtest: daeun direction follows the 陽男陰女順行 / 陰男陽女逆行 rule
+ok 47 - daeun direction follows the 陽男陰女順行 / 陰男陽女逆行 rule
+  ---
+  duration_ms: 3.397391
+  type: 'test'
+  ...
+# Subtest: 대운 개시 나이가 0~10세 범위이고 각 대운의 지지 오행이 함께 실린다
+ok 48 - 대운 개시 나이가 0~10세 범위이고 각 대운의 지지 오행이 함께 실린다
+  ---
+  duration_ms: 1.513314
+  type: 'test'
+  ...
+# Subtest: 지지 육합·육충 전체 매트릭스가 감지된다
+ok 49 - 지지 육합·육충 전체 매트릭스가 감지된다
+  ---
+  duration_ms: 1.064546
+  type: 'test'
+  ...
+# Subtest: 세운·월운 간지가 60갑자 규칙과 일치한다
+ok 50 - 세운·월운 간지가 60갑자 규칙과 일치한다
+  ---
+  duration_ms: 1.162498
+  type: 'test'
+  ...
+# Subtest: 학파별 용신 스프레드와 점수제 강약이 결과에 함께 실린다
+ok 51 - 학파별 용신 스프레드와 점수제 강약이 결과에 함께 실린다
+  ---
+  duration_ms: 2.463846
+  type: 'test'
+  ...
+# Subtest: 루트 소스와 패키지 미러의 생성 콘텐츠 DB가 동일하다
+ok 52 - 루트 소스와 패키지 미러의 생성 콘텐츠 DB가 동일하다
+  ---
+  duration_ms: 54.275903
+  type: 'test'
+  ...
+# Subtest: 격국이 차순위 후보를 함께 노출한다 (특수격 성립 시 정격이 candidates로)
+ok 53 - 격국이 차순위 후보를 함께 노출한다 (특수격 성립 시 정격이 candidates로)
+  ---
+  duration_ms: 11.330716
+  type: 'test'
+  ...
+# Subtest: 학파별 용신 근거와 일치/불일치가 리포트에 노출된다
+ok 54 - 학파별 용신 근거와 일치/불일치가 리포트에 노출된다
+  ---
+  duration_ms: 6.49386
+  type: 'test'
+  ...
+# Subtest: applyPractitionerOverride — 역술인 선택이 용신·격국·운 판정·리포트에 일관 반영된다
+ok 55 - applyPractitionerOverride — 역술인 선택이 용신·격국·운 판정·리포트에 일관 반영된다
+  ---
+  duration_ms: 6.105962
+  type: 'test'
+  ...
+1..55
+# tests 55
+# suites 0
+# pass 55
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3423.052667
+TAP version 13
+# Subtest: Kangxi dictionary examples and Korean surname glyphs use their own strokes
+ok 1 - Kangxi dictionary examples and Korean surname glyphs use their own strokes
+  ---
+  duration_ms: 13.013602
+  type: 'test'
+  ...
+# Subtest: Tojeong converts solar birthdays, explains policy and withholds unverified prose
+ok 2 - Tojeong converts solar birthdays, explains policy and withholds unverified prose
+  ---
+  duration_ms: 48.099582
+  type: 'test'
+  ...
+# Subtest: recommendation uses the supplied birth chart and provides bounded, traceable candidates
+ok 3 - recommendation uses the supplied birth chart and provides bounded, traceable candidates
+  ---
+  duration_ms: 254.55467
+  type: 'test'
+  ...
+# Subtest: naming keeps stroke schools separate, checks readings and never mixes unknown glyphs
+ok 4 - naming keeps stroke schools separate, checks readings and never mixes unknown glyphs
+  ---
+  duration_ms: 6.722402
+  type: 'test'
+  ...
+# Subtest: Tojeong leap birthdays require explicit supported policy and real input dates
+ok 5 - Tojeong leap birthdays require explicit supported policy and real input dates
+  ---
+  duration_ms: 8.143793
+  type: 'test'
+  ...
+# Subtest: recommendations honor preferred reading, limit and changed yongsin
+ok 6 - recommendations honor preferred reading, limit and changed yongsin
+  ---
+  duration_ms: 199.953313
+  type: 'test'
+  ...
+# Subtest: all 2137 stroke entries agree with the committed raw reference and retain positive counts
+ok 7 - all 2137 stroke entries agree with the committed raw reference and retain positive counts
+  ---
+  duration_ms: 42.35863
+  type: 'test'
+  ...
+# Subtest: contract rejects oversized requests and preserves explicit Hangul-only basis
+ok 8 - contract rejects oversized requests and preserves explicit Hangul-only basis
+  ---
+  duration_ms: 10.636173
+  type: 'test'
+  ...
+# Subtest: Tojeong upper trigrams match published worked examples
+ok 9 - Tojeong upper trigrams match published worked examples
+  ---
+  duration_ms: 3.45142
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2520.451065
+TAP version 13
+# interpretation.test: OK
+# Subtest: interpretation.test.mjs
+ok 1 - interpretation.test.mjs
+  ---
+  duration_ms: 3061.993249
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3093.265335
+TAP version 13
+# Subtest: Tojeong interpretation explains personal calculation without unverified fortune prose
+ok 1 - Tojeong interpretation explains personal calculation without unverified fortune prose
+  ---
+  duration_ms: 4.69395
+  type: 'test'
+  ...
+# Subtest: Naming interpretation includes corrected grids, explicit stroke school and recommendation rationale
+ok 2 - Naming interpretation includes corrected grids, explicit stroke school and recommendation rationale
+  ---
+  duration_ms: 112.901298
+  type: 'test'
+  ...
+# Subtest: Tojeong explanations preserve leap/month-end adjustments and reject legacy results
+ok 3 - Tojeong explanations preserve leap/month-end adjustments and reject legacy results
+  ---
+  duration_ms: 2.482993
+  type: 'test'
+  ...
+# Subtest: Naming distinguishes modern/Hangul bases and avoids deterministic source wording in recommendations
+ok 4 - Naming distinguishes modern/Hangul bases and avoids deterministic source wording in recommendations
+  ---
+  duration_ms: 2.559213
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 945.45433
+content:validate OK — 엔트리 160건 통과 (레지스트리 137키 중 미작성 0키)
+
+> myeong-manseryeok-platform@0.1.0 pretest
+> npm run build
+
+
+> myeong-manseryeok-platform@0.1.0 build
+> node build.mjs
+
+copied src/platform → packages/myeong-platform/src/platform
+bundled dist/index.js (esm) + dist/index.cjs (cjs)
+emitted dist/**/*.d.ts
+
+> myeong-manseryeok-platform@0.1.0 test
+> node --test platform.test.mjs
+
+TAP version 13
+# Subtest: 고객·동의 (P0-A)
+    # Subtest: 고객 생성 — 동의 목적 필수
+    ok 1 - 고객 생성 — 동의 목적 필수
+      ---
+      duration_ms: 17.454037
+      type: 'test'
+      ...
+    # Subtest: 테넌트 경계 — 다른 워크스페이스는 고객 존재 자체를 볼 수 없다
+    ok 2 - 테넌트 경계 — 다른 워크스페이스는 고객 존재 자체를 볼 수 없다
+      ---
+      duration_ms: 2.223754
+      type: 'test'
+      ...
+    # Subtest: 검색·보관·동의 철회
+    ok 3 - 검색·보관·동의 철회
+      ---
+      duration_ms: 1.59485
+      type: 'test'
+      ...
+    # Subtest: 삭제 요청 → 처리 시 식별정보를 지우고 결제 기록은 보존한다 (§6.2)
+    ok 4 - 삭제 요청 → 처리 시 식별정보를 지우고 결제 기록은 보존한다 (§6.2)
+      ---
+      duration_ms: 2.332114
+      type: 'test'
+      ...
+    1..4
+ok 1 - 고객·동의 (P0-A)
+  ---
+  duration_ms: 26.054093
+  type: 'suite'
+  ...
+# Subtest: 계산 스냅샷 (재현성)
+    # Subtest: envelope를 불변 보존하고 runId 중복 적재는 멱등이다
+    ok 1 - envelope를 불변 보존하고 runId 중복 적재는 멱등이다
+      ---
+      duration_ms: 28.365739
+      type: 'test'
+      ...
+    # Subtest: 출생정보 수정 시 스냅샷은 유지되고 stale로 판정된다 (§6.2)
+    ok 2 - 출생정보 수정 시 스냅샷은 유지되고 stale로 판정된다 (§6.2)
+      ---
+      duration_ms: 7.820108
+      type: 'test'
+      ...
+    # Subtest: 불완전한 envelope는 거부한다
+    ok 3 - 불완전한 envelope는 거부한다
+      ---
+      duration_ms: 2.406241
+      type: 'test'
+      ...
+    1..3
+ok 2 - 계산 스냅샷 (재현성)
+  ---
+  duration_ms: 39.573999
+  type: 'suite'
+  ...
+# Subtest: 세션 상태기계·메모 (P0-C, US-03)
+    # Subtest: planned → prepared → in_progress → review → delivered → archived
+    ok 1 - planned → prepared → in_progress → review → delivered → archived
+      ---
+      duration_ms: 1.493345
+      type: 'test'
+      ...
+    # Subtest: 허용되지 않은 전이는 INVALID_TRANSITION
+    ok 2 - 허용되지 않은 전이는 INVALID_TRANSITION
+      ---
+      duration_ms: 3.415693
+      type: 'test'
+      ...
+    # Subtest: 메모 충돌 방지 — expectedUpdatedAt 불일치 시 CONFLICT
+    ok 3 - 메모 충돌 방지 — expectedUpdatedAt 불일치 시 CONFLICT
+      ---
+      duration_ms: 2.970325
+      type: 'test'
+      ...
+    # Subtest: delivered 이후에는 메모 추가 불가
+    ok 4 - delivered 이후에는 메모 추가 불가
+      ---
+      duration_ms: 1.059896
+      type: 'test'
+      ...
+    1..4
+ok 3 - 세션 상태기계·메모 (P0-C, US-03)
+  ---
+  duration_ms: 9.702367
+  type: 'suite'
+  ...
+# Subtest: 해석 초안 — 자동/확정 분리·금칙어 (§7.4)
+    # Subtest: 금칙어는 생성·수정 모두 차단한다
+    ok 1 - 금칙어는 생성·수정 모두 차단한다
+      ---
+      duration_ms: 1.063028
+      type: 'test'
+      ...
+    # Subtest: 승인 후 수정하면 재검수가 필요하다
+    ok 2 - 승인 후 수정하면 재검수가 필요하다
+      ---
+      duration_ms: 11.073481
+      type: 'test'
+      ...
+    1..2
+ok 4 - 해석 초안 — 자동/확정 분리·금칙어 (§7.4)
+  ---
+  duration_ms: 12.885785
+  type: 'suite'
+  ...
+# Subtest: 검수 리포트 발행 (US-04)
+    # Subtest: 승인된 고객용 초안만 발행본에 포함된다
+    ok 1 - 승인된 고객용 초안만 발행본에 포함된다
+      ---
+      duration_ms: 2.115637
+      type: 'test'
+      ...
+    # Subtest: 발행은 검수자·시각을 요구하고 버전을 새로 만든다
+    ok 2 - 발행은 검수자·시각을 요구하고 버전을 새로 만든다
+      ---
+      duration_ms: 4.45748
+      type: 'test'
+      ...
+    # Subtest: 발행본 작성 후 초안 수정 시 STALE_SECTION으로 막는다
+    ok 3 - 발행본 작성 후 초안 수정 시 STALE_SECTION으로 막는다
+      ---
+      duration_ms: 1.263709
+      type: 'test'
+      ...
+    # Subtest: 미승인·내부 초안이 섞이면 발행 불가
+    ok 4 - 미승인·내부 초안이 섞이면 발행 불가
+      ---
+      duration_ms: 3.777528
+      type: 'test'
+      ...
+    1..4
+ok 5 - 검수 리포트 발행 (US-04)
+  ---
+  duration_ms: 12.623754
+  type: 'suite'
+  ...
+# Subtest: 공유 링크 (§7.1)
+    # Subtest: 발행본만 링크 생성 — 열람 로그 기록
+    ok 1 - 발행본만 링크 생성 — 열람 로그 기록
+      ---
+      duration_ms: 5.213842
+      type: 'test'
+      ...
+    # Subtest: 만료·철회·미발행 링크는 거부한다
+    ok 2 - 만료·철회·미발행 링크는 거부한다
+      ---
+      duration_ms: 1.600778
+      type: 'test'
+      ...
+    1..2
+ok 6 - 공유 링크 (§7.1)
+  ---
+  duration_ms: 7.101784
+  type: 'suite'
+  ...
+# Subtest: 예약·결제 원장 (Track B)
+    # Subtest: 중복 시간·사전질문 누락 경고
+    ok 1 - 중복 시간·사전질문 누락 경고
+      ---
+      duration_ms: 0.879164
+      type: 'test'
+      ...
+    # Subtest: 예약 상태기계 — 취소 사유 필수
+    ok 2 - 예약 상태기계 — 취소 사유 필수
+      ---
+      duration_ms: 0.67339
+      type: 'test'
+      ...
+    # Subtest: 결제는 unpaid → recorded → refunded 단방향이고 이벤트 이력이 남는다
+    ok 3 - 결제는 unpaid → recorded → refunded 단방향이고 이벤트 이력이 남는다
+      ---
+      duration_ms: 0.921234
+      type: 'test'
+      ...
+    1..3
+ok 7 - 예약·결제 원장 (Track B)
+  ---
+  duration_ms: 2.687024
+  type: 'suite'
+  ...
+# Subtest: 사전 입력 링크·열람 export·브랜드
+    # Subtest: 링크 생성 → 고객 제출 시 enteredBy=client·dataSubject=self로 기록된다
+    ok 1 - 링크 생성 → 고객 제출 시 enteredBy=client·dataSubject=self로 기록된다
+      ---
+      duration_ms: 0.980955
+      type: 'test'
+      ...
+    # Subtest: 만료·철회·무효 토큰은 제출을 거부한다
+    ok 2 - 만료·철회·무효 토큰은 제출을 거부한다
+      ---
+      duration_ms: 1.237589
+      type: 'test'
+      ...
+    # Subtest: 열람 export — 고객본은 내부 메모·미승인 초안·초안본 리포트를 제외한다
+    ok 3 - 열람 export — 고객본은 내부 메모·미승인 초안·초안본 리포트를 제외한다
+      ---
+      duration_ms: 2.275197
+      type: 'test'
+      ...
+    # Subtest: 상담사 프로필·브랜드 부분 수정
+    ok 4 - 상담사 프로필·브랜드 부분 수정
+      ---
+      duration_ms: 0.557979
+      type: 'test'
+      ...
+    1..4
+ok 8 - 사전 입력 링크·열람 export·브랜드
+  ---
+  duration_ms: 5.371559
+  type: 'suite'
+  ...
+# Subtest: 상담사 계정·포털·리마인더·반복·통계
+    # Subtest: 상담사 계정 생성·로그인 검증·중복 loginId 거부
+    ok 1 - 상담사 계정 생성·로그인 검증·중복 loginId 거부
+      ---
+      duration_ms: 2.446104
+      type: 'test'
+      ...
+    # Subtest: 마지막 owner는 비활성화할 수 없다
+    ok 2 - 마지막 owner는 비활성화할 수 없다
+      ---
+      duration_ms: 2.688655
+      type: 'test'
+      ...
+    # Subtest: 포털 링크 — 생성·열람 로그·만료·철회
+    ok 3 - 포털 링크 — 생성·열람 로그·만료·철회
+      ---
+      duration_ms: 5.06153
+      type: 'test'
+      ...
+    # Subtest: 리마인더 — 48시간 내 예약만 집계되고 발송이 감사된다
+    ok 4 - 리마인더 — 48시간 내 예약만 집계되고 발송이 감사된다
+      ---
+      duration_ms: 1.059336
+      type: 'test'
+      ...
+    # Subtest: 반복 예약 — seriesId로 묶이고 주기별 일시가 생성된다
+    ok 5 - 반복 예약 — seriesId로 묶이고 주기별 일시가 생성된다
+      ---
+      duration_ms: 1.338446
+      type: 'test'
+      ...
+    # Subtest: 월 반복 — 말일이 없는 달은 해당 월 말일로 클램프된다 (1/31→2/28, 3/3 오버플로 없음)
+    ok 6 - 월 반복 — 말일이 없는 달은 해당 월 말일로 클램프된다 (1/31→2/28, 3/3 오버플로 없음)
+      ---
+      duration_ms: 1.091094
+      type: 'test'
+      ...
+    # Subtest: 운영 통계 — 상태별 집계와 수금 합계
+    ok 7 - 운영 통계 — 상태별 집계와 수금 합계
+      ---
+      duration_ms: 2.212519
+      type: 'test'
+      ...
+    1..7
+ok 9 - 상담사 계정·포털·리마인더·반복·통계
+  ---
+  duration_ms: 16.673908
+  type: 'suite'
+  ...
+# Subtest: 감사 로그·타임라인
+    # Subtest: 감사 이벤트가 행위별로 남고 테넌트별로 격리된다
+    ok 1 - 감사 이벤트가 행위별로 남고 테넌트별로 격리된다
+      ---
+      duration_ms: 1.048551
+      type: 'test'
+      ...
+    # Subtest: 고객 타임라인은 세션·스냅샷·리포트·예약을 시간순으로 묶는다
+    ok 2 - 고객 타임라인은 세션·스냅샷·리포트·예약을 시간순으로 묶는다
+      ---
+      duration_ms: 29.237077
+      type: 'test'
+      ...
+    1..2
+ok 10 - 감사 로그·타임라인
+  ---
+  duration_ms: 30.933011
+  type: 'suite'
+  ...
+1..10
+# tests 35
+# suites 10
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 569.044099

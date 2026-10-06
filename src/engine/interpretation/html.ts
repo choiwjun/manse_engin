@@ -549,3 +549,22 @@ p.deep strong { color: var(--accent); }
 }
 @page { margin: 18mm 16mm; }
 `;
+
+/** 개인별 토정 계산 풀이 → 인쇄 가능한 standalone HTML. */
+export function renderTojeongHtml(
+  result: import('@/engine/types').TojeongResult,
+  narrative: import('./tojeong').TojeongInterpretationReport,
+  opts: { title?: string; counselor?: CounselorBrand } = {},
+): string {
+  const title = opts.title ?? `${result.targetYear}년 토정비결 계산 풀이`;
+  const c = opts.counselor;
+  return `<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title><style>${CSS}</style></head><body><div class="page">
+${c ? `<header class="brand"><div class="brand-name">${esc(c.name)}</div>${c.tagline ? `<div class="brand-tagline">${esc(c.tagline)}</div>` : ''}${c.contact ? `<div class="brand-contact">${esc(c.contact)}</div>` : ''}</header>` : ''}
+<h1 class="doc-title">${esc(title)}</h1><p class="headline">${esc(narrative.headline)}</p>
+<section><h2>계산 근거</h2><ul>${narrative.lines.map(l => `<li><span class="lbl">${esc(l.label)}</span> ${esc(l.text)}</li>`).join('')}</ul></section>
+<section><h2>확인 사항</h2><ul>${narrative.cautions.map(t => `<li>${esc(t)}</li>`).join('')}</ul>${narrative.guidance.map(t => `<p>${esc(t)}</p>`).join('')}</section>
+<section><h2>근거 식별자</h2><ul>${narrative.basisRefs.map(t => `<li>${esc(t)}</li>`).join('')}</ul></section>
+</div></body></html>`;
+}

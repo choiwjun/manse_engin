@@ -6,6 +6,8 @@ import {
   executeEngineModule,
   assembleReport,
   interpretSaju,
+  interpretTojeong,
+  interpretNaming,
 } from '../../packages/myeong-engine/dist/index.js';
 
 // UI 주제 → assembleReport 축 매핑 (PRD §3.2 질문 목록 기준)
@@ -19,6 +21,8 @@ export const TOPICS = [
   { id: 'family', label: '육친·가족', axis: 'family' },
   { id: 'year', label: '올해 운', axis: 'timing' },
   { id: 'overview', label: '전체 구조', axis: 'overview' },
+  { id: 'tojeong', label: '토정비결', module: 'tojeong' },
+  { id: 'naming', label: '작명', module: 'naming' },
 ];
 
 export function topicLabel(topicId) {
@@ -88,36 +92,79 @@ function topicBasisRefs(report, interpretation, topicId) {
   return section ? section.patterns.map((p) => p.contentId ?? p.key) : [];
 }
 
-// 선택한 주제들의 자동 초안을 만든다. 세션에 명식 스냅샷이 필요하다.
-export function generateTopicDrafts(platform, workspaceId, sessionId, topicIds, actor) {
-  const snapshot = latestSajuSnapshot(platform, workspaceId, sessionId);
-  if (!snapshot) {
-    const err = new Error('세션에 연결할 사주 명식 스냅샷이 없습니다. 먼저 명식을 계산하세요.');
-    err.code = 'NOT_FOUND';
-    throw err;
+// 모든 주제의 계산을 먼저 확인한다. 누락/오래된 결과가 있으면 초안을 일부만 저장하지 않는다.
+export async function generateTopicDrafts(platform, workspaceId, sessionId, topicIds, actor) {
+  const session = platform.getSession(workspaceId, sessionId);
+  const client = platform.getClient(workspaceId, session.clientId);
+  if (!client.birth) throw Object.assign(new Error('삭제 처리된 고객은 풀이를 생성할 수 없습니다.'), { code: 'INVALID_INPUT' });
+  const topics = [...new Set(topicIds)];
+  if (!topics.length || topics.some(id => !TOPICS.some(t => t.id === id))) {
+    throw Object.assign(new Error('풀이 주제를 선택하세요.'), { code: 'INVALID_INPUT' });
   }
-  const result = snapshot.envelope.result;
-  const report = assembleReport(result);
-  const interpretation = interpretSaju(result);
-  const created = [];
-  for (const topicId of topicIds) {
-    const text = topicDraftText(report, interpretation, topicId);
-    if (!text) continue;
-    created.push(
-      platform.createDraft(
-        workspaceId,
-        {
-          sessionId,
-          snapshotId: snapshot.id,
-          topic: topicLabel(topicId),
-          text,
-          basisRefs: topicBasisRefs(report, interpretation, topicId),
-          engineVersion: snapshot.envelope.engineVersion,
-          contentVersion: snapshot.envelope.dataVersion,
-        },
-        actor,
-      ),
-    );
+  const snapshots = platform.listSnapshots(workspaceId, session.clientId)
+    .sort((a, b) => b.envelope.calculatedAt.localeCompare(a.envelope.calculatedAt));
+  const selected = new Map();
+  for (const id of topics) {
+    const moduleId = TOPICS.find(t => t.id === id).module ?? 'saju';
+    if (selected.has(moduleId)) continue;
+    const snapshot = snapshots.find(s => s.envelope.moduleId === moduleId);
+    if (!snapshot) throw Object.assign(new Error(`${topicLabel(id)} 계산 결과가 없습니다. 고객 화면에서 먼저 계산하세요.`), { code: 'NOT_FOUND' });
+    const result = snapshot.envelope.result;
+    const oldPolicy = moduleId === 'tojeong' ? result.calculation?.policyId !== 'tojeong-8x6x3-regular-clamp-v2'
+      : moduleId === 'naming' ? result.policy?.id !== 'wonhyeong-real-strokes-v2' : false;
+    if (oldPolicy || await platform.isSnapshotStale(workspaceId, snapshot.id)) {
+      throw Object.assign(new Error(`${topicLabel(id)} 결과의 입력 또는 계산 기준이 변경되었습니다. 고객 화면에서 다시 계산하세요.`), { code: 'INVALID_INPUT' });
+    }
+    selected.set(moduleId, snapshot);
   }
-  return { snapshot, created };
+  const saju = selected.get('saju');
+  const report = saju ? assembleReport(saju.envelope.result) : null;
+  const interpretation = saju ? interpretSaju(saju.envelope.result) : null;
+  const prepared = topics.map(topicId => {
+    const moduleId = TOPICS.find(t => t.id === topicId).module ?? 'saju';
+    const snapshot = selected.get(moduleId);
+    if (moduleId === 'saju') return { topicId, snapshot, text: topicDraftText(report, interpretation, topicId), basisRefs: topicBasisRefs(report, interpretation, topicId) };
+    const result = snapshot.envelope.result;
+    const narratives = moduleId === 'tojeong' ? [interpretTojeong(result)] : interpretNaming(result);
+    if (!narratives.length) throw Object.assign(new Error('풀이할 작명 후보가 없습니다. 조건을 조정해 다시 계산하세요.'), { code: 'INVALID_INPUT' });
+    const text = narratives.map(n => [n.headline, ...n.lines.map(l => `${l.label}: ${l.text}`),
+      ...(n.strengths ?? []).map(t => `강점: ${t}`), ...n.cautions.map(t => `확인: ${t}`), ...n.guidance.map(t => `안내: ${t}`)].join('\n')).join('\n\n');
+    return { topicId, snapshot, text, basisRefs: [...new Set(narratives.flatMap(n => n.basisRefs))] };
+  });
+  const created = prepared.map(({ topicId, snapshot, text, basisRefs }) => platform.createDraft(workspaceId, {
+    sessionId, snapshotId: snapshot.id, topic: topicLabel(topicId), text, basisRefs,
+    engineVersion: snapshot.envelope.engineVersion, contentVersion: snapshot.envelope.dataVersion,
+  }, actor));
+  return { snapshot: saju ?? prepared[0].snapshot, created };
+}
+
+// 개인별 입력은 항상 저장된 고객에서 가져온다. 대표 생년/띠 입력으로 대체하지 않는다.
+export async function runTojeongCalculation(platform, workspaceId, clientId, opts = {}) {
+  const client = platform.getClient(workspaceId, clientId);
+  if (!client.birth) throw Object.assign(new Error('삭제 처리된 고객은 계산할 수 없습니다.'), { code: 'INVALID_INPUT' });
+  const b = client.birth;
+  const envelope = await executeEngineModule('tojeong', {
+    birthYear: b.year, birthMonth: b.month, birthDay: b.day,
+    calendarType: b.isLunar ? 'lunar' : 'solar', isLeapMonth: b.isLunar && Boolean(b.isLeapMonth),
+    targetYear: opts.targetYear, leapMonthPolicy: opts.leapMonthPolicy ?? 'regular-month',
+  });
+  const snapshot = await platform.recordCalculation(workspaceId, { clientId, envelope }, opts.actor);
+  return { envelope, snapshot };
+}
+
+export async function runNamingCalculation(platform, workspaceId, clientId, opts = {}) {
+  const client = platform.getClient(workspaceId, clientId);
+  if (!client.birth) throw Object.assign(new Error('삭제 처리된 고객은 계산할 수 없습니다.'), { code: 'INVALID_INPUT' });
+  if (!['recommend', 'analyze'].includes(opts.mode)) throw Object.assign(new Error('작명 실행 방식을 선택하세요.'), { code: 'INVALID_INPUT' });
+  const input = opts.mode === 'recommend' ? {
+    mode: 'recommend', surname: opts.surname, surnameHanja: opts.surnameHanja,
+    birth: client.birth, school: opts.school, yongsinSchool: opts.yongsinSchool,
+    ...(opts.givenName ? { givenName: opts.givenName } : {}), limit: 6,
+  } : {
+    mode: 'analyze', surname: opts.surname, school: opts.school,
+    candidates: [{ givenName: opts.givenName, hanjaChars: [...(opts.surnameHanja ?? ''), ...(opts.givenHanja ?? '')] }],
+  };
+  const envelope = await executeEngineModule('naming', input);
+  const snapshot = await platform.recordCalculation(workspaceId, { clientId, envelope }, opts.actor);
+  return { envelope, snapshot };
 }

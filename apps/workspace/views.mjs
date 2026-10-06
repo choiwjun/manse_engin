@@ -49,6 +49,14 @@ const CSS = `
   .draft.excluded { border-left-color:#b91c1c; opacity:.6; }
   .draft.auto { border-left-color:#f59e0b; }
   .section-body p { margin:.4em 0; line-height:1.7; }
+  .personal-tools :focus-visible { outline:3px solid #1d4ed8; outline-offset:3px; }
+  .personal-tools fieldset { border:0; padding:0; margin:0; min-width:0; }
+  .personal-tools legend { font-weight:700; padding:0; }
+  .personal-tools label,.personal-tools .muted { color:#4b5563; }
+  .personal-tools button { min-height:44px; }
+  .personal-tools .table-scroll { overflow-x:auto; }
+  .personal-tools td,.personal-tools th { overflow-wrap:anywhere; }
+  @media (max-width:600px) { .personal-tools .row { flex-direction:column; } }
   footer.foot { margin-top:32px; font-size:12px; color:var(--muted); }
   .ms { width:100%; border-collapse:collapse; text-align:center; table-layout:fixed; }
   .ms th,.ms td { border:1px solid var(--line); padding:4px 2px; text-align:center; }
@@ -299,6 +307,8 @@ export function clientDetailPage({ client, snapshots, staleMap, sessions, timeli
   <a href="/clients/${client.id}/export?for=client" style="margin-left:8px;font-size:13px">고객 열람 export</a>
   <a href="/clients/${client.id}/export?for=counselor" style="margin-left:8px;font-size:13px">상담사 export</a>
 </div>
+${client.birth ? personalTools(client) : ''}
+${personalResults(snapshots)}
 <h2>고객 포털 링크</h2>
 <div class="card">
   <form method="post" action="/clients/${client.id}/portal-links" class="row">
@@ -463,6 +473,7 @@ export function sessionPage({ session, client, snapshot, drafts, reports, stale,
   const draftsFormCard = `<h2>자동 초안 생성</h2>
 <div class="card">
   <form method="post" action="/sessions/${session.id}/drafts">
+    <p class="muted">고객 화면에서 먼저 계산한 주제를 선택하세요. 토정비결은 계산 근거 풀이를, 작명은 가장 최근 분석·추천 결과를 사용합니다.</p>
     ${topicChecks}
     <div style="margin-top:10px"><button type="submit">선택 주제 초안 생성</button></div>
   </form>
@@ -893,4 +904,74 @@ export function loginPage() {
 export function errorPage({ title, message }) {
   return `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${CSS}</style></head>
 <body><main><div class="card"><h1>${esc(title)}</h1><p>${esc(message)}</p></div></main></body></html>`;
+}
+
+function personalTools(client) {
+  const id = esc(client.id);
+  const schoolSelect = (prefix) => `<label for="${prefix}-school">획수 기준</label>
+    <select id="${prefix}-school" name="school"><option value="kangxi">강희자전 원획수</option><option value="modern">현대획수 — Unicode G 기준</option></select>`;
+  const surnameFields = (prefix) => `<div class="row"><div><label for="${prefix}-surname">한글 성 (필수)</label><input id="${prefix}-surname" name="surname" autocomplete="family-name" required pattern="[가-힣]{1,2}" maxlength="2"></div>
+    <div><label for="${prefix}-surname-hanja">한자 성 (필수)</label><input id="${prefix}-surname-hanja" name="surnameHanja" required maxlength="2" aria-describedby="${prefix}-help"></div></div>`;
+  return `<section class="personal-tools" aria-label="개인별 토정비결과 작명">
+  <h2>토정비결</h2><form class="card" method="post" action="/clients/${id}/tojeong">
+    <p id="tojeong-help" class="muted">이 고객의 생년월일로 계산합니다. 양력은 음력으로 변환합니다. 출생시각은 사용하지 않습니다.</p>
+    <div class="row"><div><label for="tojeong-year">대상 연도 (필수)</label><input id="tojeong-year" name="targetYear" type="number" min="1899" max="2101" required value="${new Date().getFullYear()}" aria-describedby="tojeong-help"></div>
+    <div><label for="tojeong-leap">윤달 출생 처리</label><select id="tojeong-leap" name="leapMonthPolicy"><option value="regular-month">같은 월 평달 기준으로 계산</option><option value="reject">윤달이면 계산 보류</option></select></div></div>
+    <p class="muted">대상 월이 29일까지인 경우 30일 생일은 29일로 계산합니다. 해설은 원문 검증 전까지 제공하지 않습니다.</p>
+    <button type="submit">개인 토정비결 계산</button></form>
+  <h2>작명</h2><form class="card" method="post" action="/clients/${id}/naming">
+    <input type="hidden" name="mode" value="recommend"><fieldset><legend>용신에 맞는 후보 추천</legend>
+    <p id="rec-help" class="muted">이 고객의 출생 명식과 선택한 용신 기준을 사용합니다. 의미가 명료한 편집 후보군에서 최대 6개를 제안합니다.</p>
+    ${surnameFields('rec')}<div class="row"><div>${schoolSelect('rec')}</div><div><label for="rec-yongsin">용신 기준</label><select id="rec-yongsin" name="yongsinSchool"><option value="gyeokguk">격국</option><option value="gangyak">강약</option><option value="johu">조후</option><option value="mulsang">물상</option></select></div></div>
+    <label for="rec-name">희망하는 이름 (선택, 한글 1~2음절)</label><input id="rec-name" name="givenName" maxlength="2" pattern="[가-힣]{1,2}" autocomplete="given-name" aria-describedby="rec-name-help">
+    <p id="rec-name-help" class="muted">비우면 두 음절 후보를 생성합니다. 입력하면 해당 독음의 후보만 찾습니다. 후보군에 없으면 결과가 없을 수 있습니다.</p>
+    <button type="submit">이름 후보 추천</button></fieldset></form>
+  <form class="card" method="post" action="/clients/${id}/naming"><input type="hidden" name="mode" value="analyze"><fieldset><legend>지정한 이름 분석</legend>
+    <p id="name-help" class="muted">성부터 이름까지 모든 한자를 입력하세요. 미등록 한자나 다른 독음은 계산하지 않습니다.</p>
+    ${surnameFields('name')}<div class="row"><div><label for="name-given">한글 이름 (필수)</label><input id="name-given" name="givenName" required pattern="[가-힣]{1,2}" maxlength="2" autocomplete="given-name"></div>
+    <div><label for="name-hanja">한자 이름 (필수, 성 제외)</label><input id="name-hanja" name="givenHanja" required maxlength="2" aria-describedby="name-help"></div></div>
+    ${schoolSelect('name')}<p class="muted">실획수 원형이정과 가성수를 포함한 오격을 구분해 표시합니다. 인명용 한자 신고 허용 여부는 별도 확인이 필요합니다.</p>
+    <button type="submit">이름 분석</button></fieldset></form></section>`;
+}
+
+function personalResults(snapshots) {
+  const tojeong = snapshots.find(s => s.envelope.moduleId === 'tojeong');
+  const naming = snapshots.find(s => s.envelope.moduleId === 'naming');
+  let out = '';
+  if (tojeong) {
+    const r = tojeong.envelope.result;
+    const c = r.calculation;
+    out += `<section class="personal-tools"><h2>토정비결 계산 결과</h2><div class="card">
+      <p><strong>${esc(r.targetYear)}년 · ${esc(r.gwae.gwaeCode)}괘</strong></p>
+      ${c ? `<p>음력 생일 ${esc(c.lunarBirth.year)}-${esc(c.lunarBirth.month)}-${esc(c.lunarBirth.day)}${c.lunarBirth.isLeapMonth ? ' (윤달)' : ''} · 세는 나이 ${esc(c.koreanAge)}세</p>
+      <ul><li>상괘: (${esc(c.koreanAge)} + 태세수 ${esc(c.taeseSu)}) ÷ 8의 나머지 → ${esc(r.gwae.sangGwae)}</li>
+      <li>중괘: (${esc(c.monthDays)}일 + 월건수 ${esc(c.wolgeonSu)}) ÷ 6의 나머지 → ${esc(r.gwae.jungGwae)}</li>
+      <li>하괘: (${esc(c.effectiveDay)}일 + 일진수 ${esc(c.iljinSu)}) ÷ 3의 나머지 → ${esc(r.gwae.haGwae)}</li></ul>
+      <p class="muted">나머지가 0이면 각각 8·6·3을 사용합니다.</p>
+      ${c.leapMonthAdjusted ? '<p class="warn">윤달 생일을 같은 월의 평달 기준으로 계산했습니다.</p>' : ''}
+      ${c.dayAdjusted ? '<p class="warn">대상 생월이 소월이므로 생일 30일을 29일로 당겼습니다.</p>' : ''}` : '<p class="warn">이전 버전의 결과입니다. 기준 확인을 위해 다시 계산하세요.</p>'}
+      <p class="warn">해설 검증 대기 — 기존 문구는 원문 대응이 확인되지 않아 표시하지 않습니다.</p>
+      <p class="muted">${esc(tojeong.envelope.engineVersion)} · ${esc(tojeong.envelope.dataVersion)} · ${fmtDate(tojeong.envelope.calculatedAt)}</p>
+      </div></section>`;
+  }
+  if (naming && naming.envelope.result.policy?.id !== 'wonhyeong-real-strokes-v2') {
+    out += '<section class="personal-tools"><h2>작명 결과</h2><p class="warn">이전 산식·데이터로 계산된 결과입니다. 새 기준으로 다시 계산하세요.</p></section>';
+  } else if (naming) {
+    const r = naming.envelope.result;
+    out += `<section class="personal-tools"><h2>작명 결과</h2><div class="card">
+    <p><strong>${esc(r.surname)}씨 · ${r.school === 'modern' ? '현대획수 (Unicode G 기준)' : '강희자전 원획수'}</strong></p>
+    ${r.recommendation ? `<p>용신 ${esc(r.recommendation.targetElement)} · 기준 ${esc(({ gyeokguk: '격국', gangyak: '강약', johu: '조후', mulsang: '물상' })[r.recommendation.yongsinSchool])} · 검토한 조합 ${esc(r.recommendation.considered)}개</p><ul>${r.recommendation.reasons.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+    ${naming.envelope.warnings.map(w => `<p class="warn">${esc(w.message)}</p>`).join('')}
+    ${!r.candidates.length ? '<p>조건에 맞는 후보가 없습니다. 희망 이름을 비우거나 독음을 바꿔 보세요.</p>' : ''}
+    ${r.candidates.map((a, i) => `<article><h3>${i + 1}. ${esc(r.surname + a.name)} ${esc(a.hanjaChars?.join('') ?? '')}</h3>
+      ${a.recommendationDetails ? `<p>${esc(a.recommendationDetails.meanings.join(' · '))}</p><p>${esc(a.recommendationDetails.reason)}</p>` : ''}
+      <p>글자별 획수 ${esc(a.strokes.join(' · '))} · 자원오행 ${esc(a.jawonOhaeng?.ohaengs.join(' · ') ?? '없음')} · 규칙 점수 ${esc(a.totalScore)}점</p>
+      <div class="table-scroll" role="region" aria-label="${esc(a.name)} 수리 결과" tabindex="0"><table><caption>실획수 원형이정 — 가성수 없음</caption><thead><tr><th scope="col">원격</th><th scope="col">형격</th><th scope="col">이격</th><th scope="col">정격</th></tr></thead><tbody><tr>${['won','hyeong','yi','jeong'].map(k => `<td>${esc(a.wonhyeong[k])} (${esc(a.suri81[k].gilhyung)})</td>`).join('')}</tr></tbody></table></div>
+      ${a.fiveGrids ? `<p>오격(별도 가성수 규칙): 천격 ${esc(a.fiveGrids.cheon)} · 인격 ${esc(a.fiveGrids.in)} · 지격 ${esc(a.fiveGrids.ji)} · 외격 ${esc(a.fiveGrids.oe)} · 총격 ${esc(a.fiveGrids.chong)}</p>` : '<p class="warn">이전 버전 결과이므로 다시 계산하세요.</p>'}
+      </article>`).join('')}
+    ${r.policy ? `<details><summary>계산 기준과 데이터 출처</summary><ul>${['grids','singleName','kangxi','modern','elements','suri81','registration'].map(k => `<li>${esc(r.policy[k])}</li>`).join('')}</ul></details>` : ''}
+    <p class="muted">${esc(naming.envelope.engineVersion)} · ${esc(naming.envelope.dataVersion)} · ${fmtDate(naming.envelope.calculatedAt)}</p>
+    </div></section>`;
+  }
+  return out;
 }
