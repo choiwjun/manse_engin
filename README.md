@@ -2,6 +2,14 @@
 
 한국 법정시 변천·서머타임(DST)·진태양시·자시 학파를 처리하는 순수 TypeScript 역학 계산 엔진입니다. Node.js 18+ 와 브라우저(WebView)에서 동작하며 런타임 의존성이 없습니다.
 
+<!-- gitreels:start -->
+<p align="center">
+  <a href="https://gitreels.com/choiwjun/manse_engin"><img src="https://gitreels.com/choiwjun/manse_engin.webp" alt="choiwjun/manse_engin in 15 seconds" width="100%"></a>
+  <br>
+  <a href="https://gitreels.com"><img src="https://gitreels.com/badge.svg" alt="Made with GitReels" height="24"></a>
+</p>
+<!-- gitreels:end -->
+
 ## 구조
 
 ```
