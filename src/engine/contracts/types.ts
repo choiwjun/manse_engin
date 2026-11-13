@@ -1,5 +1,25 @@
+import type { TojeongOptions } from '@/engine/types';
 import type { CalculateOptions } from '@/engine/saju/calculator';
-import type { BirthInputData, CalendarDay, MonthlyCalendar, SajuResult, SajuSubSchool } from '@/engine/types';
+import type { CompatibilityInput, CompatibilityResult } from '@/engine/compatibility/types';
+import type {
+  BirthInputData,
+  CalendarDay,
+  DaejeongResult,
+  DaeyukimResult,
+  Gender,
+  GuseongResult,
+  HarakResult,
+  MonthlyCalendar,
+  NamingResultExtended,
+  Palja,
+  QimenResult,
+  SajuResult,
+  SajuSubSchool,
+  TojeongResult,
+  ZiweiResult,
+} from '@/engine/types';
+import type { MaehwaResult } from '@/engine/maehwa';
+import type { HongyeonResult } from '@/engine/hongyeon';
 import type { EngineModuleId } from './module-id';
 
 export type EngineWarningCode =
@@ -53,17 +73,91 @@ export interface SajuModuleInput {
   subSchool?: SajuSubSchool;
 }
 
+export interface TojeongModuleInput extends TojeongOptions {
+  birthYear: number;
+  birthMonth: number;
+  birthDay: number;
+  targetYear: number;
+}
+
+export interface ZiweiModuleInput {
+  calendarType: 'solar' | 'lunar';
+  date: string;
+  hour: number;
+  gender: Gender;
+  isLeapMonth?: boolean;
+}
+
+export interface DateHourModuleInput {
+  solarDate: string;
+  hour: number;
+}
+
+export interface GuseongModuleInput {
+  birthYear: number;
+  gender: Gender;
+  targetYear: number;
+  targetMonth: number;
+  targetDay: number;
+}
+
+export interface PaljaModuleInput {
+  palja: Palja;
+}
+
+export type MaehwaModuleInput =
+  | { method: 'time'; year: number; month: number; day: number; hour: number }
+  | { method: 'number'; first: number; second: number }
+  | { method: 'name'; surnameStrokes: number; givenNameStrokes: number };
+
+export interface HarakModuleInput {
+  year: number;
+  month: number;
+  day: number;
+}
+
+export type NamingModuleInput = NamingAnalysisInput | (import('@/engine/naming/recommend').NamingRecommendationInput & { mode: 'recommend' });
+
+export interface NamingAnalysisInput {
+  mode?: 'analyze';
+  surname: string;
+  candidates: Array<{ givenName: string; hanjaChars?: string[] | null }>;
+  school?: 'kangxi' | 'modern';
+}
+
 export type CalendarModuleInput =
   | { view: 'day'; year: number; month: number; day: number }
   | { view: 'month'; year: number; month: number };
 
 export interface EngineModuleInputMap {
   saju: SajuModuleInput;
+  compatibility: CompatibilityInput;
+  tojeong: TojeongModuleInput;
+  ziwei: ZiweiModuleInput;
+  qimen: DateHourModuleInput;
+  daeyukim: DateHourModuleInput;
+  guseong: GuseongModuleInput;
+  hongyeon: PaljaModuleInput;
+  maehwa: MaehwaModuleInput;
+  harak: HarakModuleInput;
+  daejeong: PaljaModuleInput;
+  naming: NamingModuleInput;
   calendar: CalendarModuleInput;
 }
 
 export interface EngineModuleResultMap {
   saju: SajuResult;
+  compatibility: CompatibilityResult;
+  tojeong: TojeongResult;
+  ziwei: ZiweiResult;
+  qimen: QimenResult;
+  daeyukim: DaeyukimResult;
+  guseong: GuseongResult;
+  hongyeon: HongyeonResult;
+  maehwa: MaehwaResult;
+  harak: HarakResult;
+  daejeong: DaejeongResult;
+  naming: NamingResultExtended;
   calendar: CalendarDay | MonthlyCalendar;
 }
 

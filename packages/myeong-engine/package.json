@@ -1,7 +1,7 @@
 {
   "name": "myeong-manseryeok-engine",
   "version": "0.5.0",
-  "description": "MYEONG 만세력 엔진 + 사주풀이 엔진 — 한국 법정시·서머타임·진태양시·자시 학파를 처리하는 만세력 계산과, 명식 구조를 감지해 풀이 리포트로 조립하는 순수 TypeScript 엔진",
+  "description": "MYEONG 만세력/사주 계산 엔진 — 한국 법정시·DST·진태양시·자시 학파를 처리하는 순수 TypeScript 역학 엔진 (13개 모듈)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -26,7 +26,7 @@
     "generate:data": "node generate-data.mjs",
     "content:validate": "node build.mjs && node validate-content.mjs",
     "pretest": "npm run build",
-    "test": "node smoke.test.mjs && node --test regression.test.mjs && node --test interpretation.test.mjs && node validate-content.mjs",
+    "test": "node smoke.test.mjs && node --test regression.test.mjs && node --test naming-tojeong.test.mjs && node --test interpretation.test.mjs && node --test personal-interpretation.test.mjs && node validate-content.mjs",
     "prepack": "node build.mjs"
   },
   "devDependencies": {

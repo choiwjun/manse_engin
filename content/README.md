@@ -38,8 +38,11 @@ tags: [재물, 식상, 흐름]
 | 접두사 | 대상 | sampleBirth/assert |
 |---|---|---|
 | `saju/*` | 패턴 레지스트리 키 (flow·imbalance·relation·cross·combo·timing·johu) | 필수 — 엔진 재실행 대조 |
+| `naming/*` | 작명 해석 문구 (`naming/grade/*` 등급 가이드, `naming/structure/*` 구조 해석) | 불필요 (명식 무관) |
+| `taekil/*` | 택일 해석 문구 (`taekil/sinsal12/*` 십이직별 note·suited·avoid) | 불필요 (날짜 무관) |
 
 `saju/*` 키는 `PATTERN_REGISTRY` 등록이 필수고 `sampleBirth`/`assert`로 엔진 재실행을 대조한다.
+`naming/*`·`taekil/*` 키는 패턴이 아니라 해석 문구 조각이라 레지스트리·sampleBirth 대상이 아니다 — `body.short`(필수) 외에 `body.note`·`body.suited`·`body.avoid` 같은 커스텀 필드를 쓴다.
 
 ## 검증 (`content:validate`)
 

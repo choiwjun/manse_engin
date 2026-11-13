@@ -75,7 +75,25 @@ export {
   WONJIN_TABLE_KR,
 } from './saju/wonjin';
 
-// ---------- 만세력 달력(일진) ----------
+// ---------- 궁합 ----------
+export { calculateCompatibility } from './compatibility';
+
+// ---------- 파생 모듈 진입점 ----------
+export { analyzeTojeong } from './tojeong';
+export { calculateZiwei, calculateZiweiByLunar } from './ziwei';
+export { calculateQimen } from './qimen';
+export { calculateDaeyukim } from './daeyukim';
+export { calculateGuseong } from './guseong';
+export { analyzeHongyeon } from './hongyeon';
+export { divineByTime, divineByNumber, divineByName } from './maehwa';
+export { calculateHarak, calculateHexagramNumber } from './harak';
+export { calculateDaejeong } from './daejeong';
+export {
+  analyzeName,
+  analyzeNames,
+  analyzeNameExtended,
+  analyzeNamesExtended,
+} from './naming';
 export {
   getCalendarDay,
   getMonthlyCalendar,
@@ -85,6 +103,10 @@ export {
   getGilhyung,
   getTaekilInfo,
 } from './calendar';
+
+// ---------- 해석 함수 ----------
+export { interpretResult as interpretQimenResult } from './qimen/interpret';
+export { interpretResult as interpretDaeyukimResult } from './daeyukim/interpret';
 
 // ---------- 해석 계층 (detector·조립기·동적 문장·축별 리포트·시점 서사) ----------
 export {
@@ -103,6 +125,21 @@ export {
   assembleReport,
   renderReportMarkdown,
   renderReportHtml,
+  renderCompatibilityHtml,
+  renderNamingHtml,
+  renderTaekilHtml,
+  renderCompatibilityMarkdown,
+  renderNamingMarkdown,
+  renderTaekilMarkdown,
+  interpretCompatibility,
+  interpretName,
+  interpretNaming,
+  interpretTojeong,
+  renderTojeongMarkdown,
+  renderTojeongHtml,
+  interpretNameWithSaju,
+  interpretNamingWithSaju,
+  interpretTaekil,
   getContentEntry,
   contentEntryCount,
   conclusionFor,
@@ -130,7 +167,23 @@ export type {
   RenderReportOptions,
   RenderReportHtmlOptions,
   CounselorBrand,
+  CompatibilityInterpretation,
+  CompatibilityLine,
+  InterpretCompatibilityOptions,
+  NamingInterpretation,
+  TojeongInterpretationReport,
+  TojeongLine,
+  NamingLine,
+  InterpretNamingOptions,
+  TaekilInterpretation,
+  TaekilLine,
   ContentEntry,
   ContentBody,
   ContentDb,
 } from './interpretation';
+
+export { recommendNames } from './naming/recommend';
+export type { NamingRecommendationInput, RecommendationBasis } from './naming/recommend';
+export { calculateFiveGrids } from './naming';
+export { lookupHanja, getHanjaStrokes, searchHanjaByReading } from './naming/jawon-ohaeng';
+export { NAMING_POLICY } from './naming/policy';

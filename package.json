@@ -1,7 +1,7 @@
 {
   "name": "manse-engin",
   "private": true,
-  "description": "MYEONG 만세력 엔진 + 사주풀이 엔진",
+  "description": "MYEONG 만세력 엔진 + 사주풀이 엔진 + 역학 모듈 12종",
   "scripts": {
     "build": "npm --prefix packages/myeong-engine run build",
     "test": "npm --prefix packages/myeong-engine test",

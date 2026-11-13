@@ -100,7 +100,26 @@ export {
 } from './engine/saju/wonjin';
 export type { WonjinPair, WonjinResult } from './engine/saju/wonjin';
 
-// ---------- 만세력 달력(일진) ----------
+// ---------- 궁합 ----------
+export { calculateCompatibility } from './engine/compatibility';
+export type { CompatibilityInput, CompatibilityResult } from './engine/compatibility/types';
+
+// ---------- 파생 모듈 진입점 ----------
+export { analyzeTojeong } from './engine/tojeong';
+export { calculateZiwei, calculateZiweiByLunar } from './engine/ziwei';
+export { calculateQimen } from './engine/qimen';
+export { calculateDaeyukim } from './engine/daeyukim';
+export { calculateGuseong } from './engine/guseong';
+export { analyzeHongyeon } from './engine/hongyeon';
+export { divineByTime, divineByNumber, divineByName } from './engine/maehwa';
+export { calculateHarak, calculateHexagramNumber } from './engine/harak';
+export { calculateDaejeong } from './engine/daejeong';
+export {
+  analyzeName,
+  analyzeNames,
+  analyzeNameExtended,
+  analyzeNamesExtended,
+} from './engine/naming';
 export {
   getCalendarDay,
   getMonthlyCalendar,
@@ -110,6 +129,10 @@ export {
   getGilhyung,
   getTaekilInfo,
 } from './engine/calendar';
+
+// ---------- 해석 함수 (봉투 계약 밖의 순수 해석기) ----------
+export { interpretResult as interpretQimenResult } from './engine/qimen/interpret';
+export { interpretResult as interpretDaeyukimResult } from './engine/daeyukim/interpret';
 
 // ---------- 해석 계층 (detector·조립기·동적 문장·축별 리포트·시점 서사) ----------
 export {
@@ -128,6 +151,21 @@ export {
   assembleReport,
   renderReportMarkdown,
   renderReportHtml,
+  renderCompatibilityHtml,
+  renderNamingHtml,
+  renderTaekilHtml,
+  renderCompatibilityMarkdown,
+  renderNamingMarkdown,
+  renderTaekilMarkdown,
+  interpretCompatibility,
+  interpretName,
+  interpretNaming,
+  interpretTojeong,
+  renderTojeongMarkdown,
+  renderTojeongHtml,
+  interpretNameWithSaju,
+  interpretNamingWithSaju,
+  interpretTaekil,
   getContentEntry,
   contentEntryCount,
   conclusionFor,
@@ -155,7 +193,23 @@ export type {
   RenderReportOptions,
   RenderReportHtmlOptions,
   CounselorBrand,
+  CompatibilityInterpretation,
+  CompatibilityLine,
+  InterpretCompatibilityOptions,
+  NamingInterpretation,
+  TojeongInterpretationReport,
+  TojeongLine,
+  NamingLine,
+  InterpretNamingOptions,
+  TaekilInterpretation,
+  TaekilLine,
   ContentEntry,
   ContentBody,
   ContentDb,
 } from './engine/interpretation';
+
+export { recommendNames } from './engine/naming/recommend';
+export type { NamingRecommendationInput, RecommendationBasis } from './engine/naming/recommend';
+export { calculateFiveGrids } from './engine/naming';
+export { lookupHanja, getHanjaStrokes, searchHanjaByReading } from './engine/naming/jawon-ohaeng';
+export { NAMING_POLICY } from './engine/naming/policy';

@@ -3,6 +3,11 @@
 // content DB에 body.long이 있으면 섹션 깊은 곳에 심층 문단으로 붙인다.
 
 import { patternContextLine, type SajuReport } from './report';
+import type { CompatibilityInterpretation } from './compatibility';
+import type { NamingInterpretation } from './naming';
+import type { TaekilInterpretation } from './taekil';
+import type { CompatibilityResult } from '@/engine/compatibility/types';
+import type { NamingResult, CalendarDay } from '@/engine/types';
 import { getContentEntry } from './content';
 import { renderPattern, strengthLabel } from './sentence';
 
@@ -231,4 +236,182 @@ export function renderReportMarkdown(report: SajuReport, opts: RenderReportOptio
   out.push('본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.');
 
   return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+/** CompatibilityResult + 해석 → 궁합 상담 문서 (마크다운) */
+export function renderCompatibilityMarkdown(
+  compat: CompatibilityResult,
+  narrative: CompatibilityInterpretation,
+  opts: { nameA?: string; nameB?: string } = {},
+): string {
+  const nameA = opts.nameA ?? 'A';
+  const nameB = opts.nameB ?? 'B';
+  const out: string[] = [];
+
+  out.push(`# 궁합 리포트 — ${nameA} × ${nameB}`);
+  out.push('');
+  out.push(`**${narrative.headline}**`);
+  out.push('');
+  out.push(compat.summary);
+  out.push('');
+  out.push(`원국: ${nameA} ${paljaOfCompat(compat, 1)} · ${nameB} ${paljaOfCompat(compat, 2)}`);
+  out.push('');
+
+  out.push('## 관계 구조');
+  out.push('');
+  for (const line of narrative.lines) {
+    out.push(`- **${line.label}** ${line.text}`);
+  }
+  out.push('');
+
+  out.push('## 점수 구성');
+  out.push('');
+  for (const cat of compat.categories) {
+    out.push(`- ${cat.name}: ${cat.score}/${cat.maxScore} — ${cat.description}`);
+  }
+  out.push('');
+
+  out.push('## 강점');
+  out.push('');
+  for (const s of narrative.strengths) out.push(`- ${s}`);
+  out.push('');
+
+  if (narrative.frictions.length > 0) {
+    out.push('## 주의 축');
+    out.push('');
+    for (const f of narrative.frictions) out.push(`- ${f}`);
+    out.push('');
+  }
+
+  out.push('## 운영 가이드');
+  out.push('');
+  for (const g of narrative.guidance) out.push(`- ${g}`);
+  out.push('');
+
+  out.push('---');
+  out.push('');
+  out.push('본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.');
+
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+/** CalendarDay + 해석 → 택일 상담 문서 (마크다운) */
+export function renderTaekilMarkdown(
+  day: CalendarDay,
+  narrative: TaekilInterpretation,
+  opts: { title?: string } = {},
+): string {
+  const title = opts.title ?? `택일 리포트 — ${day.solarDate}`;
+  const out: string[] = [];
+
+  out.push(`# ${title}`);
+  out.push('');
+  out.push(`**${narrative.headline}**`);
+  out.push('');
+  out.push(`양력 ${day.solarDate} · 음력 ${day.lunarDate}${day.isLeapMonth ? ' (윤달)' : ''} · 일진 ${day.dayGanJi}`);
+  out.push('');
+
+  for (const line of narrative.lines) {
+    out.push(`- **${line.label}** ${line.text}`);
+  }
+  out.push('');
+
+  if (narrative.suited.length > 0) {
+    out.push('## 이 날에 맞는 일');
+    out.push('');
+    for (const s of narrative.suited) out.push(`- ${s}`);
+    out.push('');
+  }
+  if (narrative.avoid.length > 0) {
+    out.push('## 이 날에 피할 일');
+    out.push('');
+    for (const s of narrative.avoid) out.push(`- ${s}`);
+    out.push('');
+  }
+
+  out.push('## 운영 가이드');
+  out.push('');
+  for (const g of narrative.guidance) out.push(`- ${g}`);
+  out.push('');
+
+  out.push('---');
+  out.push('');
+  out.push('본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.');
+
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+function paljaOfCompat(compat: CompatibilityResult, person: 1 | 2): string {
+  const p = person === 1 ? compat.person1Palja : compat.person2Palja;
+  const hour = p.hourGan && p.hourJi ? `${p.hourGan}${p.hourJi}` : '(시각 미상)';
+  return `${p.yearGan}${p.yearJi} ${p.monthGan}${p.monthJi} ${p.dayGan}${p.dayJi} ${hour}`;
+}
+
+/** NamingResult + 해석 → 작명 상담 문서 (마크다운) */
+export function renderNamingMarkdown(
+  result: NamingResult,
+  narratives: NamingInterpretation[],
+  opts: { title?: string } = {},
+): string {
+  const title = opts.title ?? `작명 리포트 — ${result.surname}씨 후보 ${result.candidates.length}인`;
+  const out: string[] = [];
+
+  out.push(`# ${title}`);
+  out.push('');
+  out.push(`성씨: ${result.surname} · 후보 ${result.candidates.length}개`);
+  out.push('');
+
+  // 후보별 섹션
+  result.candidates.forEach((c, i) => {
+    const n = narratives[i];
+    if (!n) return;
+    out.push(`## ${i + 1}. ${result.surname}${c.name} — ${c.totalScore}점`);
+    out.push('');
+    out.push(`**${n.headline}**`);
+    out.push('');
+
+    for (const line of n.lines) {
+      out.push(`- **${line.label}** ${line.text}`);
+    }
+    out.push('');
+
+    if (n.strengths.length > 0) {
+      out.push('**강점**');
+      out.push('');
+      for (const s of n.strengths) out.push(`- ${s}`);
+      out.push('');
+    }
+    if (n.cautions.length > 0) {
+      out.push('**주의**');
+      out.push('');
+      for (const s of n.cautions) out.push(`- ${s}`);
+      out.push('');
+    }
+    if (n.guidance.length > 0) {
+      out.push('**가이드**');
+      out.push('');
+      for (const s of n.guidance) out.push(`- ${s}`);
+      out.push('');
+    }
+  });
+
+  out.push('---');
+  out.push('');
+  out.push('본 문서는 역학 엔진의 계산 결과를 조립한 참고 자료입니다. 최종 판단은 상담사의 전문성으로 보완하세요.');
+
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+/** 개인별 토정 계산 풀이 → Markdown 문서. 미검증 원문은 렌더링하지 않는다. */
+export function renderTojeongMarkdown(
+  result: import('@/engine/types').TojeongResult,
+  narrative: import('./tojeong').TojeongInterpretationReport,
+  opts: { title?: string } = {},
+): string {
+  return [
+    `# ${opts.title ?? `${result.targetYear}년 토정비결 계산 풀이`}`, '', narrative.headline, '',
+    '## 계산 근거', '', ...narrative.lines.map(l => `- **${l.label}** ${l.text}`), '',
+    '## 확인 사항', '', ...narrative.cautions.map(t => `- ${t}`), '',
+    ...narrative.guidance, '', '## 근거 식별자', '', ...narrative.basisRefs.map(t => `- ${t}`), '',
+  ].join('\n');
 }

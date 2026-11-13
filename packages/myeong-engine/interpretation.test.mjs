@@ -14,6 +14,19 @@ import {
   renderPattern,
   renderReportMarkdown,
   renderReportHtml,
+  renderCompatibilityHtml,
+  renderNamingHtml,
+  renderTaekilHtml,
+  renderCompatibilityMarkdown,
+  interpretCompatibility,
+  analyzeNames,
+  interpretNaming,
+  interpretNamingWithSaju,
+  renderNamingMarkdown,
+  getCalendarDay,
+  interpretTaekil,
+  renderTaekilMarkdown,
+  calculateCompatibility,
   PATTERN_REGISTRY,
 } from './dist/index.js';
 
@@ -513,6 +526,100 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     assert.ok(rendered.length > 20 && !rendered.includes('undefined'), `${c.label} 동적 문장: ${rendered}`);
     assert.ok(pattern.contentId === c.key, `${c.label} DB 문구 등록`);
   }
+}
+
+// 5차 — 궁합 해석 계층
+{
+  const input1 = { year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' };
+  const input2 = { year: 1988, month: 11, day: 3, hour: 10, minute: 0, gender: 'female' };
+  const a = saju(input1);
+  const b = saju(input2);
+  const compat = calculateCompatibility({ person1: { ...input1, birthPlace: null }, person2: { ...input2, birthPlace: null } });
+  const n = interpretCompatibility(a, b, compat, { nameA: '남편', nameB: '아내' });
+  assert.ok(n.headline.includes('등급') && n.headline.includes('점'), `궁합 헤드라인: ${n.headline}`);
+  assert.ok(n.lines.some((l) => l.label === '일간 십신' && l.text.includes('정재')), '십신 상호 인식 (己×壬 = 정재)');
+  assert.ok(!n.lines.some((l) => l.text.includes('남편는')), '이름 조사 오류 방지');
+  assert.ok(n.lines.some((l) => l.label === '강약 대비'), '강약 대비');
+  assert.ok(n.lines.every((l) => !l.text.includes('undefined') && !l.text.includes('null')), '누수 방지');
+  const md = renderCompatibilityMarkdown(compat, n, { nameA: '남편', nameB: '아내' });
+  assert.ok(md.startsWith('# 궁합 리포트 — 남편 × 아내'), '궁합 문서 헤더');
+  assert.ok(md.includes('## 관계 구조') && md.includes('## 운영 가이드'), '궁합 문서 섹션');
+  const html = renderCompatibilityHtml(compat, n, { nameA: '남편', nameB: '아내', counselor: { name: '테스트 명리관', contact: 'test@example.com' } });
+  assert.ok(html.startsWith('<!DOCTYPE html>') && html.includes('lang="ko"'), '궁합 HTML 구조');
+  assert.ok(html.includes('관계 구조') && html.includes('운영 가이드') && html.includes('테스트 명리관'), '궁합 HTML 섹션+브랜드');
+  assert.ok(!html.includes('undefined') && !html.includes('null'), '궁합 HTML 누수');
+}
+
+// 5차-후속 — 작명 해석 계층
+{
+  const result = analyzeNames('김', ['민준', '서준', '도현']);
+  const narratives = interpretNaming(result);
+  assert.equal(narratives.length, 3, '후보 수만큼 해석 생성');
+  for (const n of narratives) {
+    assert.ok(n.headline.includes('점'), `작명 헤드라인에 점수: ${n.headline}`);
+    assert.ok(n.lines.length >= 3, `해석 라인 부족: ${n.headline}`);
+    assert.ok(n.lines.every((l) => l.label.length > 0 && l.text.length > 10), `빈 해석 라인: ${n.headline}`);
+    assert.ok(n.guidance.length >= 1, `가이드 없음: ${n.headline}`);
+    assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
+  }
+  const md = renderNamingMarkdown(result, narratives);
+  assert.ok(md.startsWith('# 작명 리포트'), '작명 문서 헤더');
+  assert.ok(md.includes('## 1. 김민준') && md.includes('**강점**'), '작명 문서 섹션');
+  const html = renderNamingHtml(result, narratives, { counselor: { name: '테스트 작명소' } });
+  assert.ok(html.startsWith('<!DOCTYPE html>') && html.includes('lang="ko"'), '작명 HTML 구조');
+  assert.ok(html.includes('김민준') && html.includes('테스트 작명소'), '작명 HTML 후보+브랜드');
+  assert.ok(!html.includes('undefined') && !html.includes('null'), '작명 HTML 누수');
+}
+
+// 5차-후속 — 택일 해석 계층
+{
+  const day = getCalendarDay(2026, 9, 15);
+  const n = interpretTaekil(day);
+  assert.ok(n.headline.includes('2026-09-15') && n.headline.includes('위일'), `택일 헤드라인: ${n.headline}`);
+  assert.ok(n.lines.some((l) => l.label === '십이직'), '십이직 라인');
+  assert.ok(n.lines.some((l) => l.label === '일진 오행'), '일진 오행 라인');
+  assert.ok(n.guidance.length >= 1, '가이드 생성');
+  assert.ok(n.avoid.length > 0, '흉일은 피할 일 목록');
+  assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
+  const md = renderTaekilMarkdown(day, n);
+  assert.ok(md.startsWith('# 택일 리포트'), '택일 문서 헤더');
+  assert.ok(md.includes('## 이 날에 피할 일') && md.includes('## 운영 가이드'), '택일 문서 섹션');
+  const html = renderTaekilHtml(day, n);
+  assert.ok(html.startsWith('<!DOCTYPE html>') && html.includes('lang="ko"'), '택일 HTML 구조');
+  assert.ok(html.includes('이 날에 피할 일') && html.includes('운영 가이드'), '택일 HTML 섹션');
+  assert.ok(!html.includes('undefined') && !html.includes('null'), '택일 HTML 누수');
+
+  // 길일 케이스 — 십이직 순회로 길일 하나를 찾아 suited 목록 확인
+  let gilFound = false;
+  for (let d = 1; d <= 28 && !gilFound; d += 1) {
+    const dd = getCalendarDay(2026, 9, d);
+    if (dd.gilhyung === '길') {
+      const nn = interpretTaekil(dd);
+      assert.ok(nn.suited.length > 0, `길일 ${dd.solarDate}은 맞는 일 목록이 있어야 함`);
+      gilFound = true;
+    }
+  }
+  assert.ok(gilFound, '9월 내 길일 존재');
+}
+
+// 5차-후속2 — 작명×사주 교차
+{
+  const r = saju({ year: 1985, month: 1, day: 10, hour: 16, minute: 45, gender: 'male' });
+  const names = analyzeNames('김', ['민준', '수아', '지호']);
+  const ns = interpretNamingWithSaju(names, r);
+  assert.equal(ns.length, 3, '사주 교차 해석 수');
+  for (const n of ns) {
+    const sajuLine = n.lines.find((l) => l.label === '사주 보완');
+    assert.ok(sajuLine, `사주 보완 라인: ${n.headline}`);
+    assert.ok(sajuLine.text.includes('현실 조건'), `작명 교차의 현실 조건 안내: ${sajuLine.text}`);
+    assert.ok(!sajuLine.text.includes('부를 때마다') && !sajuLine.text.includes('효과'), `작명 교차의 인과 단정 금지: ${sajuLine.text}`);
+    assert.ok(n.strengths.every((line) => !line.includes('메웁니다') && !line.includes('돕습니다')), `작명 강점의 인과 단정 금지: ${n.strengths.join(' / ')}`);
+    assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
+  }
+  // 이름 대표 오행이 용신·기신 축과 맞물리면 헤드라인 접미어로 드러난다 —
+  // 골든 명식은 록겁격(용신 목·기신 금)이라 대표 오행 금인 '김민준'은 '기신 방향'
+  const minjun = ns.find((n) => n.headline.startsWith('김민준'));
+  assert.ok(minjun && /기신 방향/.test(minjun.headline), `기신 접미: ${minjun?.headline}`);
 }
 
 // 5차-후속3 — 시점 서사 2단계 (월운×세운 교차, 대운 전환 서사)

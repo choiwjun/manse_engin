@@ -1,4 +1,5 @@
-// 만세력 달력(일진) — 날짜별 일진·음력·절기·십이직
+// @TASK P4-R3-T1 - 역학달력/일진 엔진
+// @SPEC docs/planning/02-trd.md#역학달력-일진
 
 import type { CalendarDay, MonthlyCalendar, Ohaeng } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';

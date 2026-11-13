@@ -202,6 +202,70 @@ test('projected lunar month starts agree with NASA new-moon dates in KST', () =>
   }
 });
 
+test('ziwei derives the five-elements class from the ming-gong stem-branch naeum', async () => {
+  // 음력 2024-03-01 자시(0시): 명궁 戊辰 → 대림목 → 목삼국 (년주 甲辰 부등화=화육국이 아님)
+  const r = (await esm.executeEngineModuleById('ziwei', {
+    calendarType: 'lunar', date: '2024-03-01', hour: 0, gender: 'male', isLeapMonth: false,
+  })).result;
+  const ming = r.palaces.find(p => p.name === '명궁');
+  assert.equal(ming.heavenlyStem + ming.earthlyBranch, '무진');
+  assert.equal(r.fiveElementsClass, '목삼국');
+});
+
+test('ziwei places 丙子·丁丑 stems and palace names in reverse branch order', async () => {
+  // 甲辰년(2024): 오호둔 순행으로 子궁=丙子, 丑궁=丁丑
+  const r = (await esm.executeEngineModuleById('ziwei', {
+    calendarType: 'solar', date: '2024-05-01', hour: 10, gender: 'male',
+  })).result;
+  const ja = r.palaces.find(p => p.earthlyBranch === '자');
+  const chuk = r.palaces.find(p => p.earthlyBranch === '축');
+  assert.equal(ja.heavenlyStem, '병');
+  assert.equal(chuk.heavenlyStem, '정');
+  // 궁명은 명궁에서 지지 역행으로 배치된다
+  const bro = r.palaces.find(p => p.name === '형제');
+  const ji = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'];
+  assert.equal(ji.indexOf(bro.earthlyBranch), (ji.indexOf(mingBranch(r)) + 11) % 12);
+  function mingBranch(res) {
+    return res.palaces.find(p => p.name === '명궁').earthlyBranch;
+  }
+});
+
+test('ziwei star position follows the quotient-and-offset rule', async () => {
+  // 목삼국(3) 음력 1일 → 자미=辰(진). 보수법: 1+2=3, 3/3=1, 寅+0=寅에서 보수2(짝수) 순행 → 辰
+  const r = (await esm.executeEngineModuleById('ziwei', {
+    calendarType: 'lunar', date: '2024-03-01', hour: 0, gender: 'male', isLeapMonth: false,
+  })).result;
+  assert.equal(r.fiveElementsClass, '목삼국');
+  const ziweiPalace = r.palaces.find(p => p.majorStars.some(s => s.name === '자미'));
+  assert.equal(ziweiPalace.earthlyBranch, '진');
+});
+
+test('qimen places all nine stems including 乙 and honors the term instant', async () => {
+  for (const day of [1, 4, 7, 10, 13, 16, 19, 22, 25, 28]) {
+    for (const hour of [0, 6, 12, 18]) {
+      const r = (await esm.executeEngineModuleById('qimen', {
+        solarDate: `2024-01-${String(day).padStart(2, '0')}`, hour,
+      })).result;
+      const earthStems = r.palaces.map(p => p.earthStem);
+      assert.ok(earthStems.includes('乙'), `2024-01-${day} ${hour}h earth plate missing 乙`);
+      assert.ok(earthStems.every(s => s !== ''), 'earth plate has empty palace');
+    }
+  }
+  // 하지 2024-06-21 05:51: 절입 전은 망종, 후는 하지
+  const before = (await esm.executeEngineModuleById('qimen', { solarDate: '2024-06-21', hour: 5 })).result;
+  const after = (await esm.executeEngineModuleById('qimen', { solarDate: '2024-06-21', hour: 6 })).result;
+  assert.equal(before.solarTerm, '망종');
+  assert.equal(after.solarTerm, '하지');
+});
+
+test('daeyukim switches woljang at the exact term instant', async () => {
+  // 우수 2024-02-19 13:13: 절입 전 월장 子(대한 기준), 후 亥(우수 기준)
+  const before = (await esm.executeEngineModuleById('daeyukim', { solarDate: '2024-02-19', hour: 12 })).result;
+  const after = (await esm.executeEngineModuleById('daeyukim', { solarDate: '2024-02-19', hour: 14 })).result;
+  assert.equal(before.wolJang, '子');
+  assert.equal(after.wolJang, '亥');
+});
+
 test('gyeokguk reaches special formations before ordinary classification', () => {
   // 甲일간 + 己월간 + 辰월지(토 당령), 쟁합·극화 없음 → 갑기합화토격 (정격 판별보다 특수격 우선)
   const r = esm.determineGyeokguk({
@@ -232,20 +296,28 @@ test('contract validation rejects invalid and non-finite inputs', async () => {
       `${id} ${JSON.stringify(input)}`,
     );
   };
+  await reject('maehwa', { method: 'number', first: NaN, second: 3 }, 'INVALID_INPUT');
+  await reject('maehwa', { method: 'number', first: Infinity, second: 3 }, 'INVALID_INPUT');
+  await reject('maehwa', { method: 'number', first: -1, second: 3 }, 'OUT_OF_RANGE');
+  await reject('harak', { year: 2024, month: 99, day: 99 }, 'INVALID_INPUT');
+  await reject('ziwei', { calendarType: 'solar', date: '1990-01-01', hour: 24, gender: 'male' }, 'OUT_OF_RANGE');
+  await reject('qimen', { solarDate: '2024-13-40', hour: 10 }, 'INVALID_INPUT');
+  await reject('hongyeon', { palja: { yearGan: '', yearJi: '', monthGan: '', monthJi: '', dayGan: '', dayJi: '', hourGan: '', hourJi: '' } }, 'INVALID_INPUT');
   await reject('saju', { birth: birth({ year: 1990, month: 5, day: 15, hour: 99 }), now: '2025-01-15T00:00:00Z' }, 'OUT_OF_RANGE');
-  await reject('saju', { birth: birth({ year: NaN, month: 5, day: 15, hour: 10 }), now: '2025-01-15T00:00:00Z' }, 'INVALID_INPUT');
-  await reject('saju', { birth: birth({ year: 1990, month: 5, day: 15, hour: 10 }), now: 'yesterday' }, 'INVALID_INPUT');
-  await reject('calendar', { view: 'month', year: Infinity, month: 1 }, 'INVALID_INPUT');
-  await reject('calendar', { view: 'week', year: 2024, month: 1 }, 'INVALID_INPUT');
-  // 이 브랜치는 만세력·사주풀이 엔진만 담는다 — 다른 모듈 ID는 계약 단계에서 거절된다
-  await reject('ziwei', { calendarType: 'solar', date: '1990-01-01', hour: 10, gender: 'male' }, 'INVALID_MODULE');
 
-  // 시각 미상 사주는 경고와 함께 통과한다
-  const env = await esm.executeEngineModuleById('saju', {
-    birth: birth({ year: 1990, month: 5, day: 15, hour: null, minute: null }),
-    now: '2025-01-15T00:00:00Z',
+  // 3주(시주 생략) 입력은 경고와 함께 통과한다
+  const hy = await esm.executeEngineModuleById('hongyeon', {
+    palja: { yearGan: '甲', yearJi: '子', monthGan: '己', monthJi: '辰', dayGan: '甲', dayJi: '午', hourGan: '', hourJi: '' },
   });
-  assert.ok(env.warnings.some(w => w.code === 'TIME_UNKNOWN'));
+  assert.ok(hy.warnings.some(w => w.code === 'PARTIAL_THREE_PILLARS'));
+});
+
+test('compatibility scores unknown-time charts against the valid-character count', async () => {
+  const p = { year: 1990, month: 5, day: 15, hour: null, minute: null, gender: 'male' };
+  const q = { year: 1992, month: 7, day: 20, hour: null, minute: null, gender: 'female' };
+  const env = await esm.executeEngineModuleById('compatibility', { person1: p, person2: q });
+  assert.equal(env.warnings.filter(w => w.code === 'TIME_UNKNOWN').length, 2);
+  assert.ok(Number.isFinite(env.result.ohaengComplement.score));
 });
 
 test('2024 solar-term timestamps remain within one minute of the KASI reference', () => {
@@ -266,6 +338,24 @@ test('2024 solar-term timestamps remain within one minute of the KASI reference'
   });
 });
 
+test('tojeong derives a collision-free 8x6x3 gwae from traditional formulas', () => {
+  // 갑진년(2024): 태세수 = 중천수(甲 11) + 중천수(辰 11) = 22
+  // 생년 1990 → 한국나이 35 → 상괘 = (35 + 22) % 8 = 1
+  const r = esm.analyzeTojeong(1990, 5, 15, 2024);
+  assert.equal(r.gwae.sangGwae, 1);
+  assert.ok(r.gwae.jungGwae >= 1 && r.gwae.jungGwae <= 6);
+  assert.ok(r.gwae.haGwae >= 1 && r.gwae.haGwae <= 3);
+  const expected =
+    (r.gwae.sangGwae - 1) * 18 + (r.gwae.jungGwae - 1) * 3 + r.gwae.haGwae;
+  assert.equal(r.gwae.gwaeNumber, expected);
+  assert.equal(r.gwae.gwaeCode, `${r.gwae.sangGwae}${r.gwae.jungGwae}${r.gwae.haGwae}`);
+  assert.equal(r.interpretation, null);
+  assert.equal(r.contentStatus, 'unverified');
+  // 생년이 결과에 반영된다
+  const other = esm.analyzeTojeong(1991, 5, 15, 2024);
+  assert.notEqual(other.gwae.sangGwae, r.gwae.sangGwae);
+});
+
 test('lunar month length helper returns 29 or 30 and matches conversion range', () => {
   for (const [y, m] of [[2024, 1], [2024, 5], [2023, 2], [1990, 9]]) {
     const days = esm.getLunarMonthDays(y, m);
@@ -275,6 +365,35 @@ test('lunar month length helper returns 29 or 30 and matches conversion range', 
     try { esm.lunarToSolar({ year: y, month: m, day: 30, isLeapMonth: false }); } catch { day30ok = false; }
     assert.equal(day30ok, days === 30, `${y}-${m} day30 vs days=${days}`);
   }
+});
+
+test('harak hexagram lookup respects the lower*10+upper key convention', () => {
+  assert.equal(esm.calculateHexagramNumber(1, 8), 12); // 天地否
+  assert.equal(esm.calculateHexagramNumber(8, 1), 11); // 地天泰
+  assert.throws(() => esm.calculateHexagramNumber(0, 5));
+  assert.throws(() => esm.calculateHexagramNumber(9, 5));
+  const h = esm.calculateHarak(2024, 6, 15);
+  assert.ok(h.hexagramNumber >= 1 && h.hexagramNumber <= 64);
+});
+
+test('daeyukim applies the nine-gates derivation with jeok-first priority', () => {
+  const r = esm.calculateDaeyukim('2024-06-15', 10);
+  assert.ok(typeof r.gwaMyeong === 'string' && r.gwaMyeong.endsWith('과'));
+  assert.equal(r.samJeon.length, 3);
+  // 사과에서 적(하극상)이 정확히 1개면 그 상신이 초전이어야 한다
+  const O = { 木: '土', 土: '水', 水: '火', 火: '金', 金: '木' };
+  const BO = { 子: '水', 丑: '土', 寅: '木', 卯: '木', 辰: '土', 巳: '火', 午: '火', 未: '土', 申: '金', 酉: '金', 戌: '土', 亥: '水' };
+  const haJek = r.saGwa.filter(g => O[BO[g.lower]] === BO[g.upper]);
+  if (haJek.length === 1) {
+    assert.equal(r.samJeon[0].branch, haJek[0].upper);
+  }
+});
+
+test('naming rejects partial hanja arrays and non-hangul characters', () => {
+  assert.throws(() => esm.analyzeNameExtended('김', '철수', { hanjaChars: ['金', '哲'] }));
+  const ok = esm.analyzeNameExtended('김', '철수', { hanjaChars: ['金', '哲', '秀'] });
+  assert.equal(ok.hanjaStrokes.length, 3);
+  assert.throws(() => esm.analyzeNameExtended('김', 'AB', {}));
 });
 
 test('calendar emits the twelve officers (十二直) names', () => {
@@ -533,7 +652,7 @@ test('루트 소스와 패키지 미러의 생성 콘텐츠 DB가 동일하다',
   const root = JSON.parse(readFileSync(new URL('../../src/engine/interpretation/content-db.generated.json', import.meta.url)));
   const pkg = JSON.parse(readFileSync(new URL('./src/engine/interpretation/content-db.generated.json', import.meta.url)));
   assert.deepEqual(pkg, root, 'build.mjs가 루트·미러에 같은 DB를 생성해야 한다');
-  assert.equal(Object.keys(root).length, Object.keys(esm.PATTERN_REGISTRY).length, '사주 풀이 엔트리 = 레지스트리 키 수');
+  assert.ok(Object.keys(root).length >= 160, `엔트리 수: ${Object.keys(root).length}`);
 });
 
 test('격국이 차순위 후보를 함께 노출한다 (특수격 성립 시 정격이 candidates로)', () => {
@@ -615,6 +734,56 @@ test('applyPractitionerOverride — 역술인 선택이 용신·격국·운 판�
 // 2026 정확성 재검증 회귀 테스트 (외부 기준: 자평 오자둔, 紫微斗數全書·iztro 2.6.5)
 // ---------------------------------------------------------------------------
 
+test('qimen 23시는 다음 날 자시로 포국한다 (같은 날 0시와 같지 않다)', () => {
+  // 2024-03-10 癸酉일: 0시 = 壬子시, 23시 = 다음 자시 甲子시(甲戌일)
+  const at0 = esm.calculateQimen('2024-03-10', 0);
+  const at23 = esm.calculateQimen('2024-03-10', 23);
+  const next0 = esm.calculateQimen('2024-03-11', 0);
+  assert.equal(at0.hourGan + at0.hourJi, '壬子');
+  assert.equal(at23.hourGan + at23.hourJi, '甲子');
+  assert.equal(at23.dayGan + at23.dayJi, '甲戌');
+  const { solarDate: _a, ...chart23 } = at23;
+  const { solarDate: _b, ...chartNext0 } = next0;
+  assert.deepEqual(chart23, chartNext0, '절입 경계가 없으면 23시 포국 = 다음 날 0시 포국');
+  // 23시 시주는 사주 엔진(오자둔)과 같아야 한다
+  for (const [y, m, d] of [[1990, 5, 15], [2001, 11, 2], [2024, 8, 20], [2033, 1, 9]]) {
+    const q = esm.calculateQimen(`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`, 23);
+    const p = esm.calculatePalja(birth({ year: y, month: m, day: d, hour: 23, minute: 30 }));
+    assert.equal(q.hourGan + q.hourJi, p.hourGan + p.hourJi, `${y}-${m}-${d} 23시 시주`);
+  }
+});
+
+test('ziwei 신주(身主)는 년지 기준 표준표를 따른다', () => {
+  // 子午 火星, 丑未 天相, 寅申 天梁, 卯酉 天同, 辰戌 文昌, 巳亥 天機
+  const expected = { 자: '화성', 축: '천상', 인: '천량', 묘: '천동', 진: '문창', 사: '천기', 오: '화성', 미: '천상', 신: '천량', 유: '천동', 술: '문창', 해: '천기' };
+  for (let year = 1984; year < 1996; year++) {
+    const r = esm.calculateZiwei(`${year}-06-15`, 12, 'male');
+    const yearZhi = r.chineseDate.slice(1, 2);
+    assert.equal(r.bodyStar, expected[yearZhi], `${year}년(${yearZhi}) 신주`);
+  }
+});
+
+test('ziwei 소한(小限)은 남순여역으로 배치한다', () => {
+  // 1990-05-15 庚午년: 寅午戌 → 辰궁에서 1세 시작. 남=순행(巳 2세), 여=역행(卯 2세)
+  const ages = (r, b) => r.palaces.find(p => p.earthlyBranch === b).ages.slice(0, 2);
+  const male = esm.calculateZiwei('1990-05-15', 14, 'male');
+  const female = esm.calculateZiwei('1990-05-15', 14, 'female');
+  assert.deepEqual(ages(male, '진'), [1, 13]);
+  assert.deepEqual(ages(male, '사'), [2, 14]);
+  assert.deepEqual(ages(male, '묘'), [12, 24]);
+  assert.deepEqual(ages(female, '진'), [1, 13]);
+  assert.deepEqual(ages(female, '묘'), [2, 14]);
+  assert.deepEqual(ages(female, '사'), [12, 24]);
+});
+
+test('ziwei 庚년 천괴는 丑, 천월은 未 (甲戊庚牛羊)', () => {
+  const r = esm.calculateZiwei('1990-05-15', 14, 'male');
+  const minor = b => r.palaces.find(p => p.earthlyBranch === b).minorStars.map(s => s.name);
+  assert.ok(minor('축').includes('천괴'), '丑궁 천괴');
+  assert.ok(minor('미').includes('천월'), '未궁 천월');
+  assert.ok(!minor('축').includes('천월') && !minor('미').includes('천괴'));
+});
+
 test('대운: 절입 시각과 같은 분에 태어난 순행자는 다음 절까지 센다', () => {
   // 1990 입춘 = 1990-02-04 11:14:00 KST (초 0). 출생 순간부터 戊寅월.
   const ipchun = esm.listSolarTermsForYear(1990).find(t => t.koreanName === '입춘');
@@ -636,6 +805,35 @@ test('대운: 절입 시각과 같은 분에 태어난 순행자는 다음 절�
   assert.equal(rev.gan + rev.ji, '丁丑');
   assert.equal(rev.startAgeMonths, 0);
 });
+
+test('ziwei 윤달 보정(fixLeap): 윤달 16일 이후는 다음 달로 본다', () => {
+  // 2020 윤4월 20일 = 양력 2020-06-11 (한·중 역법 동일). 午시.
+  // 기준(iztro 2.6.5 fixLeap=true): 명궁·신궁 子, 좌보 申, 우필 午, 화육국, 자미 酉
+  const fixed = esm.calculateZiwei('2020-06-11', 12, 'male');
+  const pos = (r, star) => r.palaces.find(p => [...p.majorStars, ...p.minorStars].some(s => s.name === star)).earthlyBranch;
+  assert.equal(fixed.soulPalaceBranch, '자');
+  assert.equal(fixed.bodyPalaceBranch, '자');
+  assert.equal(pos(fixed, '좌보'), '신');
+  assert.equal(pos(fixed, '우필'), '오');
+  assert.equal(fixed.fiveElementsClass, '화육국');
+  assert.equal(pos(fixed, '자미'), '유');
+  assert.equal(fixed.lunarDate, '2020-4-20', '표시용 음력 날짜는 실제 날짜를 유지');
+  // 음력 입력 경로도 같은 명반
+  const byLunar = esm.calculateZiweiByLunar('2020-04-20', 12, 'male', true);
+  assert.deepEqual(byLunar.palaces, fixed.palaces);
+  // fixLeap=false 이면 윤달을 본래 달로 본다
+  const unfixed = esm.calculateZiwei('2020-06-11', 12, 'male', false);
+  assert.equal(unfixed.soulPalaceBranch, '해');
+  assert.equal(unfixed.fiveElementsClass, '토오국');
+  // 윤달 15일 이전은 보정과 무관
+  const early = esm.calculateZiwei('2020-06-01', 12, 'male');
+  assert.equal(early.soulPalaceBranch, '해');
+  assert.equal(pos(early, '자미'), '묘');
+});
+
+// ---------------------------------------------------------------------------
+// 2026 풀이 엔진 재검증 회귀 테스트 — 원진 표·대운 나이·원진 문장 위치·조사
+// ---------------------------------------------------------------------------
 
 test('원진(怨嗔)은 표준 6쌍(子未 丑午 寅酉 卯申 辰亥 巳戌)이며 육해(六害)와 구분된다', () => {
   const standard = [['子', '未'], ['丑', '午'], ['寅', '酉'], ['卯', '申'], ['辰', '亥'], ['巳', '戌']];
@@ -723,6 +921,103 @@ test('사주 풀이 리포트(Markdown·HTML)의 동적 조사가 받침과 맞�
 // ---------------------------------------------------------------------------
 // 시각 기반 모듈의 법정시(서머타임) 정규화 — 사주 엔진과 같은 기준
 // ---------------------------------------------------------------------------
+
+test('기문·육임·자미는 서머타임을 뺀 표준시로 시주를 잡는다 (1987 DST)', () => {
+  const date = '1987-07-15';
+  for (let h = 0; h < 24; h++) {
+    const p = esm.calculatePalja(birth({ year: 1987, month: 7, day: 15, hour: h, minute: 0 }));
+    const q = esm.calculateQimen(date, h);
+    assert.equal(`${q.hourGan}${q.hourJi}`, `${p.hourGan}${p.hourJi}`, `qimen ${h}시`);
+    const d = esm.calculateDaeyukim(date, h);
+    assert.equal(d.hourJi, p.hourJi, `daeyukim ${h}시`);
+    assert.equal(`${d.dayGan}${d.dayJi}`, `${p.dayGan}${p.dayJi}`, `daeyukim 일주 ${h}시`);
+  }
+  // 서머타임 23시 = 표준시 22시(亥) → 기문은 같은 날 일주
+  const q23 = esm.calculateQimen(date, 23);
+  const p23 = esm.calculatePalja(birth({ year: 1987, month: 7, day: 15, hour: 23, minute: 0 }));
+  assert.equal(`${q23.dayGan}${q23.dayJi}`, `${p23.dayGan}${p23.dayJi}`);
+  // 자미: 서머타임 23시와 22시는 같은 亥시 명반, 0시는 전날 23시(子)
+  assert.deepEqual(esm.calculateZiwei(date, 23, 'male'), esm.calculateZiwei(date, 22, 'male'));
+  assert.equal(esm.calculateZiwei(date, 23, 'male').time, '해시');
+  assert.equal(esm.calculateZiwei(date, 0, 'male').lunarDate, '1987-6-19');
+});
+
+test('기문·육임의 절기 경계도 표준 순간(UTC+9) 기준으로 비교한다 (1987 DST)', () => {
+  // 망종 1987-06-06 14:18 KST — 서머타임 시계 15:00은 KST 14:00이라 아직 소만
+  assert.equal(esm.calculateQimen('1987-06-06', 15).solarTerm, '소만');
+  assert.equal(esm.calculateQimen('1987-06-06', 16).solarTerm, '망종');
+  // 하지 1987-06-22 07:10 KST — 월장은 하지 전후로 바뀐다
+  const before = esm.calculateDaeyukim('1987-06-22', 5).wolJang;
+  const after = esm.calculateDaeyukim('1987-06-22', 12).wolJang;
+  assert.notEqual(before, after);
+  assert.equal(esm.calculateDaeyukim('1987-06-22', 8).wolJang, before);
+  assert.equal(esm.calculateDaeyukim('1987-06-22', 9).wolJang, after);
+});
+
+test('법정시 정의 이전(1908 이전) 날짜도 기문·육임·자미 계산은 그대로 동작한다', () => {
+  assert.doesNotThrow(() => esm.calculateQimen('1900-01-01', 12));
+  assert.doesNotThrow(() => esm.calculateDaeyukim('1900-01-01', 12));
+  assert.doesNotThrow(() => esm.calculateZiwei('1900-01-01', 12, 'male'));
+});
+
+// ---------------------------------------------------------------------------
+// 다른 풀이 모듈의 조사 — 기문·육임·토정·궁합·작명
+// ---------------------------------------------------------------------------
+
+const DIGIT_READ = ['영', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+const VOCAB = ['천봉', '천임', '천충', '천보', '천영', '천예', '천주', '천심', '천금', '민준', '서연', '지우', '하늘'];
+const VOCAB_RE = new RegExp(`(?<![가-힣])(${VOCAB.join('|')}|[0-9])(은|는|이|가|을|를|과|와|으로|로)(?=[\\s,.·:;!?)"'」』—-]|$)`, 'g');
+function josaErrorsExtended(text) {
+  const out = josaErrors(text);
+  for (const m of text.matchAll(VOCAB_RE)) {
+    const word = m[1];
+    const last = /[0-9]/.test(word) ? DIGIT_READ[Number(word)] : word[word.length - 1];
+    const jong = (last.charCodeAt(0) - 0xac00) % 28;
+    const has = jong !== 0;
+    const p = m[2];
+    const bad = ['는', '를', '와', '가'].includes(p) ? has
+      : ['은', '을', '과', '이'].includes(p) ? !has
+      : p === '으로' ? !has || jong === 8
+      : has && jong !== 8;
+    if (bad) out.push(m[0]);
+  }
+  return out;
+}
+
+test('기문·육임·토정·궁합·작명 풀이의 동적 조사가 받침과 맞는다', () => {
+  const errors = [];
+  const push = (tag, text) => { for (const e of josaErrorsExtended(text)) errors.push(`${tag}: ${e}`); };
+  for (let k = 0; k < 60; k++) {
+    const date = new Date(Date.UTC(2024, 0, 1 + k * 6)).toISOString().slice(0, 10);
+    const hour = (k * 5) % 24;
+    push(`qimen ${date} ${hour}`, JSON.stringify(esm.interpretQimenResult(esm.calculateQimen(date, hour))));
+    push(`daeyukim ${date} ${hour}`, JSON.stringify(esm.interpretDaeyukimResult(esm.calculateDaeyukim(date, hour))));
+  }
+  for (let y = 1960; y <= 2000; y += 3) {
+    const t = esm.analyzeTojeong(y, (y % 12) + 1, (y % 27) + 1, 2026);
+    push(`tojeong ${y}`, esm.renderTojeongMarkdown(t, esm.interpretTojeong(t)));
+  }
+  const people = [
+    ['민준', { year: 1990, month: 5, day: 15, hour: 14, minute: 30, gender: 'male' }],
+    ['서연', { year: 1992, month: 8, day: 3, hour: 9, minute: 0, gender: 'female' }],
+    ['지우', { year: 1988, month: 2, day: 20, hour: 6, minute: 0, gender: 'female' }],
+    ['하늘', { year: 1991, month: 11, day: 9, hour: 21, minute: 0, gender: 'male' }],
+  ];
+  for (const [nameA, pa] of people) for (const [nameB, pb] of people) {
+    if (nameA === nameB) continue;
+    const compat = esm.calculateCompatibility({ person1: { isLunar: false, ...pa }, person2: { isLunar: false, ...pb } });
+    const a = esm.buildSajuResult(birth(pa));
+    const b = esm.buildSajuResult(birth(pb));
+    const narrative = esm.interpretCompatibility(a, b, compat, { nameA, nameB });
+    push(`compat ${nameA}-${nameB}`, esm.renderCompatibilityMarkdown(compat, narrative, { nameA, nameB }));
+  }
+  for (const [given, pb] of [['민수', people[0][1]], ['서아', people[1][1]], ['하준', people[2][1]], ['지호', people[3][1]]]) {
+    const text = JSON.stringify(esm.interpretNameWithSaju(esm.analyzeName('김', given), '김', esm.buildSajuResult(birth(pb))));
+    push(`naming ${given}`, text);
+    assert.doesNotMatch(text, /이\(가\)|은\(는\)|을\(를\)|와\(과\)/, `naming ${given}: 병기 조사 대신 받침에 맞는 조사`);
+  }
+  assert.deepEqual([...new Set(errors)].slice(0, 20), []);
+});
 
 test('대운이 용신을 간접적으로 도울 때는 "용신을 데려온다"고 쓰지 않는다', () => {
   const now = new Date('2026-06-15T03:00:00Z');

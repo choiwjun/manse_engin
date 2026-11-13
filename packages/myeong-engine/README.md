@@ -1,13 +1,13 @@
 # myeong-manseryeok-engine
 
-만세력 엔진과 사주풀이 엔진의 배포 패키지입니다. 엔진 구성과 기능 설명은 저장소 루트의 [README](../../README.md)를 보세요.
+만세력 엔진·사주풀이 엔진·역학 모듈 12종의 배포 패키지입니다. 엔진 구성과 기능 설명은 저장소 루트의 [README](../../README.md)를 보세요.
 
 ## 빌드·테스트
 
 ```bash
 npm ci        # 빌드·테스트 도구 설치 (esbuild, typescript, 데이터 생성용 라이브러리)
 npm run build # src/engine 복사 → 문구 DB 생성 → dist/index.js(ESM)·index.cjs(CJS)·*.d.ts
-npm test      # 스모크 → 회귀 → 풀이 → 문구 DB 검증
+npm test      # 스모크 → 회귀 → 작명·토정 → 풀이 → 개인 풀이 → 문구 DB 검증
 npm pack      # myeong-manseryeok-engine-<버전>.tgz
 ```
 
@@ -28,7 +28,8 @@ npm install ./myeong-manseryeok-engine-0.5.0.tgz
 | `generate-data.mjs` | 음양력·절기 데이터 재생성 (`npm run generate:data`, 근거: `src/engine/core/data/README.md`) |
 | `scripts/scan-combos.mjs` | 패턴 키가 실제로 감지되는 샘플 명식 탐색 (문구 작성용) |
 | `fixtures/nasa-new-moons-2050-2102.json` | 2051년 이후 음력 검증용 NASA 삭 시각 |
-| `smoke.test.mjs`, `regression.test.mjs`, `interpretation.test.mjs` | 테스트 |
+| `smoke.test.mjs`, `regression.test.mjs`, `naming-tojeong.test.mjs`, `interpretation.test.mjs`, `personal-interpretation.test.mjs` | 테스트 |
+| `../../scripts/refresh-hanja-strokes.py` | 작명 한자 획수 자료 재생성 (`--check`로 원자료 해시·추출 결과 확인) |
 
 빌드 중에 생성되는 `src/engine/`과 `dist/`는 커밋하지 않습니다.
 
@@ -36,4 +37,4 @@ npm install ./myeong-manseryeok-engine-0.5.0.tgz
 
 - Node.js 18 이상 또는 최신 브라우저
 - 계약 봉투(`executeEngineModule`)의 입력 해시에는 `crypto.subtle`, 실행 ID에는 `crypto.randomUUID`가 필요합니다.
-- 런타임 의존성은 없습니다. 데이터 생성용 라이브러리의 고지는 `THIRD_PARTY_NOTICES.md`에 있습니다.
+- 런타임 의존성은 없습니다. 데이터 생성용 라이브러리와 Unicode 한자 자료의 고지는 `THIRD_PARTY_NOTICES.md`에 있습니다.

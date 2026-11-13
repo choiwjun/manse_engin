@@ -1,7 +1,8 @@
-# MYEONG 만세력 엔진 · 사주풀이 엔진
+# MYEONG 만세력 엔진 · 사주풀이 엔진 · 역학 모듈
 
-출생 정보를 받아 **사주 명식을 계산하는 만세력 엔진**과, 그 명식에서 구조를 찾아 **풀이 리포트로 조립하는 사주풀이 엔진**입니다.
-`manse_engin` 저장소에서 이 두 엔진만 분리한 브랜치입니다.
+출생 정보를 받아 **사주 명식을 계산하는 만세력 엔진**, 그 명식에서 구조를 찾아 **풀이 리포트로 조립하는 사주풀이 엔진**,
+그리고 같은 만세력 위에서 동작하는 **역학 모듈 12종**(궁합·토정비결·작명·택일·자미두수·기문둔갑·대육임·구성·홍연·매화역수·하락리수·대정수)입니다.
+`manse_engin` 저장소에서 엔진만 분리한 브랜치입니다. 상담 플랫폼·워크스페이스 앱은 포함하지 않습니다.
 
 - 순수 TypeScript입니다. 런타임 의존성이 없고 Node.js 18 이상과 브라우저(WebView)에서 동작합니다.
 - 엔진 `0.5.0` · 계약 `2.0.0` · 데이터 `2026.10.06`
@@ -24,6 +25,12 @@
         │
         ▼
  Markdown / HTML 풀이 리포트
+
+ ┌─ 역학 모듈 (만세력 엔진의 간지·절기·음양력·법정시를 공유) ─────┐
+ │ 궁합 · 토정비결 · 작명 · 택일(만세력 달력)   → 풀이·리포트 포함 │
+ │ 자미두수 · 기문둔갑 · 대육임                → 판 계산 (+기문·육임 해석) │
+ │ 구성 · 홍연 · 매화역수 · 하락리수 · 대정수   → 계산 + 해석 문구  │
+ └───────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -68,7 +75,11 @@ const johu = applyPractitionerOverride(saju, { yongsinSchool: 'johu', note: '조
 johu.yongsin.ohaeng;            // '화'
 ```
 
-실행 가능한 예시는 [`examples/usage.mjs`](examples/usage.mjs)(`npm run build` 후 `node examples/usage.mjs`)에, 리포트 전체 예시는 [`examples/report-1985-01-10.md`](examples/report-1985-01-10.md)에 있습니다.
+실행 가능한 예시는 두 개입니다(`npm run build` 후 실행).
+- [`examples/usage.mjs`](examples/usage.mjs): 만세력·사주풀이
+- [`examples/modules.mjs`](examples/modules.mjs): 역학 모듈 12종
+
+리포트 전체 예시는 [`examples/report-1985-01-10.md`](examples/report-1985-01-10.md)에 있습니다.
 
 ---
 
@@ -96,8 +107,8 @@ johu.yongsin.ohaeng;            // '화'
 | `src/engine/saju/yongsin.ts` | 용신·기신 4학파 판별, 점수제 강약 |
 | `src/engine/saju/daeun.ts` | 대운(순역·대운수)·세운·월운 |
 | `src/engine/saju/result-builder.ts` | 전체 계산을 `SajuResult`로 조립 (`buildSajuResult`), 역술인 판정 반영 |
-| `src/engine/calendar/` | 만세력 달력. 날짜별 일진·음력·절기·십이직 |
-| `src/engine/contracts/` | 실행 계약 봉투. 입력 검증, 오류 코드, 버전, 입력 해시, 경고 |
+| `src/engine/calendar/` | 만세력 달력. 날짜별 일진·음력·절기·십이직 (택일의 기반) |
+| `src/engine/contracts/` | 실행 계약 봉투. 13개 모듈 공통의 입력 검증, 오류 코드, 버전, 입력 해시, 경고 |
 
 ### 구현된 기능
 
@@ -143,7 +154,7 @@ johu.yongsin.ohaeng;            // '화'
 
 **부가 기능**
 - **만세력 달력** (`getCalendarDay`, `getMonthlyCalendar`): 날짜별 일진·음력·절기·십이직·길흉을 보여 줍니다.
-- **실행 계약 봉투** (`executeEngineModule('saju' | 'calendar', …)`)
+- **실행 계약 봉투** (`executeEngineModule(모듈 ID, 입력)`, 13개 모듈 공통)
   - 입력을 검증하고, 오류를 코드로 정리해 줍니다.
   - 엔진·계약·데이터 버전과 입력 해시를 결과에 붙여, 결과를 재현할 수 있게 합니다.
 
@@ -222,7 +233,55 @@ johu.yongsin.ohaeng;            // '화'
 
 ---
 
-## 3. 공개 API (주요 함수)
+## 3. 역학 모듈 12종
+
+날짜·시각을 받는 모듈은 만세력 엔진의 간지·절기·음양력·법정시 처리를 공유합니다. 시각을 받는 모듈(자미두수·기문둔갑·대육임)도 사주와 같은 기준을 따릅니다. 일주·시주·음력 날짜는 서머타임을 뺀 표준시로 잡고, 절기·월장은 실제 순간(UTC+9)으로 비교합니다.
+
+### 풀이까지 제공하는 모듈
+
+| 모듈 ID | 이름 | 입력 | 계산 | 풀이·리포트 |
+|---|---|---|---|---|
+| `compatibility` | 궁합 | 두 사람의 출생 정보 | 4항목 100점(아래 표)과 S~D 등급. 시각 미상이면 3주 기준 | `interpretCompatibility` → `renderCompatibilityMarkdown`·`Html`. 일간 십신·방향, 배우자궁, 강약 대비, 오행 보완 서술 |
+| `tojeong` | 토정비결 | 생년월일(양력·음력, 윤달 정책), 대상 연도 | 상괘(8)·중괘(6)·하괘(3) 144괘. 음력 변환, 태세·월건·일진수, 윤달·말일 보정 내역 | `interpretTojeong` → `renderTojeongMarkdown`·`Html`. 개인별 괘와 산식만 설명 |
+| `naming` | 작명 | 성·이름 후보(한자 선택), 획수 학파 | 한글·강희·현대 획수, 원형이정, 81수리, 오격(천·인·지·외·총), 발음오행, 자원오행. 사주 용신 기반 추천(`mode: 'recommend'`) | `interpretNaming`·`interpretNamingWithSaju` → `renderNamingMarkdown`·`Html` |
+| `calendar` | 만세력 달력·택일 | 날짜(일·월 보기) | 일진, 음력, 절기, 십이직(건제만평…), 길흉 | `interpretTaekil` → `renderTaekilMarkdown`·`Html`. 십이직별 맞는 일·피할 일 |
+
+궁합 4항목은 다음과 같습니다.
+
+| 항목 | 기준 | 배점 |
+|---|---|---:|
+| 성격 궁합 | 일간 관계 | 30 |
+| 감정 궁합 | 일지 관계 | 25 |
+| 오행 균형 | 두 사람을 합친 오행 보완 | 25 |
+| 기운 조화 | 본명성(구성) 관계 | 20 |
+
+풀이 문구는 문구 DB에 있습니다. 작명 11건은 `content/entries/naming`, 택일 12건은 `content/entries/taekil`입니다.
+
+### 판(盤)을 세우는 모듈
+
+| 모듈 ID | 이름 | 입력 | 계산 결과 |
+|---|---|---|---|
+| `ziwei` | 자미두수 | 양력·음력 날짜, 시, 성별 | 명궁·신궁, 오행국, 명주·신주, 12궁(궁간·주성·보좌·잡성·밝기), 생년 사화, 대한·소한, 윤달 보정(`fixLeap`) |
+| `qimen` | 기문둔갑 | 양력 날짜, 시 | 양둔·음둔, 국수, 삼원, 9궁(지반·천반 간, 팔문, 구성, 팔신), 직부·직사, 순수, 공망, 격국. 해석: `interpretQimenResult`(궁별 길흉, 용신 궁, 요약) |
+| `daeyukim` | 대육임 | 양력 날짜, 시 | 월장, 천지반, 사과, 삼전(구종문 발용), 12천장, 과명, 공망. 해석: `interpretDaeyukimResult`(사과·삼전·과명) |
+| `guseong` | 구성기학 | 출생 연도, 성별, 대상 날짜 | 본명성, 연반·월반·일반 구궁도(중궁성·방위), 해석 문구 |
+
+### 수리·괘 모듈
+
+| 모듈 ID | 이름 | 입력 | 계산 결과 |
+|---|---|---|---|
+| `hongyeon` | 홍연 | 사주팔자 | 선천수(천간 하도수 합) → 홍국수 → 본명성, 구궁 배치, 통기도(인접 궁 오행 흐름) |
+| `maehwa` | 매화역수 | 시각·두 수·이름 획수 중 하나 | 상·하괘, 64괘, 변효, 체용과 생극 관계, 해석 |
+| `harak` | 하락리수 | 생년월일 | 하도수·낙서수 → 오행·방위, 상·하괘, 64괘, 해석 |
+| `daejeong` | 대정수작괘 | 사주팔자 | 천간 선천수·지지 후천수 합 → 상·하괘, 64괘, 변효, 해석 |
+
+자미두수 유파별 분석과 기문 유파 분석은 소스에 들어 있지만, 아직 공개 API로 내보내지 않습니다.
+- 자미두수(`src/engine/ziwei/schools`): 삼합·사화·중주
+- 기문 유파(`src/engine/qimen/schools`): 시국·연국·월국·홍연기문
+
+---
+
+## 4. 공개 API (주요 함수)
 
 | 영역 | 함수 |
 |---|---|
@@ -231,22 +290,29 @@ johu.yongsin.ohaeng;            // '화'
 | 역법 | `ManseryeokEngine`, `solarToLunar`, `lunarToSolar`, `listSolarTermsForYear`, `getGanji`, `resolveKoreanLegalTime`, `correctToTrueSolarTime`, `getCalendarDay`, `getMonthlyCalendar` |
 | 풀이 | `interpretSaju`, `runDetectors`, `measureOhaeng`, `assembleReport`, `buildTimingNarrative`, `judgeGanJi`, `renderPattern`, `PATTERN_REGISTRY`, `getContentEntry` |
 | 렌더 | `renderReportMarkdown`, `renderReportHtml` |
-| 계약 | `executeEngineModule`, `executeEngineModuleById`, `ENGINE_VERSION`, `ENGINE_CONTRACT_VERSION`, `ENGINE_DATA_VERSION` |
+| 궁합 | `calculateCompatibility`, `interpretCompatibility`, `renderCompatibilityMarkdown`, `renderCompatibilityHtml` |
+| 토정비결 | `analyzeTojeong`, `interpretTojeong`, `renderTojeongMarkdown`, `renderTojeongHtml` |
+| 작명 | `analyzeName(s)`, `analyzeNameExtended`, `analyzeNamesExtended`, `recommendNames`, `calculateFiveGrids`, `lookupHanja`, `getHanjaStrokes`, `searchHanjaByReading`, `interpretName(ing)`, `interpretNameWithSaju`, `interpretNamingWithSaju`, `renderNamingMarkdown`, `renderNamingHtml` |
+| 택일 | `getCalendarDay`, `getMonthlyCalendar`, `getSinsal12`, `getGilhyung`, `getTaekilInfo`, `interpretTaekil`, `renderTaekilMarkdown`, `renderTaekilHtml` |
+| 판·괘 | `calculateZiwei`, `calculateZiweiByLunar`, `calculateQimen`, `interpretQimenResult`, `calculateDaeyukim`, `interpretDaeyukimResult`, `calculateGuseong`, `analyzeHongyeon`, `divineByTime`, `divineByNumber`, `divineByName`, `calculateHarak`, `calculateDaejeong` |
+| 계약 | `executeEngineModule`, `executeEngineModuleById`, `ENGINE_MODULE_IDS`, `ENGINE_VERSION`, `ENGINE_CONTRACT_VERSION`, `ENGINE_DATA_VERSION` |
 
 타입 선언(`dist/index.d.ts`)이 함께 생성됩니다.
 
 ---
 
-## 4. 검증
+## 5. 검증
 
 `npm test`는 다음을 모두 실행합니다.
 
 | 테스트 | 내용 |
 |---|---|
 | `smoke.test.mjs` | ESM·CJS 산출물의 핵심 회귀 (4주, 子월 지장간, 서머타임 절기 경계, 범위 오류, 계약 봉투) |
-| `regression.test.mjs` | 회귀 63건. 절기·음양력·법정시·대운 경계, 격국·용신·강약 규칙, 원진·삼합, 조사, 풀이 판정 논리 |
-| `interpretation.test.mjs` | 골든 명식 리포트, 패턴 감지·조합키 46종 샘플, 렌더 출력, 문구 안전성 |
-| `validate-content.mjs` | 문구 DB 137건의 레지스트리·스키마·샘플 명식 재계산·금칙어 검사 |
+| `regression.test.mjs` | 회귀 82건. 절기·음양력·법정시·대운 경계, 격국·용신·강약 규칙, 원진·삼합, 자미두수·기문·대육임·토정·궁합·하락·작명 계산, 서머타임 표준시 처리, 조사, 풀이 판정 논리 |
+| `naming-tojeong.test.mjs` | 작명(획수 학파·오격·추천)과 토정비결(괘 산식·윤달·말일) 9건 |
+| `interpretation.test.mjs` | 골든 명식 리포트, 패턴 감지·조합키 46종 샘플, 궁합·작명·택일 풀이, 렌더 출력, 문구 안전성 |
+| `personal-interpretation.test.mjs` | 토정비결·작명 개인 풀이 4건 |
+| `validate-content.mjs` | 문구 DB 160건(사주 137·작명 11·택일 12)의 레지스트리·스키마·샘플 명식 재계산·금칙어 검사 |
 
 개발 중에 외부 기준과 따로 대조한 결과입니다(대조 스크립트는 이 브랜치에 포함하지 않았습니다).
 
@@ -255,10 +321,17 @@ johu.yongsin.ohaeng;            // '화'
 - **음양력**: 1900~2101년 7만여 일을 대조해 불일치 0건
 - **4주 간지**: 독립 구현(lunar-javascript)과 3만 표본을 대조해 불일치 0건
 - **풀이**: 무작위 명식 수천 건에서 예외·조사 오류·누락 0건. 관계 판정은 4,000건을 독립 재계산과 대조해 불일치 0건
+- **자미두수**: 외부 라이브러리 iztro와 3,700여 명반 대조. 다른 날짜는 입춘 경계 8일뿐이며, 한국시(UTC+9)와 중국시(UTC+8) 차이 때문
+- **기문둔갑**: 시주를 사주 엔진과 1950~2100년 5,924건 대조
+  - 5,923건이 일치했습니다.
+  - 나머지 1건(1956-05-20 0시)은 서머타임으로 실재하지 않는 시각이라, 두 엔진 모두 오류를 낸 경우입니다.
+- **역학 모듈 전체**: 사주·자미두수·기문·대육임·구성·홍연·매화·하락·대정·토정·궁합·작명 오격을 무작위 입력 400건씩 실행
+  - 예외·비정상 값은 0건입니다.
+  - 토정 18건은 대상 연도가 생년보다 앞선 입력이라 의도대로 거절된 경우입니다.
 
 ---
 
-## 5. 알아둘 점
+## 6. 알아둘 점
 
 - **격국·용신·강약은 학파 판단입니다.** 엔진은 정한 규칙대로 계산하며, 규칙의 타당성은 전문가 검수 대상입니다. 검수 기준과 대표 명식은 [`docs/expert-review-checklist-2026-09-15.md`](docs/expert-review-checklist-2026-09-15.md)에 있습니다.
 - **절기 시각에는 수 초~1분 정도 오차가 있습니다.** 절입 순간 바로 앞뒤에 태어난 경우에만 월주가 달라질 수 있습니다.
@@ -266,10 +339,23 @@ johu.yongsin.ohaeng;            // '화'
 - **2051년 이후 음력은 천문 계산값입니다.** KASI가 공표한 값이 아닙니다.
 - **1908-04-01 이전 출생은 지원하지 않습니다.** 서머타임 때문에 실재하지 않는 시각을 넣으면 오류가 납니다.
 - **풀이 문장은 상담 참고 자료입니다.** 의료·재정·관계 결정을 지시하지 않도록 쓰였습니다.
+- **역학 모듈은 단일 참조 학파 기준입니다.** 실행 계약 봉투도 같은 내용을 `warnings`로 알려 줍니다.
+  - 토정비결: 원문 해설과의 대응을 검증하지 못해, 해설(`interpretation`)은 `null`, `contentStatus`는 `'unverified'`입니다. 괘 산식은 원문 대조를 하지 않았습니다.
+  - 자미두수: 사화 표와 일부 유성 배치가 유파마다 다릅니다.
+  - 기문둔갑: 원(元)은 부두법으로 판별합니다.
+  - 대육임: 일부 특수과(팔전·별책·묘성 등)의 초전은 간이 규칙으로 둡니다.
+  - 구성: 일반(日盤)은 일원갑자법을 따릅니다.
+  - 하락리수: 년간지를 입춘이 아닌 역년(曆年) 기준으로 잡습니다.
+- **작명 자료에는 한계가 있습니다.**
+  - 자원오행·81수리 표는 단일 유파 규칙입니다.
+  - 인명용 한자 허용 여부를 보증하지 않습니다.
+  - 현대 획수(Unicode kTotalStrokes)는 한국 자형 표준이 아닙니다.
+  - 추천은 60자 편집 후보군 안의 조합입니다.
+- **궁합 점수는 이 엔진의 4항목 규칙에 따른 값입니다.**
 
 ---
 
-## 6. 디렉터리
+## 7. 디렉터리
 
 ```
 .
@@ -279,14 +365,21 @@ johu.yongsin.ohaeng;            // '화'
 │  ├─ core/                      # 만세력: 법정시·절기·음양력·간지 (+ data/)
 │  ├─ adapter/                   # 진태양시·자시 학파·한자 매핑·조사
 │  ├─ saju/                      # 명리 계산: 십신·신살·격국·용신·강약·대운
-│  ├─ calendar/                  # 만세력 달력(일진)
-│  ├─ contracts/                 # 실행 계약 봉투·입력 검증·버전
-│  ├─ interpretation/            # 사주풀이: 계량기·감지기·레지스트리·문장·리포트·렌더러
+│  ├─ calendar/                  # 만세력 달력(일진·십이직) — 택일의 기반
+│  ├─ compatibility/             # 궁합
+│  ├─ tojeong/                   # 토정비결
+│  ├─ naming/                    # 작명 (획수 자료 2,137자·추천)
+│  ├─ ziwei/  qimen/  daeyukim/  # 자미두수 · 기문둔갑 · 대육임
+│  ├─ guseong/  hongyeon/        # 구성기학 · 홍연
+│  ├─ maehwa/  harak/  daejeong/ # 매화역수 · 하락리수 · 대정수
+│  ├─ contracts/                 # 실행 계약 봉투(13개 모듈)·입력 검증·버전
+│  ├─ interpretation/            # 사주풀이 엔진 + 궁합·토정·작명·택일 풀이·렌더러
 │  └─ types.ts
-├─ content/entries/saju/         # 풀이 문구 DB (YAML 137건) — 작성 규칙: content/README.md
+├─ content/entries/              # 풀이 문구 DB — saju 137 · naming 11 · taekil 12 (작성 규칙: content/README.md)
 ├─ packages/myeong-engine/       # 배포 패키지: 빌드 스크립트·테스트·데이터 생성기
+├─ scripts/refresh-hanja-strokes.py  # 작명 한자 획수 자료 재생성 (Unicode Unihan)
 ├─ docs/                         # 전문가 검수 체크리스트·대표 명식 fixture
-└─ examples/                     # 사용 예시 스크립트·풀이 리포트 예시
+└─ examples/                     # 사용 예시(usage.mjs·modules.mjs)·풀이 리포트 예시
 ```
 
 `src/engine`이 원본 소스입니다. `packages/myeong-engine/build.mjs`가 빌드할 때 이 소스를 패키지로 복사하고, 문구 DB(YAML → JSON)를 생성한 뒤 ESM·CJS 번들과 타입 선언을 만듭니다.

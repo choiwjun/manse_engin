@@ -115,7 +115,7 @@ for (const file of files) {
   }
 
   // ① 경로=조합키. saju/* 키는 패턴 레지스트리 등록이 필요하고,
-  //    saju/* 밖의 비패턴 문구 키는 레지스트리 대상이 아니다.
+  //    naming/*·taekil/* 같은 비패턴 문구 키는 레지스트리 대상이 아니다.
   const isSajuKey = keyFromPath.startsWith('saju/');
   if (doc.id !== keyFromPath) errors.push(`${rel}: id(${doc.id})가 경로(${keyFromPath})와 불일치`);
   if (isSajuKey && !isRegisteredPattern(keyFromPath)) errors.push(`${rel}: 레지스트리에 없는 키 — ${keyFromPath}`);

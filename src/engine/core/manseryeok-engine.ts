@@ -28,7 +28,7 @@ export interface SolarDateContext {
 }
 
 /**
- * 한국 법정 시계 시각을 시각 기반 계산용으로 정규화한 문맥.
+ * 한국 법정 시계 시각을 시각 기반 모듈(기문·육임·자미)용으로 정규화한 문맥.
  * 사주 엔진(createNormalizedManseryeokContext)과 같은 기준을 쓴다:
  * - 일주·시주·음력 날짜: 서머타임을 뺀 표준시 시계(standard)
  * - 연·월주·절기: UTC+9 기준 순간(termBasis) — 절기표가 UTC+9 라벨이므로

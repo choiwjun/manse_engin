@@ -8,6 +8,8 @@ const MAX_PUBLIC_YEAR = 2101;
 const MIN_DATA_YEAR = 1899;
 const MAX_DATA_YEAR = 2101;
 
+const VALID_GAN = new Set(['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']);
+const VALID_JI = new Set(['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']);
 const VALID_GENDERS = new Set(['male', 'female']);
 const VALID_SUB_SCHOOLS = new Set(['gyeokguk', 'johu', 'gangyak', 'mulsang']);
 const VALID_MIDNIGHT_MODES = new Set(['yaja', 'joja']);
@@ -31,6 +33,22 @@ function requireFiniteInteger(record: Record<string, unknown>, field: string): v
   }
 }
 
+function requireIntegerInRange(
+  record: Record<string, unknown>,
+  field: string,
+  min: number,
+  max: number,
+): void {
+  requireFiniteInteger(record, field);
+  const value = record[field] as number;
+  if (value < min || value > max) {
+    throw new EngineContractError({
+      code: 'OUT_OF_RANGE',
+      message: `${field}는 ${min}~${max} 범위여야 합니다.`,
+      details: { field, value, min, max },
+    });
+  }
+}
 
 /** 존재하는 양력 날짜인지(달력 의미론)만 검사한다. 공개 범위는 검사하지 않는다. */
 function validateCalendarDate(year: number, month: number, day: number): void {
@@ -135,6 +153,15 @@ function validatePublicDate(year: number, month: number, day = 1): void {
   validateCalendarDate(year, month, day);
 }
 
+/** "YYYY-MM-DD" 형식 문자열을 파싱해 실존 날짜인지 확인한다. */
+function requireDateString(value: unknown, field: string): void {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    invalidInput(`${field}는 YYYY-MM-DD 형식이어야 합니다.`, { field, value });
+  }
+  const [year, month, day] = (value as string).split('-').map(Number);
+  validateCalendarDate(year, month, day);
+  validateDataYearRange(year, field);
+}
 
 /** 시/분 필드. null 허용 여부를 지정할 수 있다. */
 function validateHourMinute(record: Record<string, unknown>, allowNull: boolean): void {
@@ -179,7 +206,7 @@ function validateCalculateOptions(value: unknown, field: string): void {
   }
 }
 
-/** 출생정보(saju.birth) 검증. */
+/** 출생정보(saju.birth, compatibility.personN) 공통 검증. */
 function validatePerson(record: Record<string, unknown>, prefix: string): void {
   for (const field of ['year', 'month', 'day']) {
     requireFiniteInteger(record, field);
@@ -208,6 +235,36 @@ function validatePerson(record: Record<string, unknown>, prefix: string): void {
   validateCalculateOptions(record.calculateOptions, `${prefix}.calculateOptions`);
 }
 
+/** 팔자 입력(hongyeon/daejeong) 검증. 년·월·일주는 필수, 시주는 생략 가능. */
+function validatePalja(record: Record<string, unknown>): void {
+  const ganFields = ['yearGan', 'monthGan', 'dayGan', 'hourGan'] as const;
+  const jiFields = ['yearJi', 'monthJi', 'dayJi', 'hourJi'] as const;
+
+  for (const field of [...ganFields, ...jiFields]) {
+    if (typeof record[field] !== 'string') {
+      invalidInput(`팔자 ${field}는 문자열이어야 합니다.`, { field });
+    }
+  }
+  for (const field of ganFields.slice(0, 3)) {
+    if (!VALID_GAN.has(record[field] as string)) {
+      invalidInput(`팔자 ${field}가 유효한 천간이 아닙니다.`, { field, value: record[field] });
+    }
+  }
+  for (const field of jiFields.slice(0, 3)) {
+    if (!VALID_JI.has(record[field] as string)) {
+      invalidInput(`팔자 ${field}가 유효한 지지가 아닙니다.`, { field, value: record[field] });
+    }
+  }
+  // 시주: 둘 다 비어있거나(시간미상) 둘 다 유효해야 한다
+  const hourGan = record.hourGan as string;
+  const hourJi = record.hourJi as string;
+  if ((hourGan === '') !== (hourJi === '')) {
+    invalidInput('팔자 시주는 천간과 지지를 함께 입력하거나 함께 비워야 합니다.', { hourGan, hourJi });
+  }
+  if (hourGan !== '' && (!VALID_GAN.has(hourGan) || !VALID_JI.has(hourJi))) {
+    invalidInput('팔자 시주가 유효한 간지가 아닙니다.', { hourGan, hourJi });
+  }
+}
 
 export function validateEngineModuleInput(moduleId: EngineModuleId, input: unknown): void {
   if (!isRecord(input)) {
@@ -225,6 +282,137 @@ export function validateEngineModuleInput(moduleId: EngineModuleId, input: unkno
         validateEnum(input.subSchool, VALID_SUB_SCHOOLS, 'subSchool');
       }
       validateCalculateOptions(input.calculateOptions, 'calculateOptions');
+      break;
+    case 'compatibility':
+      if (!isRecord(input.person1) || !isRecord(input.person2)) {
+        throw new EngineContractError({ code: 'INVALID_INPUT', message: '궁합에는 두 사람의 입력이 필요합니다.' });
+      }
+      validatePerson(input.person1, 'person1');
+      validatePerson(input.person2, 'person2');
+      break;
+    case 'ziwei': {
+      const calendarType = String(input.calendarType);
+      if (!['solar', 'lunar'].includes(calendarType) || typeof input.date !== 'string') {
+        throw new EngineContractError({ code: 'INVALID_INPUT', message: '자미두수 날짜와 달력 구분이 필요합니다.' });
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date)) {
+        invalidInput('date는 YYYY-MM-DD 형식이어야 합니다.', { field: 'date', value: input.date });
+      }
+      validateOptionalBoolean(input, 'isLeapMonth');
+      const [ziYear, ziMonth, ziDay] = input.date.split('-').map(Number);
+      validateDataYearRange(ziYear, 'date');
+      if (calendarType === 'lunar') {
+        validateLunarDate(ziYear, ziMonth, ziDay, input.isLeapMonth === true);
+      } else {
+        if (input.isLeapMonth === true) {
+          invalidInput('양력 날짜에는 isLeapMonth를 적용할 수 없습니다.', { field: 'isLeapMonth' });
+        }
+        validateCalendarDate(ziYear, ziMonth, ziDay);
+      }
+      requireIntegerInRange(input, 'hour', 0, 23);
+      validateEnum(input.gender, VALID_GENDERS, 'gender');
+      break;
+    }
+    case 'qimen':
+    case 'daeyukim':
+      if (typeof input.solarDate !== 'string') {
+        throw new EngineContractError({ code: 'INVALID_INPUT', message: '양력 실행일이 필요합니다.' });
+      }
+      requireDateString(input.solarDate, 'solarDate');
+      requireIntegerInRange(input, 'hour', 0, 23);
+      break;
+    case 'tojeong':
+      for (const field of ['birthYear', 'birthMonth', 'birthDay', 'targetYear']) {
+        requireFiniteInteger(input, field);
+      }
+      validateDataYearRange(input.birthYear as number, 'birthYear');
+      requireIntegerInRange(input, 'birthMonth', 1, 12);
+      requireIntegerInRange(input, 'birthDay', 1, input.calendarType === 'solar' ? 31 : 30);
+      if (input.calendarType !== undefined) validateEnum(input.calendarType, new Set(['solar', 'lunar']), 'calendarType');
+      if (input.isLeapMonth !== undefined && typeof input.isLeapMonth !== 'boolean') invalidInput('윤달 여부는 참/거짓이어야 합니다.');
+      if (input.leapMonthPolicy !== undefined) validateEnum(input.leapMonthPolicy, new Set(['regular-month', 'reject']), 'leapMonthPolicy');
+      validateDataYearRange(input.targetYear as number, 'targetYear');
+      if (input.calendarType !== 'solar' && (input.birthYear as number) > (input.targetYear as number)) {
+        invalidInput('토정비결 생년은 대상 연도 이하여야 합니다.', { birthYear: input.birthYear, targetYear: input.targetYear });
+      }
+      break;
+    case 'guseong':
+      for (const field of ['birthYear', 'targetYear', 'targetMonth', 'targetDay']) {
+        requireFiniteInteger(input, field);
+      }
+      validateCalendarDate(input.targetYear as number, input.targetMonth as number, input.targetDay as number);
+      validateEnum(input.gender, VALID_GENDERS, 'gender');
+      break;
+    case 'harak':
+      for (const field of ['year', 'month', 'day']) {
+        requireFiniteInteger(input, field);
+      }
+      validateCalendarDate(input.year as number, input.month as number, input.day as number);
+      break;
+    case 'hongyeon':
+    case 'daejeong':
+      if (!isRecord(input.palja)) {
+        throw new EngineContractError({ code: 'INVALID_INPUT', message: '팔자 입력이 필요합니다.' });
+      }
+      validatePalja(input.palja);
+      break;
+    case 'naming':
+      if (input.mode !== undefined && input.mode !== 'analyze' && input.mode !== 'recommend') invalidInput('작명 실행 모드를 확인하세요.');
+      if (input.mode === 'recommend') {
+        if (!isRecord(input.birth)) invalidInput('작명 추천에는 출생정보가 필요합니다.');
+        validatePerson(input.birth, 'birth');
+        if (typeof input.surname !== 'string' || typeof input.surnameHanja !== 'string') invalidInput('한글 성과 한자 성이 필요합니다.');
+        if (input.limit !== undefined) requireIntegerInRange(input, 'limit', 1, 6);
+        if (input.yongsinSchool !== undefined) validateEnum(input.yongsinSchool, VALID_SUB_SCHOOLS, 'yongsinSchool');
+        if (input.school !== undefined) validateEnum(input.school, new Set(['kangxi', 'modern']), 'school');
+        if (input.givenName !== undefined && (typeof input.givenName !== 'string' || !/^[가-힣]{1,2}$/.test(input.givenName))) invalidInput('희망 이름은 한글 1~2음절이어야 합니다.');
+        break;
+      }
+      if (typeof input.surname !== 'string' || input.surname.length === 0 || !Array.isArray(input.candidates)) {
+        throw new EngineContractError({ code: 'INVALID_INPUT', message: '성과 이름 후보가 필요합니다.' });
+      }
+      if (input.candidates.length === 0 || input.candidates.length > 6) {
+        invalidInput('이름 후보는 1~6개여야 합니다.');
+      }
+      const surnameLen = [...(input.surname as string)].length;
+      for (const candidate of input.candidates) {
+        if (!isRecord(candidate) || typeof candidate.givenName !== 'string' || candidate.givenName.length === 0) {
+          invalidInput('이름 후보에는 비어있지 않은 givenName이 필요합니다.');
+        }
+        if (candidate.hanjaChars !== undefined && candidate.hanjaChars !== null) {
+          if (!Array.isArray(candidate.hanjaChars) || candidate.hanjaChars.some((c) => typeof c !== 'string')) {
+            invalidInput('hanjaChars는 문자열 배열이어야 합니다.');
+          }
+          const expected = surnameLen + [...(candidate.givenName as string)].length;
+          if ((candidate.hanjaChars as string[]).length !== expected) {
+            invalidInput('hanjaChars 길이는 성+이름 글자 수와 일치해야 합니다.', {
+              hanjaChars: candidate.hanjaChars,
+              expected,
+            });
+          }
+        }
+      }
+      if (input.school !== undefined && !['kangxi', 'modern'].includes(String(input.school))) {
+        invalidInput('school은 kangxi 또는 modern이어야 합니다.', { value: input.school });
+      }
+      break;
+    case 'maehwa':
+      if (!['time', 'number', 'name'].includes(String(input.method))) {
+        throw new EngineContractError({ code: 'INVALID_INPUT', message: '매화역수 입력 방식을 확인해 주세요.' });
+      }
+      if (input.method === 'time') {
+        for (const field of ['year', 'month', 'day', 'hour']) {
+          requireFiniteInteger(input, field);
+        }
+        validateCalendarDate(input.year as number, input.month as number, input.day as number);
+        requireIntegerInRange(input, 'hour', 0, 23);
+      } else if (input.method === 'number') {
+        requireIntegerInRange(input, 'first', 1, Number.MAX_SAFE_INTEGER);
+        requireIntegerInRange(input, 'second', 1, Number.MAX_SAFE_INTEGER);
+      } else {
+        requireIntegerInRange(input, 'surnameStrokes', 1, Number.MAX_SAFE_INTEGER);
+        requireIntegerInRange(input, 'givenNameStrokes', 1, Number.MAX_SAFE_INTEGER);
+      }
       break;
     case 'calendar':
       if (!['day', 'month'].includes(String(input.view))) {

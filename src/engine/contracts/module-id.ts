@@ -1,5 +1,16 @@
 export const ENGINE_MODULE_IDS = [
   'saju',
+  'compatibility',
+  'tojeong',
+  'ziwei',
+  'qimen',
+  'daeyukim',
+  'guseong',
+  'hongyeon',
+  'maehwa',
+  'harak',
+  'daejeong',
+  'naming',
   'calendar',
 ] as const;
 
