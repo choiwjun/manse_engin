@@ -9,7 +9,8 @@ import {
   type SolarTermInfo,
 } from './solar-terms';
 import { lunarToSolar, solarToLunar, type LunarDateTime, type SolarDateTime } from './lunar-solar';
-import { ManseryeokDataError } from './errors';
+import { ManseryeokDataError, ManseryeokPolicyError } from './errors';
+import { resolveKoreanLegalTime } from './korean-legal-time';
 import { shiftDateTimeUtc, toKstTimestamp } from './temporal';
 import {
   createNormalizedManseryeokContext,
@@ -24,6 +25,23 @@ export interface SolarDateContext {
   ganji: GanjiResult;
   currentSolarTerm: SolarTermInfo;
   exactSolarTerm?: string;
+}
+
+/**
+ * 한국 법정 시계 시각을 시각 기반 모듈(기문·육임·자미)용으로 정규화한 문맥.
+ * 사주 엔진(createNormalizedManseryeokContext)과 같은 기준을 쓴다:
+ * - 일주·시주·음력 날짜: 서머타임을 뺀 표준시 시계(standard)
+ * - 연·월주·절기: UTC+9 기준 순간(termBasis) — 절기표가 UTC+9 라벨이므로
+ */
+export interface LegalClockContext extends SolarDateContext {
+  /** 입력한 법정 시계 시각 */
+  civil: Required<SolarDateTime>;
+  /** 서머타임을 뺀 표준시 시계 — solar와 같다 */
+  standard: Required<SolarDateTime>;
+  /** 절기·연월주 비교용 UTC+9 순간 */
+  termBasis: Required<SolarDateTime>;
+  /** 적용된 서머타임(분). 1908년 법정시 이전이면 0 */
+  daylightOffsetMinutes: number;
 }
 
 export interface PaljaInput extends GanjiInput {
@@ -191,6 +209,42 @@ export class ManseryeokEngine {
     };
   }
 
+  /**
+   * 법정 시계 시각(서머타임 포함) → 표준시 기준 문맥. 1908년 법정시 정의 이전은
+   * 기준이 없으므로 입력 시각을 그대로 쓴다(기존 동작 유지). 서머타임 전환으로
+   * 건너뛰거나 반복되는 시각은 사주 엔진과 같이 예외를 던진다.
+   */
+  static getLegalClockContext(input: SolarDateTime): LegalClockContext {
+    const civil = resolveSolarDateTime(input);
+    let standard = civil;
+    let termBasis = civil;
+    let daylightOffsetMinutes = 0;
+    try {
+      const legal = resolveKoreanLegalTime(civil);
+      daylightOffsetMinutes = legal.daylightOffsetMinutes;
+      if (daylightOffsetMinutes !== 0) standard = resolveSolarDateTime(shiftDateTimeUtc(civil, -daylightOffsetMinutes));
+      termBasis = resolveSolarDateTime(shiftDateTimeUtc(civil, 540 - legal.totalOffsetMinutes));
+    } catch (error) {
+      if (!(error instanceof ManseryeokPolicyError)) throw error;
+    }
+    return {
+      civil,
+      standard,
+      termBasis,
+      daylightOffsetMinutes,
+      solar: standard,
+      lunar: solarToLunar(standard),
+      ganji: getGanji({ ...standard, yearMonthDateTime: termBasis, dayHourDateTime: standard }),
+      currentSolarTerm: getSolarTermOnOrBeforeDateTime(termBasis),
+      exactSolarTerm: getExactSolarTerm(termBasis),
+    };
+  }
+
+  static getLegalClockContextFromDateString(solarDate: string, hour = 0, minute = 0): LegalClockContext {
+    const [year, month, day] = solarDate.split('-').map(Number);
+    return this.getLegalClockContext({ year, month, day, hour, minute, second: 0 });
+  }
+
   static getSolarContextFromDateString(
     solarDate: string,
     hour = 0,
@@ -285,11 +339,13 @@ export class ManseryeokEngine {
       ...listSolarTermsForYear(birth.year + 1),
     ].filter(isJeolSolarTerm);
 
+    // 월주는 "절입 시각 <= 출생 시각"이면 새 달로 본다. 같은 경계를 쓰기 위해
+    // 순행은 출생 이후(>)의 다음 절, 역행은 출생 이전·동시(<=)의 절을 고른다.
     let targetJeol: SolarTermInfo | null = null;
     for (const term of candidates) {
       const termTs = toSolarTermTimestamp(term);
       if (isForward) {
-        if (termTs >= birthTs && (!targetJeol || termTs < toSolarTermTimestamp(targetJeol))) {
+        if (termTs > birthTs && (!targetJeol || termTs < toSolarTermTimestamp(targetJeol))) {
           targetJeol = term;
         }
       } else if (termTs <= birthTs && (!targetJeol || termTs > toSolarTermTimestamp(targetJeol))) {

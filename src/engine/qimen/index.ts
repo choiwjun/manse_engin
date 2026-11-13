@@ -2,7 +2,7 @@
 // @SPEC docs/planning/06-tasks.md#P9-R1-T1
 
 import type { DunType, QimenPalace, QimenResult, QimenGyeokguk } from '@/engine/types';
-import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
+import { ManseryeokEngine, shiftSolarDate } from '@/engine/core/manseryeok-engine';
 import { ManseryeokDataError } from '@/engine/core/errors';
 import {
   STEMS,
@@ -433,19 +433,29 @@ const PALACE_BRANCHES: Record<number, string[]> = {
  * 9. 공망/격국 판별
  *
  * @param solarDate - 양력 날짜 "YYYY-MM-DD"
- * @param hour      - 시각 (0-23)
+ * @param hour      - 한국 법정 시계 시각 (0-23). 서머타임 기간은 표준시로 되돌린다.
+ *                    표준시 23시는 다음 날 자시로 포국한다(절기는 실제 시각 기준).
  * @returns QimenResult
  */
 export function calculateQimen(solarDate: string, hour: number): QimenResult {
   // --- 1. 날짜 파싱 ---
-  const context = ManseryeokEngine.getSolarContextFromDateString(solarDate, hour);
+  // 입력은 한국 법정 시계 시각이다. 서머타임 기간은 표준시로 되돌려 일주·시주를 잡고,
+  // 절기는 UTC+9 순간으로 비교한다(사주 엔진과 같은 기준).
+  const context = ManseryeokEngine.getLegalClockContextFromDateString(solarDate, hour);
+  const clockHour = context.standard.hour;
 
   // --- 2. 일간/일지 ---
-  const dayGan: string = context.ganji.day.gan;
-  const dayJi: string = context.ganji.day.ji;
+  // 기문 포국은 자시에서 날이 바뀐다(子時換日): 23시는 다음 날의 자시이므로
+  // 일주·원(元)·시간(時干)을 모두 다음 날 기준으로 잡는다. 절기만은 실제 입력 시각으로 조회한다.
+  const nextDay = clockHour === 23 ? shiftSolarDate(context.standard, 1) : null;
+  const dayPillar = nextDay
+    ? ManseryeokEngine.getSolarDayPillar(nextDay.year, nextDay.month, nextDay.day)
+    : context.ganji.day;
+  const dayGan: string = dayPillar.gan;
+  const dayJi: string = dayPillar.ji;
 
   // --- 3. 시간 천간/시지 ---
-  const hourBranchIdx = hourToBranchIndex(hour);
+  const hourBranchIdx = hourToBranchIndex(clockHour);
   const hourJi = BRANCHES[hourBranchIdx];
   const hourGan = getHourStem(dayGan, hourBranchIdx);
 

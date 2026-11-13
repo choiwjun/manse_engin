@@ -6,15 +6,15 @@ status: reviewed
 sampleBirth:
   year: 1950
   month: 1
-  day: 24
-  hour: 19
+  day: 1
+  hour: 4
   minute: 30
   gender: male
   isLunar: false
 assert:
-  palja: 己丁己甲
-  gyeokguk: 비견격
-  yongsin: 금
+  palja: 己丙丙庚
+  gyeokguk: 정관격
+  yongsin: 목
 body:
   short: 형의 살기가 어긋난 연운과 겹쳐, 법·규정·관계의 충돌이 표면화되기 쉬운 해입니다.
   medium: 지지에 형이 있는 명식에 세운이 기신 방향입니다. 형의 살기가 어긋난 연운과 겹쳐, 법·규정·계약·관계의 충돌이 표면화되기 쉬운 해입니다. 올해는 서면·절차·규정을 꼼꼼히 확인하고, 애매한 약속은 문서로 고정하는 것이 분쟁을 예방합니다.

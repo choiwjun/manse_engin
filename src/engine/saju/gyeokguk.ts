@@ -4,6 +4,7 @@
 import type { Palja, Gyeokguk, Ohaeng } from '@/engine/types';
 import { getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';
 import { JIJANGGAN_TABLE, determineSipsin } from '@/engine/saju/sipsin';
+import { josa } from '@/engine/adapter/josa';
 
 // ---------- 천간 음양 ----------
 
@@ -253,7 +254,7 @@ function detectHwagyeok(palja: Palja): Gyeokguk | null {
     // 쟁합(爭合) — 간합의 한 축과 같은 천간이 년간·시간에 중복되면 합이 흔들린다
     for (const [pos, gan] of [['년간', palja.yearGan], ['시간', palja.hourGan]] as const) {
       if (gan && (gan === dayGan || gan === monthGan)) {
-        blockers.push(`쟁합 가능 — ${pos} ${gan}이(가) 간합 축과 중복`);
+        blockers.push(`쟁합 가능 — ${pos} ${gan}${josa(gan, '이가')} 간합 축과 중복`);
       }
     }
     // 일간 통근 — 일간이 지지 본기에 뿌리를 두면 화하기 어렵다
@@ -262,7 +263,7 @@ function detectHwagyeok(palja: Palja): Gyeokguk | null {
       for (const [pos, ji] of [['일지', palja.dayJi], ['월지', monthJi]] as const) {
         const bongi = JIJANGGAN_TABLE[ji]?.[0];
         if (bongi && getOhaengForGan(bongi) === dayOhaeng) {
-          blockers.push(`일간 통근 — ${pos} ${ji} 본기 ${bongi}이(가) 일간 오행과 같음`);
+          blockers.push(`일간 통근 — ${pos} ${ji} 본기 ${bongi}${josa(bongi, '이가')} 일간 오행과 같음`);
         }
       }
     }
@@ -270,12 +271,13 @@ function detectHwagyeok(palja: Palja): Gyeokguk | null {
     for (const [pos, gan] of [['년간', palja.yearGan], ['시간', palja.hourGan]] as const) {
       const o = gan ? getOhaengForGan(gan) : null;
       if (o && SANGGEUK[o] === pair.ohaeng) {
-        blockers.push(`극화 — ${pos} ${gan}(${o})이(가) 화오행 ${pair.ohaeng}을(를) 극함`);
+        blockers.push(`극화 — ${pos} ${gan}(${o})${josa(gan, '이가')} 화오행 ${pair.ohaeng}${josa(pair.ohaeng, '을를')} 극함`);
       }
     }
 
+    // 화기격은 화신(化神)이 월령을 얻어야(당령) 성립한다. 생조만 받는 경우는 유파별 인정 범위라 '참고'에 둔다.
     const confidence =
-      blockers.length === 0 && deukryeong ? '확정' : blockers.length <= 1 ? '유력' : '참고';
+      !deukryeong ? '참고' : blockers.length === 0 ? '확정' : blockers.length <= 1 ? '유력' : '참고';
     return { name: pair.name, hanja: info.hanja, description: info.description, confidence, basis, blockers };
   }
 
@@ -410,7 +412,7 @@ function detectJeongyeok(palja: Palja): Gyeokguk | null {
     basis: [
       targetGan === bongi
         ? `월지 ${monthJi} 본기 ${bongi} = ${sipsinName}`
-        : `월지 ${monthJi} 지장간 ${targetGan}이(가) 월간에 투출 = ${sipsinName}`,
+        : `월지 ${monthJi} 지장간 ${targetGan}${josa(targetGan, '이가')} 월간에 투출 = ${sipsinName}`,
     ],
     blockers: [],
   };
@@ -422,11 +424,12 @@ function detectJeongyeok(palja: Palja): Gyeokguk | null {
  * 팔자에서 격국을 판별한다.
  *
  * 평가 순서(우선순위):
- * 1. 화격 판별 (일간-월간 간합 + 월지 득령)
- * 2. 종격 판별 (일간 극약/극강 + 세력 분석)
+ * 1. 화격 판별 (일간-월간 간합 + 화신 당령) — 확정·유력만
+ * 2. 종격 판별 (일간 극약/극강 + 세력 분석) — 확정·유력만
  * 3. 건록격/양인격 확인 (월지가 일간의 건록/양인 위치)
  * 4. 정격 10격 판별 (월지 지장간 + 월간 투출 기준)
- * 5. 최종 폴백: 외격
+ * 5. 참고 수준 특수격 — 대표가 되지 않고 후보로만 남는다(정격이 항상 성립하므로)
+ * 6. 최종 폴백: 외격
  *
  * 특수격(화격·종격)을 정격보다 먼저 평가한다. 정격은 유효한 일간·월지 조합에
  * 항상 매칭되므로 먼저 두면 특수격이 영구적으로 도달 불가가 된다.
@@ -437,17 +440,19 @@ function detectJeongyeok(palja: Palja): Gyeokguk | null {
 export function determineGyeokguk(palja: Palja): Gyeokguk {
   const tiers: Gyeokguk[] = [];
 
-  const hwagyeok = detectHwagyeok(palja);
-  if (hwagyeok) tiers.push(hwagyeok);
-
-  const jongyeok = detectJongyeok(palja);
-  if (jongyeok) tiers.push(jongyeok);
+  // 특수격(화격·종격)은 확정·유력일 때만 대표가 된다. '참고' 수준(생조만 받는 화격, 불성립 요소가
+  // 여럿이거나 미세 통근이 있는 종격)이 정격을 덮으면 용신이 정반대로 뒤집히므로 후보로만 둔다.
+  const special = [detectHwagyeok(palja), detectJongyeok(palja)].filter((g): g is Gyeokguk => g !== null);
+  const weakSpecial = special.filter((g) => g.confidence === '참고');
+  tiers.push(...special.filter((g) => g.confidence !== '참고'));
 
   const geonrok = detectGeonrokYangin(palja);
   if (geonrok) tiers.push(geonrok);
 
   const jeongyeok = detectJeongyeok(palja);
   if (jeongyeok) tiers.push(jeongyeok);
+
+  tiers.push(...weakSpecial);
 
   const primary =
     tiers[0] ??

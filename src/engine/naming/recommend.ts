@@ -5,6 +5,7 @@ import { validateEngineModuleInput } from '@/engine/contracts/validate';
 import { analyzeNameExtended } from './index';
 import { lookupHanja, matchesHanjaReading } from './jawon-ohaeng';
 import { NAMING_POLICY } from './policy';
+import { josa } from '@/engine/adapter/josa';
 
 export interface RecommendationBasis {
   targetElement: Ohaeng;
@@ -87,7 +88,7 @@ export function recommendNames(input: NamingRecommendationInput): NamingResultEx
     ranked.push({ ...analysis, recommendationDetails: {
       targetMatches: matches,
       meanings: entries.map(e => `${e.char}: ${e.meaning}`),
-      reason: `이름 ${entries.filter(e => e.ohaeng === target).map(e => e.char).join('·')}의 자원오행이 선택한 용신 ${target}과 같습니다.`,
+      reason: `이름 ${entries.filter(e => e.ohaeng === target).map(e => e.char).join('·')}의 자원오행이 선택한 용신 ${target}${josa(target, '와과')} 같습니다.`,
     } });
   }
   ranked.sort((a, b) => b.recommendationDetails.targetMatches - a.recommendationDetails.targetMatches

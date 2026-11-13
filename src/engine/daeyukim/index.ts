@@ -529,13 +529,13 @@ function getVoidBranches(dayGan: string, dayJi: string): [string, string] {
  * 11. 공망 결정
  *
  * @param solarDate - 양력 날짜 "YYYY-MM-DD"
- * @param hour - 시각 (0-23)
+ * @param hour - 한국 법정 시계 시각 (0-23). 서머타임 기간은 표준시로 되돌린다.
  * @returns DaeyukimResult
  */
-function findRelevantSolarTermForWolJang(solarDate: string, hour: number): string {
-  const [year, month, day] = solarDate.split('-').map(Number);
-  // 중기의 실제 절입 시각(KST timestamp)을 기준으로 비교한다
-  const targetTime = toKstTimestamp({ year, month, day, hour, minute: 0, second: 0 });
+function findRelevantSolarTermForWolJang(termBasis: { year: number; month: number; day: number; hour: number; minute: number; second: number }): string {
+  const { year } = termBasis;
+  // 중기의 실제 절입 시각(KST timestamp)을 기준으로 비교한다 — termBasis는 이미 UTC+9 순간
+  const targetTime = toKstTimestamp(termBasis);
   const candidates = [
     ...ManseryeokEngine.listSolarTermsForYear(year - 1),
     ...ManseryeokEngine.listSolarTermsForYear(year),
@@ -568,18 +568,20 @@ function findRelevantSolarTermForWolJang(solarDate: string, hour: number): strin
 
 export function calculateDaeyukim(solarDate: string, hour: number): DaeyukimResult {
   // --- 1. 날짜 파싱 ---
-  const context = ManseryeokEngine.getSolarContextFromDateString(solarDate, hour);
+  // 입력은 한국 법정 시계 시각이다. 서머타임 기간은 표준시로 되돌려 일주·시지를 잡고,
+  // 월장(중기)은 UTC+9 순간으로 비교한다(사주 엔진과 같은 기준).
+  const context = ManseryeokEngine.getLegalClockContextFromDateString(solarDate, hour);
 
   // --- 2. 일간/일지 ---
   const dayGan: string = context.ganji.day.gan;
   const dayJi: string = context.ganji.day.ji;
 
   // --- 3. 시지 ---
-  const hourBranchIdx = hourToBranchIndex(hour);
+  const hourBranchIdx = hourToBranchIndex(context.standard.hour);
   const hourJi = BRANCHES[hourBranchIdx];
 
   // --- 4. 월장 결정 ---
-  const solarTermName = findRelevantSolarTermForWolJang(solarDate, hour);
+  const solarTermName = findRelevantSolarTermForWolJang(context.termBasis);
   const wolJang = getWolJang(solarTermName);
 
   // --- 5. 천지반 구성 ---

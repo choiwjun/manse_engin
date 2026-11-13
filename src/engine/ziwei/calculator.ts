@@ -110,6 +110,18 @@ interface ChartInput {
   hourStem: string;
   hourBranch: string;
   isLeapMonth?: boolean;
+  /** 윤달 보정: 윤달 15일(포함)까지는 본래 달, 16일부터는 다음 달로 본다 (기본 true) */
+  fixLeap?: boolean;
+}
+
+/**
+ * 명반 배치에 쓰는 음력 월.
+ * fixLeap이면 윤달의 전반(1~15일)은 본래 달, 후반(16일~)은 다음 달로 본다.
+ * 명궁·신궁과 월 기준 성(좌보·우필)에 같은 값을 쓴다.
+ */
+function getChartMonth(input: ChartInput): number {
+  const shift = input.isLeapMonth && (input.fixLeap ?? true) && input.lunarDay > 15 ? 1 : 0;
+  return mod(input.lunarMonth - 1 + shift, 12) + 1;
 }
 
 // ---------- 내부 궁 구조 ----------
@@ -136,10 +148,11 @@ export function generateChart(input: ChartInput): ZiweiResult {
   const yearStemIdx = stemIndex(input.yearStem);
   const yearBranchIdx = branchIndex(input.yearBranch);
   const shichenIdx = hourToShichenIndex(input.hour);
+  const chartMonth = getChartMonth(input);
 
   // 1. 명궁/신궁 위치
-  const mingGongBranch = getMingGongBranch(input.lunarMonth, shichenIdx);
-  const shenGongBranch = getShenGongBranch(input.lunarMonth, shichenIdx);
+  const mingGongBranch = getMingGongBranch(chartMonth, shichenIdx);
+  const shenGongBranch = getShenGongBranch(chartMonth, shichenIdx);
 
   // 2. 12궁 천간 배치
   const palaceStems = getPalaceStems(input.yearStem);
@@ -205,7 +218,7 @@ export function generateChart(input: ChartInput): ZiweiResult {
   }
 
   // 8. 보성(輔星) 배치
-  placeMinorStars(palaces, findPalaceByBranch, input, shichenIdx, yearStemIdx, yearBranchIdx);
+  placeMinorStars(palaces, findPalaceByBranch, chartMonth, shichenIdx, yearStemIdx, yearBranchIdx);
 
   // 9. 사화(四化) 배치
   placeSihua(palaces, input.yearStem);
@@ -218,7 +231,7 @@ export function generateChart(input: ChartInput): ZiweiResult {
   calculateDecadals(palaces, juNumber, isForward, mingGongBranch, palaceStems);
 
   // 11. 소한(小限) 계산
-  calculateSmallLimits(palaces, yearBranchIdx);
+  calculateSmallLimits(palaces, yearBranchIdx, input.gender);
 
   // 12. 명주(命主)/신주(身主) 결정
   const soulStar = getSoulStar(mingGongBranch);
@@ -279,17 +292,17 @@ export function generateChart(input: ChartInput): ZiweiResult {
 function placeMinorStars(
   palaces: PalaceBuild[],
   findPalaceByBranch: (idx: number) => PalaceBuild,
-  input: ChartInput,
+  chartMonth: number,
   shichenIdx: number,
   yearStemIdx: number,
   yearBranchIdx: number,
 ): void {
   // 좌보: 辰(4)에서 월수만큼 순행
-  const zuofu = mod(4 + input.lunarMonth - 1, 12);
+  const zuofu = mod(4 + chartMonth - 1, 12);
   findPalaceByBranch(zuofu).minorStars.push({ name: '좌보', type: 'minor' });
 
   // 우필: 戌(10)에서 월수만큼 역행
-  const youbi = mod(10 - (input.lunarMonth - 1), 12);
+  const youbi = mod(10 - (chartMonth - 1), 12);
   findPalaceByBranch(youbi).minorStars.push({ name: '우필', type: 'minor' });
 
   // 문창: 戌(10)에서 시진만큼 역행
@@ -399,6 +412,7 @@ function calculateDecadals(
 function calculateSmallLimits(
   palaces: PalaceBuild[],
   yearBranchIdx: number,
+  gender: 'male' | 'female',
 ): void {
   // 소한 시작궁: 년지에 따라 다름
   // 寅午戌→辰(4), 申子辰→戌(10), 巳酉丑→未(7), 亥卯未→丑(1)
@@ -413,11 +427,11 @@ function calculateSmallLimits(
     startBranch = 1;  // 丑
   }
 
-  // 1세부터 시작, 12궁을 순행하며 나이 배정
-  // 소한은 남녀 관계없이 순행 (일부 유파 차이 있으나 기본 순행)
+  // 1세부터 시작. 소한은 남순여역(男順女逆): 남자 순행, 여자 역행
+  const direction = gender === 'male' ? 1 : -1;
   for (let age = 1; age <= 120; age++) {
     const offset = (age - 1) % 12;
-    const branchIdx = mod(startBranch + offset, 12);
+    const branchIdx = mod(startBranch + direction * offset, 12);
     const palace = palaces.find((p) => p.branchIdx === branchIdx);
     if (palace) {
       palace.ages.push(age);
@@ -449,67 +463,51 @@ function getSoulStar(mingGongBranchIdx: number): string {
 // ---------- 신주(身主) ----------
 
 function getBodyStar(yearBranchIdx: number): string {
-  // 년지 → 신주성
-  const bodyStarMap: Record<number, string> = {
-    0: '화성',  // 子 -- 아니 일반적으로:
-    // 子午→령성, 丑未→천상, 寅申→천동, 卯酉→문창, 辰戌→천기, 巳亥→천량
-    // 더 일반적인 매핑:
-  };
-  // 정확한 신주 매핑
+  // 년지 → 신주성 (紫微斗數全書 身主)
+  // 子午 火星, 丑未 天相, 寅申 天梁, 卯酉 天同, 辰戌 文昌, 巳亥 天機
   const map: Record<number, string> = {
-    0: '령성',  // 子
-    6: '령성',  // 午
+    0: '화성',  // 子
+    6: '화성',  // 午
     1: '천상',  // 丑
     7: '천상',  // 未
-    2: '천동',  // 寅
-    8: '천동',  // 申
-    3: '문창',  // 卯
-    9: '문창',  // 酉
-    4: '천기',  // 辰
-    10: '천기', // 戌
-    5: '천량',  // 巳
-    11: '천량', // 亥
+    2: '천량',  // 寅
+    8: '천량',  // 申
+    3: '천동',  // 卯
+    9: '천동',  // 酉
+    4: '문창',  // 辰
+    10: '문창', // 戌
+    5: '천기',  // 巳
+    11: '천기', // 亥
   };
-  void bodyStarMap;
   return map[yearBranchIdx] ?? '';
 }
 
 // ---------- 공개 API: 양력 입력 ----------
 
 /**
- * 양력 날짜로 자미두수 명반을 생성한다.
+ * 법정 시계 시각(양력 날짜 + 시)으로 명반을 만든다. 서머타임 기간은 표준시로 되돌려
+ * 음력 날짜·시진을 잡고, 연·월 간지는 UTC+9 절기 순간으로 본다(사주 엔진과 같은 기준).
  */
-export function calculateZiweiSelf(
-  solarDate: string,
+function chartFromLegalClock(
+  year: number,
+  month: number,
+  day: number,
   hour: number,
   gender: 'male' | 'female',
+  fixLeap: boolean,
 ): ZiweiResult {
-  const [solarYear, solarMonth, solarDay] = solarDate.split('-').map(Number);
-
-  // 양력 → 음력 변환
-  const lunar = ManseryeokEngine.solarToLunar({
-    year: solarYear,
-    month: solarMonth,
-    day: solarDay,
-  });
-
-  // 간지 계산
-  const ganji = ManseryeokEngine.getGanji({
-    year: solarYear,
-    month: solarMonth,
-    day: solarDay,
-    hour,
-  });
+  const context = ManseryeokEngine.getLegalClockContext({ year, month, day, hour, minute: 0, second: 0 });
+  const { standard, lunar, ganji } = context;
 
   return generateChart({
     lunarYear: lunar.year,
     lunarMonth: lunar.month,
     lunarDay: lunar.day,
-    hour,
+    hour: standard.hour,
     gender,
-    solarYear,
-    solarMonth,
-    solarDay,
+    solarYear: standard.year,
+    solarMonth: standard.month,
+    solarDay: standard.day,
     yearStem: ganji.year.gan,
     yearBranch: ganji.year.ji,
     monthStem: ganji.month.gan,
@@ -519,19 +517,38 @@ export function calculateZiweiSelf(
     hourStem: ganji.hour.gan,
     hourBranch: ganji.hour.ji,
     isLeapMonth: lunar.isLeapMonth,
+    fixLeap,
   });
+}
+
+/**
+ * 양력 날짜로 자미두수 명반을 생성한다.
+ * @param hour 한국 법정 시계 시각 (0~23). 서머타임 기간은 표준시로 되돌린다.
+ */
+export function calculateZiweiSelf(
+  solarDate: string,
+  hour: number,
+  gender: 'male' | 'female',
+  fixLeap = true,
+): ZiweiResult {
+  const [solarYear, solarMonth, solarDay] = solarDate.split('-').map(Number);
+  return chartFromLegalClock(solarYear, solarMonth, solarDay, hour, gender, fixLeap);
 }
 
 // ---------- 공개 API: 음력 입력 ----------
 
 /**
  * 음력 날짜로 자미두수 명반을 생성한다.
+ * 음력 날짜를 양력으로 바꾼 뒤 양력 입력과 같은 법정시 정규화를 거친다 —
+ * 서머타임으로 표준시가 전날로 넘어가면 음력 날짜도 전날로 잡힌다.
+ * @param hour 한국 법정 시계 시각 (0~23)
  */
 export function calculateZiweiByLunarSelf(
   lunarDate: string,
   hour: number,
   gender: 'male' | 'female',
   isLeapMonth = false,
+  fixLeap = true,
 ): ZiweiResult {
   const [lunarYear, lunarMonth, lunarDay] = lunarDate.split('-').map(Number);
 
@@ -543,31 +560,5 @@ export function calculateZiweiByLunarSelf(
     isLeapMonth,
   });
 
-  // 간지 계산 (양력 기준)
-  const ganji = ManseryeokEngine.getGanji({
-    year: solar.year,
-    month: solar.month,
-    day: solar.day,
-    hour,
-  });
-
-  return generateChart({
-    lunarYear,
-    lunarMonth,
-    lunarDay,
-    hour,
-    gender,
-    solarYear: solar.year,
-    solarMonth: solar.month,
-    solarDay: solar.day,
-    yearStem: ganji.year.gan,
-    yearBranch: ganji.year.ji,
-    monthStem: ganji.month.gan,
-    monthBranch: ganji.month.ji,
-    dayStem: ganji.day.gan,
-    dayBranch: ganji.day.ji,
-    hourStem: ganji.hour.gan,
-    hourBranch: ganji.hour.ji,
-    isLeapMonth,
-  });
+  return chartFromLegalClock(solar.year, solar.month, solar.day, hour, gender, fixLeap);
 }

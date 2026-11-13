@@ -8,6 +8,7 @@ import type {
   DaeyukimResult,
   DaeyukimInterpretation,
 } from '@/engine/types';
+import { josa } from '@/engine/adapter/josa';
 
 // ---------- 지지 오행 매핑 ----------
 
@@ -134,7 +135,7 @@ export function interpretSaGwa(
 
     const fortuneLabel = fortune === '길' ? '길한 과' : fortune === '흉' ? '흉한 과' : '평범한 과';
     const desc = SAGWA_RELATION_DESC[relation] ?? '';
-    const summary = `제${gwa.index}과: 상신 ${gwa.upper}(${upperOh})과 하신 ${gwa.lower}(${lowerOh})은 ${relation} 관계. ${desc} ${fortuneLabel}.`;
+    const summary = `제${gwa.index}과: 상신 ${gwa.upper}(${upperOh})${josa(gwa.upper, '와과')} 하신 ${gwa.lower}(${lowerOh})${josa(gwa.lower, '은는')} ${relation} 관계. ${desc} ${fortuneLabel}.`;
 
     return {
       index: gwa.index,
@@ -261,7 +262,7 @@ export function interpretSamJeon(
       const nextJeon = samJeon[idx + 1];
       const nextOh = getBranchOhaeng(nextJeon.branch);
       summaryParts.push(
-        `${jeon.name}(${jeonOh})에서 ${nextJeon.name}(${nextOh})으로 ${flows[idx]} 흐름.`,
+        `${jeon.name}(${jeonOh})에서 ${nextJeon.name}(${nextOh})${josa(nextJeon.name, '으로')} ${flows[idx]} 흐름.`,
       );
     }
 

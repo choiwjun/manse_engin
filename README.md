@@ -21,13 +21,17 @@ packages/myeong-platform/    플랫폼 도메인 npm 패키지
 cd packages/myeong-engine
 npm ci             # 잠금 파일의 빌드·검증 의존성 설치
 npm test           # 빌드 + 스모크·경계값 회귀 검증
-npm pack           # myeong-manseryeok-engine-0.3.0.tgz
+npm pack           # myeong-manseryeok-engine-0.5.0.tgz
+
+cd ../myeong-platform
+npm ci             # 플랫폼 패키지도 자체 잠금 파일로 독립 빌드
+npm test           # 빌드 + 도메인 코어 테스트
 ```
 
 ## 설치 (소비 프로젝트)
 
 ```bash
-npm install /path/to/myeong-manseryeok-engine-0.3.0.tgz
+npm install /path/to/myeong-manseryeok-engine-0.5.0.tgz
 ```
 
 ```ts

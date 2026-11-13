@@ -4,6 +4,7 @@
 import type { QimenResult } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
 import { calculateQimen } from '@/engine/qimen';
+import { josa } from '@/engine/adapter/josa';
 
 // ---------- 천간별 오행 ----------
 
@@ -62,7 +63,7 @@ export function analyzeWolguk(solarDate: string, hour: number): WolgukAnalysis {
   const result = calculateQimen(solarDate, hour);
 
   // 2. 월건 천간/지지 추출
-  const monthPillar = ManseryeokEngine.getSolarContextFromDateString(solarDate, hour).ganji.month;
+  const monthPillar = ManseryeokEngine.getLegalClockContextFromDateString(solarDate, hour).ganji.month;
   const monthGan: string = monthPillar.gan;
   const monthJi: string = monthPillar.ji;
 
@@ -117,7 +118,7 @@ function buildCharacteristics(
 
   // 직부성과 월건
   chars.push(
-    `직부성 ${result.zhifu}와 월간 ${monthGan}의 관계에서 이달의 핵심 방향을 도출`,
+    `직부성 ${result.zhifu}${josa(result.zhifu, '와과')} 월간 ${monthGan}의 관계에서 이달의 핵심 방향을 도출`,
   );
 
   return chars;

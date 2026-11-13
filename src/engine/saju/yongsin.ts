@@ -4,6 +4,7 @@
 import type { Palja, Gyeokguk, Yongsin, Ohaeng, SajuSubSchool, WangState, StrengthLevel, StrengthLabel, StrengthAssessment } from '@/engine/types';
 import { getOhaengForGan, getOhaengForJi } from '@/engine/adapter/hanja-mapper';
 import { JIJANGGAN_TABLE } from '@/engine/saju/sipsin';
+import { josa } from '@/engine/adapter/josa';
 
 // ---------- 오행 관계 상수 ----------
 
@@ -119,7 +120,7 @@ const JIJANGGAN_WEIGHT = [1.0, 0.5, 0.3] as const; // 본기(0), 중기(1), 여�
  * - 재격(편재/정재): 관성이 용신 (재생관), 비겁이 기신
  * - 관격(편관/정관): 인성이 용신 (관인상생), 식상이 기신
  * - 인격(편인/정인): 관성이 용신 (관인상생), 재성이 기신
- * - 비겁격(비견/겁재): 식상이 용신 (비겁생식상), 인성이 기신
+ * - 록겁격(건록·비견·겁재)·양인격: 관성이 용신 (祿劫用官·陽刃用官煞, 자평진전), 식상이 기신
  */
 function determineGyeokgukYongsin(palja: Palja, gyeokguk: Gyeokguk): Yongsin {
   const dayOhaeng = getOhaengForGan(palja.dayGan);
@@ -179,14 +180,17 @@ function determineGyeokgukYongsin(palja: Palja, gyeokguk: Gyeokguk): Yongsin {
   }
 
   if (name.includes('비견') || name.includes('겁재') || name === '건록격' || name === '양인격') {
-    // 비겁격/건록격/양인격: 식상(내가 생하는 오행)이 용신, 인성(나를 생하는 오행)이 기신
-    const yongOhaeng = SAENGSAENG[dayOhaeng];
-    const giOhaeng = SAENG_BY[dayOhaeng];
+    // 록겁격(건록·월겁=비견·겁재)과 양인격: 월령이 일간과 같은 오행이라 일간이 이미 뿌리를 얻었다.
+    // 자평진전은 이를 관(官)·살(煞)로 다스리는 것을 원칙으로 한다(祿劫用官, 陽刃用官煞) —
+    // 관성(나를 극하는 오행)이 용신, 관을 상하게 하는 식상(내가 생하는 오행)이 기신.
+    const yongOhaeng = GEUK_BY[dayOhaeng];
+    const giOhaeng = SAENGSAENG[dayOhaeng];
+    const principle = name === '양인격' ? '양인용관살(陽刃用官煞)' : '록겁용관(祿劫用官)';
     return {
-      yongsin: `${yongOhaeng}(식상)`,
-      gisin: `${giOhaeng}(인성)`,
+      yongsin: `${yongOhaeng}(관성)`,
+      gisin: `${giOhaeng}(식상)`,
       ohaeng: yongOhaeng,
-      reasoning: `격국용신: ${name}에서 비겁생식상의 원리로 식상(${yongOhaeng})이 용신, 인성(${giOhaeng})이 기신`,
+      reasoning: `격국용신: ${name}에서 ${principle}의 원리로 관성(${yongOhaeng})이 용신, 식상(${giOhaeng})이 기신`,
     };
   }
 
@@ -253,7 +257,7 @@ function determineGyeokgukYongsin(palja: Palja, gyeokguk: Gyeokguk): Yongsin {
         yongsin: `${yongOhaeng}(화기)`,
         gisin: `${giOhaeng}(극화)`,
         ohaeng: yongOhaeng,
-        reasoning: `격국용신: ${name} — 합화하여 ${yongOhaeng}으로 변화하므로 ${yongOhaeng}이 용신, ${giOhaeng}이 기신`,
+        reasoning: `격국용신: ${name} — 합화하여 ${yongOhaeng}${josa(yongOhaeng, '으로')} 변화하므로 ${yongOhaeng}${josa(yongOhaeng, '이가')} 용신, ${giOhaeng}${josa(giOhaeng, '이가')} 기신`,
       };
     }
   }
@@ -639,7 +643,7 @@ function buildGangyakDecision(
     yongsin: `${seasonalNeed.ohaeng}(${seasonalNeed.role})`,
     gisin: `${seasonalNeed.giOhaeng}(${seasonalNeed.giRole})`,
     ohaeng: seasonalNeed.ohaeng,
-    reasoning: `강약용신: 일간(${dayOhaeng})이 ${labelText}(${assessment.wangState}, 점수 ${assessment.score.toFixed(1)})이며 ${supportSummary} - 중화축으로 ${palja.monthJi}월 조후표를 참고하여 ${seasonalNeed.ohaeng}(${seasonalNeed.role})이 용신 — ${seasonalNeed.johuReasoning}`,
+    reasoning: `강약용신: 일간(${dayOhaeng})이 ${labelText}(${assessment.wangState}, 점수 ${assessment.score.toFixed(1)})이며 ${supportSummary} - 중화축으로 ${palja.monthJi}월 조후표를 참고하여 ${seasonalNeed.ohaeng}(${seasonalNeed.role})${josa(seasonalNeed.ohaeng, '이가')} 용신 — ${seasonalNeed.johuReasoning}`,
   };
 }
 
@@ -691,10 +695,10 @@ function getJohuBias(
  * 2. 지지 근기 → 본기(+1.0), 중기(+0.5), 여기(+0.3) — 전체의 ~30%
  * 3. 천간 투출 → 비겁(+1.0), 인성(+0.7) — 전체의 ~20%
  *
- * 판정 기준 (총점 ~10점 만점):
- * - 신강(身強): >= 5.5 — 득령+통근이 모두 강한 경우
- * - 중화(中和): 2.5 ~ 5.4 — 균형 또는 애매한 경우 → 조후 참고
- * - 신약(身弱): < 2.5 — 득령 못하고 통근도 약한 경우
+ * 판정 기준 — 순세력 net = 지지 점수(득령+근기+투출) − 견제 압력(식상·재성·관성 자리):
+ * - 태강: net >= 6.5 이면서 득령·득지·득세를 모두 갖춤
+ * - 신강: net >= 3.5 / 중화신강: >= 1.0 / 중화신약: >= -2.0
+ * - 신약: >= -4.0 (또는 득령·득지 중 하나라도 있음) / 태약: 그 아래
  */
 function assessDayganStrengthDetailed(
   palja: Palja, dayOhaeng: Ohaeng,
@@ -778,47 +782,17 @@ function assessDayganStrengthDetailed(
   const deukji = rootSupportTotal >= 1.5 || strongRootCount >= 2;
   const deuksi = hourRootSupport >= 0.5 || hourStemSupport > 0;
   const deukse = stemSupportTotal >= 1.7 || rootSupportTotal >= 2.5;
-  const supportCount = [deukryeong, deukji, deuksi, deukse].filter(Boolean).length;
-
+  // 등급 = 순세력(지지 점수 − 견제 압력)의 구간. 단조 증가하도록 한 번에 정하고,
+  // 극단 등급은 구조 조건을 함께 요구해 드물게 둔다(예전 규칙은 득령만으로 태강이 되고
+  // 압력 보정이 두 단계를 건너뛰는 경우가 있었다).
+  const net = score - hostilePressure;
   let label: StrengthLabel;
-  if (score >= 8 || (supportCount >= 4 && score >= 6)) label = '태강';
-  else if (supportCount >= 3 && score >= 4.5 && deukse) label = '신강';
-  else if (supportCount >= 2 && score >= 2.5 && deukryeong) label = '중화신강';
-  else if (score < 2.0 && !deukryeong && !deukse) label = '태약';
-  else if (score < 2.0 && deukryeong) label = '신약';
-  else if (supportCount >= 2 && score >= 4.0) label = '중화신강';
-  else if (supportCount >= 1 && score >= 1.0) label = '중화신약';
-  else if (supportCount >= 1 || score >= 0.5) label = '신약';
+  if (net >= 6.5 && deukryeong && deukji && deukse) label = '태강';
+  else if (net >= 3.5) label = '신강';
+  else if (net >= 1.0) label = '중화신강';
+  else if (net >= -2.0) label = '중화신약';
+  else if (net >= -4.0 || deukryeong || deukji) label = '신약';
   else label = '태약';
-
-  if (label === '태강' && hostilePressure >= 3.5) label = '중화신약';
-  else if (label === '신강' && hostilePressure >= 2.2 && wangState !== '旺') label = '중화신강';
-  else if (label === '중화신강' && hostilePressure >= 3.0 && !deukryeong) label = '중화신약';
-  else if (label === '중화신약' && hostilePressure >= 5.0 && wangState === '囚') label = '태약';
-
-  if (label === '중화신강' && hostilePressure >= 3.2 && !deukryeong && wangState === '休') {
-    label = '중화신약';
-  } else if (
-    label === '중화신약' &&
-    supportCount >= 3 &&
-    deukji &&
-    deuksi &&
-    deukse &&
-    score >= 3.8 &&
-    hostilePressure <= 3.0
-  ) {
-    label = '중화신강';
-  } else if (
-    label === '중화신약' &&
-    deukji &&
-    deuksi &&
-    deukse &&
-    score >= 2.5 &&
-    hostilePressure <= 2.5 &&
-    wangState === '死'
-  ) {
-    label = '중화신강';
-  }
 
   let level: StrengthLevel;
   if (label === '태강' || label === '신강') level = 'strong';
@@ -887,33 +861,33 @@ function determineMulsangYongsin(palja: Palja, _gyeokguk: Gyeokguk): Yongsin {
     // 일간이 필요한 상이 전혀 없음 → 그 오행이 용신
     yongOhaeng = needsOhaeng;
     giOhaeng = excessOhaeng;
-    reasoning = `${dayGan}(${dayMulsang.image})은 ${dayMulsang.nature}의 상이나, ` +
-      `${needsOhaeng}의 상이 전혀 없어 ${needsOhaeng}이 절실하다. ` +
-      `${excessOhaeng}의 상은 ${dayMulsang.image}를 훼손한다`;
+    reasoning = `${dayGan}(${dayMulsang.image})${josa(dayGan, '은는')} ${dayMulsang.nature}의 상이나, ` +
+      `${needsOhaeng}의 상이 전혀 없어 ${needsOhaeng}${josa(needsOhaeng, '이가')} 절실하다. ` +
+      `${excessOhaeng}의 상은 ${dayMulsang.image}${josa(dayMulsang.image, '을를')} 훼손한다`;
   } else if (excessCount >= 3) {
     // 훼손하는 상이 과다 → 통관 또는 제거 오행이 용신
     // 통관: excess를 극하는 오행
     yongOhaeng = GEUK_BY[excessOhaeng];
     giOhaeng = excessOhaeng;
     reasoning = `${dayGan}(${dayMulsang.image})에 ${excessOhaeng}의 상(${getExcessImage(excessOhaeng)})이 과다(${excessCount}개)하여 ` +
-      `${yongOhaeng}으로 제어해야 한다. ${excessOhaeng}이 기신`;
+      `${yongOhaeng}${josa(yongOhaeng, '으로')} 제어해야 한다. ${excessOhaeng}${josa(excessOhaeng, '이가')} 기신`;
   } else if (selfCount >= 3) {
     // 자기 오행이 과다 → 설기 필요
     yongOhaeng = SAENGSAENG[dayOhaeng]; // 식상으로 설기
     giOhaeng = SAENG_BY[dayOhaeng];
     reasoning = `${dayGan}(${dayMulsang.image})의 상이 ${selfCount}개로 과다하여 ` +
-      `${yongOhaeng}으로 설기해야 한다. 더 보태는 ${giOhaeng}이 기신`;
+      `${yongOhaeng}${josa(yongOhaeng, '으로')} 설기해야 한다. 더 보태는 ${giOhaeng}${josa(giOhaeng, '이가')} 기신`;
   } else if (selfCount <= 1 && needsCount >= 1) {
     // 자기 오행이 약하지만 필요 오행은 있음 → 비겁으로 힘 보충
     yongOhaeng = dayOhaeng;
     giOhaeng = SANGGEUK[dayOhaeng]; // 재성
     reasoning = `${dayGan}(${dayMulsang.image})의 상이 약하여(${selfCount}개) ` +
-      `${dayOhaeng}(비겁)으로 뿌리를 강화해야 한다. ${giOhaeng}(재성)이 기신`;
+      `${dayOhaeng}(비겁)${josa(dayOhaeng, '으로')} 뿌리를 강화해야 한다. ${giOhaeng}(재성)${josa(giOhaeng, '이가')} 기신`;
   } else {
     // 기본: 필요 오행이 용신
     yongOhaeng = needsOhaeng;
     giOhaeng = excessOhaeng;
-    reasoning = `${dayGan}(${dayMulsang.image})은 ${dayMulsang.nature}의 상으로, ` +
+    reasoning = `${dayGan}(${dayMulsang.image})${josa(dayGan, '은는')} ${dayMulsang.nature}의 상으로, ` +
       `${needsOhaeng}의 보완이 자연스럽다. ${excessOhaeng}의 상은 경계 대상`;
   }
 
@@ -925,7 +899,7 @@ function determineMulsangYongsin(palja: Palja, _gyeokguk: Gyeokguk): Yongsin {
     yongsin: `${yongOhaeng}`,
     gisin: `${giOhaeng}`,
     ohaeng: yongOhaeng,
-    reasoning: `물상용신: ${dayImage}(${dayGan})이 ${monthJiImage}(${palja.monthJi}월) 환경에서 — ${reasoning}`,
+    reasoning: `물상용신: ${dayImage}(${dayGan})${josa(dayImage, '이가')} ${monthJiImage}(${palja.monthJi}월) 환경에서 — ${reasoning}`,
   };
 }
 

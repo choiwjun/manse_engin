@@ -6,14 +6,14 @@ status: reviewed
 sampleBirth:
   year: 1950
   month: 1
-  day: 16
-  hour: 16
+  day: 15
+  hour: 10
   minute: 30
   gender: male
   isLunar: false
 assert:
-  palja: 己丁辛丙
-  gyeokguk: 편인격
+  palja: 己丁庚辛
+  gyeokguk: 정인격
   yongsin: 화
 body:
   short: 원진의 속마찰과 세운의 관계를 살펴볼 수 있는 해로, 관계의 오해와 감정은 대화·경계·당사자의 의사를 함께 확인합니다.

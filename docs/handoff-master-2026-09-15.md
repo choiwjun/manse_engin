@@ -175,7 +175,7 @@ packages/myeong-engine/          배포 패키지 (build.mjs: 복사 → 별칭 
   regression.test.mjs            경계값 회귀 36건
   smoke.test.mjs                 스모크
   validate-content.mjs           콘텐츠 validator (id↔경로·enum·sampleBirth 대조·금칙어)
-  scan-combos*.mjs               조합 발견 스캔 도구 (brute-force)
+  scripts/scan-combos.mjs        조합 발견 스캔 도구 (brute-force, 키 인자·--all)
 content/entries/                 문구 DB (경로=조합키, status: draft→linted→reviewed→published)
 content/reviews/                 검수 기록 (r1·r2·r3 + ledger + README)
 docs/                            핸드오프·피드백·검수 기준·승격 워크플로
@@ -198,7 +198,7 @@ docs/                            핸드오프·피드백·검수 기준·승격 
 
 ### 즉시 가능 (코드)
 
-1. **조합키 지속 확장** — 현재 136키. 남은 후보: 십신 과다×신살, 원진×일지, 격국×대운, 신살×대운·세운, 조후×대운·세운. `scan-combos*.mjs`로 발화 명식 탐색 → detector·registry·YAML·테스트.
+1. **조합키 지속 확장** — 현재 136키. 남은 후보: 십신 과다×신살, 원진×일지, 격국×대운, 신살×대운·세운, 조후×대운·세운. `scripts/scan-combos.mjs <키>`로 발화 명식 탐색 → detector·registry·YAML·테스트.
 2. **시점 서사 2단계 잔여** — 월운×세운 교차 문장 일부 구현됨. 대운 경계(전환 6개월 전) 서사, 세운 십신별 행동 가이드 문구 세트 보강.
 3. **`body.long` 확대** — 현재 `body.long`이 있는 엔트리가 소수. 장문 상담 리포트의 깊이를 위해 combo·cross·flow 중심으로 보강.
 4. **작명·택일 심화** — 후보 비교 근거·순위, 수리·발음·자원오행 근거 노출, 학파별 정책, 택일 장문 리포트.

@@ -80,6 +80,11 @@ export function detectGongmangCross(result: SajuResult): RawPattern[] {
 
 /** 격국 오행 축과 용신 축이 같은지 */
 export function detectGyeokgukYongsin(result: SajuResult): RawPattern[] {
+  // 격국용신파의 용신은 정의상 격국과 정해진 관계(정격이면 다른 축, 종격이면 같은 축)로 정해진다.
+  // 최종 용신이 그 규칙의 결과 그대로면 축 관계는 동어반복이라 패턴으로 내지 않는다 —
+  // 다른 학파나 역술인 선택으로 용신이 달라졌을 때만 격국과의 축 관계가 정보가 된다.
+  const gyeokgukSchool = result.yongsinBySchool?.gyeokguk;
+  if (gyeokgukSchool && gyeokgukSchool.ohaeng === result.yongsin.ohaeng) return [];
   const gkGroup = gyeokgukGroup(result);
   const ysGroup = groupFromOhaeng(result, result.yongsin.ohaeng);
   if (!gkGroup || !ysGroup) return [];
@@ -114,6 +119,9 @@ export function detectGyeokgukYongsin(result: SajuResult): RawPattern[] {
 export function detectSinsalSipsin(result: SajuResult): RawPattern[] {
   const patterns: RawPattern[] = [];
   for (const sin of result.sinsal) {
+    // 12신살의 기준은 일지다. 일지 자신은 삼합 자리에 따라 항상 지살·장성·화개 중 하나가 되므로
+    // (동어반복) 해석 패턴을 만들지 않는다. 표시용 facts(result.sinsal)에는 그대로 남는다.
+    if (sin.position === 'dayJi') continue;
     const group = groupOfSlot(result, sin.position as never);
     if (!group) continue;
     const key = `saju/cross/sinsal-${sin.name}-${group}`;

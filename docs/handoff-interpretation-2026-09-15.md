@@ -30,7 +30,7 @@
 
 ## 참고
 
-- `packages/myeong-engine/scan-combos.mjs` — combo 발화 sampleBirth 탐색 도구 (재사용 가능)
+- `packages/myeong-engine/scripts/scan-combos.mjs` — combo 발화 sampleBirth 탐색 도구 (키 인자·`--all`, 차수별 사본을 하나로 통합)
 - `content/entries/saju/combo/` — YAML 16건 (기존 8 + 신규 8)
 - `src/engine/interpretation/detectors/combos.ts` — detector 간 결합 방지 원칙 유지 (원시 조건 직접 판정)
 
@@ -193,7 +193,7 @@
 - `CounselorBrand {name, contact?, tagline?}`
 - export: `interpretation/index.ts` + `engine/index.ts` + `packages/myeong-engine/src/index.ts` 모두 추가
 
-**스캔 도구** — `scan-combos-13.mjs` (1950~2010년 범위로 확장, 407개 명식에서 8/8 발화)
+**스캔 도구** — `scripts/scan-combos.mjs` (당시 `scan-combos-13.mjs`; 1950~2010년 범위, 407개 명식에서 8/8 발화)
 
 검증: `npm test` 전체 통과 (회귀 36 + interpretation + HTML 렌더 검증 추가), `content:validate OK — 엔트리 145건 통과 (레지스트리 122키 중 미작성 0키)` *(16차 시점 수치 — 18차 이후 최신: 155건·132키)*
 

@@ -56,19 +56,19 @@ function directionLine(a: SajuResult, b: SajuResult, nameA: string, nameB: strin
   const aKor = getKoreanForGan(a.palja.dayGan) ?? a.palja.dayGan;
   const bKor = getKoreanForGan(b.palja.dayGan) ?? b.palja.dayGan;
   if (aOhaeng === bOhaeng) {
-    return `${nameA}와(과) ${nameB}는 같은 ${aOhaeng} 일간 — 비슷한 속도와 취향이라 편하지만, 서로의 빈 곳을 채워주지는 못합니다.`;
+    return `${nameA}${josa(nameA, '와과')} ${nameB}${josa(nameB, '은는')} 같은 ${aOhaeng} 일간 — 비슷한 속도와 취향이라 편하지만, 서로의 빈 곳을 채워주지는 못합니다.`;
   }
   if (isChildOf(aOhaeng, bOhaeng)) {
-    return `${nameA}(${aKor})${josa(nameA, '이가')} ${nameB}(${bKor})${josa(nameB, '을를')} 생하는 방향 — ${nameA}가 주고 ${nameB}가 충전받는 흐름이 기본값입니다.`;
+    return `${nameA}(${aKor})${josa(nameA, '이가')} ${nameB}(${bKor})${josa(nameB, '을를')} 생하는 방향 — ${nameA}${josa(nameA, '이가')} 주고 ${nameB}${josa(nameB, '이가')} 충전받는 흐름이 기본값입니다.`;
   }
   if (isChildOf(bOhaeng, aOhaeng)) {
-    return `${nameB}(${bKor})${josa(nameB, '이가')} ${nameA}(${aKor})${josa(nameA, '을를')} 생하는 방향 — ${nameB}가 주고 ${nameA}가 충전받는 흐름이 기본값입니다.`;
+    return `${nameB}(${bKor})${josa(nameB, '이가')} ${nameA}(${aKor})${josa(nameA, '을를')} 생하는 방향 — ${nameB}${josa(nameB, '이가')} 주고 ${nameA}${josa(nameA, '이가')} 충전받는 흐름이 기본값입니다.`;
   }
   if (isSanggeukOf(aOhaeng, bOhaeng)) {
     return `${nameA}(${aKor})${josa(nameA, '이가')} ${nameB}(${bKor})${josa(nameB, '을를')} 극하는 방향 — 다듬고 통제하려는 흐름이 깔려 있어, 요청 방식을 부드럽게 두는 것이 마찰을 줄입니다.`;
   }
   if (isSanggeukOf(bOhaeng, aOhaeng)) {
-    return `${nameB}(${bKor})${josa(nameB, '이가')} ${nameA}(${aKor})${josa(nameA, '을를')} 극하는 방향 — ${nameB}의 기준이 ${nameA}를 압박하는 흐름이 깔려 있어, ${nameA}의 의사 표현을 존중하는 약속이 필요합니다.`;
+    return `${nameB}(${bKor})${josa(nameB, '이가')} ${nameA}(${aKor})${josa(nameA, '을를')} 극하는 방향 — ${nameB}의 기준이 ${nameA}${josa(nameA, '을를')} 압박하는 흐름이 깔려 있어, ${nameA}의 의사 표현을 존중하는 약속이 필요합니다.`;
   }
   return null;
 }

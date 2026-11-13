@@ -2,7 +2,7 @@
 // markdown.ts와 같은 데이터(SajuReport)를 소비하되, 산출물은 브라우저에서 바로 열고
 // '인쇄 → PDF로 저장'이 가능한 단일 HTML 파일이다. 외부 의존성·스크립트 없음.
 
-import type { SajuReport } from './report';
+import { patternContextLine, type SajuReport } from './report';
 import type { DetectedPattern } from './types';
 import type { NamingInterpretation } from './naming';
 import type { TaekilInterpretation } from './taekil';
@@ -76,21 +76,10 @@ function patternBody(key: string, level: 'medium' | 'long', report?: SajuReport)
   return report ? fillTemplate(trimmed, report) : trimmed;
 }
 
-// ---------- 명식 맥락 문장 (markdown.ts와 동일 로직) ----------
+// ---------- 명식 맥락 문장 (report.ts patternContextLine 공용) ----------
 
-function contextLine(report: SajuReport, _pattern: DetectedPattern): string {
-  const ctx = report.context;
-  if (!ctx) return '';
-  const fit = ctx.gyeokgukGroup === ctx.yongsinGroup;
-  const axis = fit
-    ? `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 같은 축이라 이 패턴이 곧 명식의 주 라인이 됩니다.`
-    : `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 다른 축이라, 이 패턴은 본업과 활용점 사이의 다리 역할을 합니다.`;
-  const strength = ctx.dayMasterVerdict.includes('신약')
-    ? '신약한 일간이 이 구조를 감당할 때 기반(인성·비겁) 보강 가능성을 먼저 살펴볼 수 있습니다.'
-    : ctx.dayMasterVerdict.includes('신강')
-      ? '신강한 일간이라 이 구조를 밀고 나가는 힘이 있습니다.'
-      : '중화된 일간이라 이 구조를 양방향으로 활용할 수 있습니다.';
-  return `${axis} ${strength}`;
+function contextLine(report: SajuReport, pattern: DetectedPattern): string {
+  return patternContextLine(report, pattern);
 }
 
 // ---------- 패턴 상세 카드 ----------

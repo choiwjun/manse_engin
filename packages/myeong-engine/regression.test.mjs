@@ -267,12 +267,19 @@ test('daeyukim switches woljang at the exact term instant', async () => {
 });
 
 test('gyeokguk reaches special formations before ordinary classification', () => {
-  // 甲일간 + 己월간 + 辰월지 → 갑기합화토격 (정격 판별보다 특수격 우선)
+  // 甲일간 + 己월간 + 辰월지(토 당령), 쟁합·극화 없음 → 갑기합화토격 (정격 판별보다 특수격 우선)
   const r = esm.determineGyeokguk({
-    yearGan: '甲', yearJi: '子', monthGan: '己', monthJi: '辰',
+    yearGan: '丙', yearJi: '子', monthGan: '己', monthJi: '辰',
     dayGan: '甲', dayJi: '午', hourGan: '丙', hourJi: '寅',
   });
   assert.equal(r.name, '갑기합화토격');
+  // 년간 甲(쟁합·극화)이 있으면 참고 수준이라 정격이 대표, 화격은 후보로만 남는다
+  const weak = esm.determineGyeokguk({
+    yearGan: '甲', yearJi: '子', monthGan: '己', monthJi: '辰',
+    dayGan: '甲', dayJi: '午', hourGan: '丙', hourJi: '寅',
+  });
+  assert.equal(weak.name, '편재격');
+  assert.ok(weak.candidates?.some((c) => c.name === '갑기합화토격' && c.confidence === '참고'));
   // 정격 경로는 여전히 동작한다
   const ordinary = esm.determineGyeokguk({
     yearGan: '甲', yearJi: '子', monthGan: '丙', monthJi: '子',
@@ -479,19 +486,20 @@ test('now requires RFC 3339 with an explicit UTC designator and a real date', as
 });
 
 test('judgeGanJi judges stem and branch axes separately and reports mixed verdicts', () => {
-  // 甲子 丁丑 己酉 壬申 — 용신 금·기신 화
+  // 甲子 丁丑 己酉 壬申 비견격(록겁) — 용신 목(관성)·기신 금(식상)
   const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), {
     now: new Date('2026-09-13T12:00:00+09:00'),
   });
-  const mixed = esm.judgeGanJi(r, '辛', '巳');
+  assert.equal(r.yongsin.ohaeng, '목');
+  const mixed = esm.judgeGanJi(r, '甲', '申');
   assert.equal(mixed.verdict, 'mixed');
-  assert.equal(mixed.ganAxis.verdict, 'fit');      // 천간 辛(금) = 용신
-  assert.equal(mixed.jiAxis.verdict, 'tension');   // 지지 巳(화) = 기신
+  assert.equal(mixed.ganAxis.verdict, 'fit');      // 천간 甲(목) = 용신
+  assert.equal(mixed.jiAxis.verdict, 'tension');   // 지지 申(금) = 기신
   // 두 축이 같은 방향이면 그 방향으로 판정
-  assert.equal(esm.judgeGanJi(r, '庚', '申').verdict, 'fit');       // 庚申 = 금·금
-  assert.equal(esm.judgeGanJi(r, '丙', '午').verdict, 'tension');   // 丙午 = 화·화
-  // 한 축만 방향이 있으면 그 축을 따른다 — 巳화 기신 + 甲목 준기신
-  assert.equal(esm.judgeGanJi(r, '甲', '巳').verdict, 'tension');
+  assert.equal(esm.judgeGanJi(r, '甲', '寅').verdict, 'fit');       // 甲寅 = 목·목
+  assert.equal(esm.judgeGanJi(r, '庚', '申').verdict, 'tension');   // 庚申 = 금·금
+  // 준기신(戊토, 기신 금을 생함) + 기신(申금) → tension
+  assert.equal(esm.judgeGanJi(r, '戊', '申').verdict, 'tension');
 });
 
 test('judgeGanJi neutral axis exists and a directed axis dominates a neutral one', () => {
@@ -534,10 +542,12 @@ test('gyeokguk exposes confidence, basis, and blockers metadata', () => {
   assert.equal(hw.name, '갑기합화토격');
   assert.equal(hw.confidence, '확정');
   // 쟁합 — 같은 甲이 년간에 중복되면 신뢰도가 낮아진다
-  const jang = esm.determineGyeokguk({
+  const jangResult = esm.determineGyeokguk({
     yearGan: '甲', yearJi: '子', monthGan: '己', monthJi: '辰', dayGan: '甲', dayJi: '午', hourGan: '丙', hourJi: '寅',
   });
-  assert.equal(jang.name, '갑기합화토격');
+  // 참고 수준 화격은 대표가 되지 않고 후보로 남는다 — 신뢰도·불성립 조건은 후보에 그대로 실린다
+  const jang = jangResult.candidates.find((c) => c.name === '갑기합화토격');
+  assert.ok(jang, `후보: ${jangResult.candidates?.map((c) => c.name)}`);
   assert.notEqual(jang.confidence, '확정');
   assert.ok(jang.blockers.some(b => b.includes('쟁합')), `쟁합 blocker: ${jang.blockers}`);
 });
@@ -689,15 +699,16 @@ test('applyPractitionerOverride — 역술인 선택이 용신·격국·운 판�
   const r = esm.buildSajuResult(birth({ year: 1985, month: 1, day: 10, hour: 16, minute: 45 }), {
     now: new Date('2025-12-13T00:00:00+09:00'),
   });
-  assert.equal(esm.judgeGanJi(r, '辛', '巳').verdict, 'mixed', '기본 용신(금) 기준 辛巳는 혼재');
-  assert.equal(esm.judgeGanJi(r, '丙', '午').verdict, 'tension', '기본 기신(화) 기준 丙午는 tension');
+  assert.equal(esm.judgeGanJi(r, '辛', '巳').verdict, 'mixed', '기본 용신(목)·기신(금) 기준 辛巳는 혼재');
+  assert.equal(esm.judgeGanJi(r, '壬', '子').verdict, 'fit', '기본 용신(목) 기준 壬子(수)는 준용신 fit');
 
-  // 학파 채택 — 조후학파 용신(화)으로 바꾸면 丙午 판정이 fit으로 바뀐다
+  // 학파 채택 — 조후학파 용신(화)·기신(수)으로 바꾸면 壬子는 tension, 丙午는 fit
   const picked = esm.applyPractitionerOverride(r, { yongsinSchool: 'johu', note: '丑월 조후 우선' });
   assert.equal(picked.yongsin.ohaeng, r.yongsinBySchool.johu.ohaeng);
   assert.ok(picked.yongsin.reasoning.includes('최종 채택'));
   assert.equal(picked.practitionerOverride?.note, '丑월 조후 우선');
   assert.equal(esm.judgeGanJi(picked, '丙', '午').verdict, 'fit', '용신 화 기준 丙午 = 용신축 일치 → fit');
+  assert.equal(esm.judgeGanJi(picked, '壬', '子').verdict, 'tension', '조후 기신(수) 기준 壬子 → tension');
   const rep = esm.assembleReport(picked);
   assert.ok(rep.context.practitionerChoice?.includes('조후'), '리포트에 역술인 선택 표기');
   assert.ok(esm.renderReportMarkdown(rep).includes('역술인 선택'));
@@ -716,5 +727,502 @@ test('applyPractitionerOverride — 역술인 선택이 용신·격국·운 판�
   assert.equal(reGeok.yongsinBySchool.gyeokguk.ohaeng, '수');
   // 원본은 변하지 않는다
   assert.equal(r.gyeokguk.name, '비견격');
-  assert.equal(r.yongsin.ohaeng, '금');
+  assert.equal(r.yongsin.ohaeng, '목');
+});
+
+// ---------------------------------------------------------------------------
+// 2026 정확성 재검증 회귀 테스트 (외부 기준: 자평 오자둔, 紫微斗數全書·iztro 2.6.5)
+// ---------------------------------------------------------------------------
+
+test('qimen 23시는 다음 날 자시로 포국한다 (같은 날 0시와 같지 않다)', () => {
+  // 2024-03-10 癸酉일: 0시 = 壬子시, 23시 = 다음 자시 甲子시(甲戌일)
+  const at0 = esm.calculateQimen('2024-03-10', 0);
+  const at23 = esm.calculateQimen('2024-03-10', 23);
+  const next0 = esm.calculateQimen('2024-03-11', 0);
+  assert.equal(at0.hourGan + at0.hourJi, '壬子');
+  assert.equal(at23.hourGan + at23.hourJi, '甲子');
+  assert.equal(at23.dayGan + at23.dayJi, '甲戌');
+  const { solarDate: _a, ...chart23 } = at23;
+  const { solarDate: _b, ...chartNext0 } = next0;
+  assert.deepEqual(chart23, chartNext0, '절입 경계가 없으면 23시 포국 = 다음 날 0시 포국');
+  // 23시 시주는 사주 엔진(오자둔)과 같아야 한다
+  for (const [y, m, d] of [[1990, 5, 15], [2001, 11, 2], [2024, 8, 20], [2033, 1, 9]]) {
+    const q = esm.calculateQimen(`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`, 23);
+    const p = esm.calculatePalja(birth({ year: y, month: m, day: d, hour: 23, minute: 30 }));
+    assert.equal(q.hourGan + q.hourJi, p.hourGan + p.hourJi, `${y}-${m}-${d} 23시 시주`);
+  }
+});
+
+test('ziwei 신주(身主)는 년지 기준 표준표를 따른다', () => {
+  // 子午 火星, 丑未 天相, 寅申 天梁, 卯酉 天同, 辰戌 文昌, 巳亥 天機
+  const expected = { 자: '화성', 축: '천상', 인: '천량', 묘: '천동', 진: '문창', 사: '천기', 오: '화성', 미: '천상', 신: '천량', 유: '천동', 술: '문창', 해: '천기' };
+  for (let year = 1984; year < 1996; year++) {
+    const r = esm.calculateZiwei(`${year}-06-15`, 12, 'male');
+    const yearZhi = r.chineseDate.slice(1, 2);
+    assert.equal(r.bodyStar, expected[yearZhi], `${year}년(${yearZhi}) 신주`);
+  }
+});
+
+test('ziwei 소한(小限)은 남순여역으로 배치한다', () => {
+  // 1990-05-15 庚午년: 寅午戌 → 辰궁에서 1세 시작. 남=순행(巳 2세), 여=역행(卯 2세)
+  const ages = (r, b) => r.palaces.find(p => p.earthlyBranch === b).ages.slice(0, 2);
+  const male = esm.calculateZiwei('1990-05-15', 14, 'male');
+  const female = esm.calculateZiwei('1990-05-15', 14, 'female');
+  assert.deepEqual(ages(male, '진'), [1, 13]);
+  assert.deepEqual(ages(male, '사'), [2, 14]);
+  assert.deepEqual(ages(male, '묘'), [12, 24]);
+  assert.deepEqual(ages(female, '진'), [1, 13]);
+  assert.deepEqual(ages(female, '묘'), [2, 14]);
+  assert.deepEqual(ages(female, '사'), [12, 24]);
+});
+
+test('ziwei 庚년 천괴는 丑, 천월은 未 (甲戊庚牛羊)', () => {
+  const r = esm.calculateZiwei('1990-05-15', 14, 'male');
+  const minor = b => r.palaces.find(p => p.earthlyBranch === b).minorStars.map(s => s.name);
+  assert.ok(minor('축').includes('천괴'), '丑궁 천괴');
+  assert.ok(minor('미').includes('천월'), '未궁 천월');
+  assert.ok(!minor('축').includes('천월') && !minor('미').includes('천괴'));
+});
+
+test('대운: 절입 시각과 같은 분에 태어난 순행자는 다음 절까지 센다', () => {
+  // 1990 입춘 = 1990-02-04 11:14:00 KST (초 0). 출생 순간부터 戊寅월.
+  const ipchun = esm.listSolarTermsForYear(1990).find(t => t.koreanName === '입춘');
+  assert.deepEqual([ipchun.month, ipchun.day, ipchun.hour, ipchun.minute, ipchun.second], [2, 4, 11, 14, 0]);
+  const gyeongchip = esm.listSolarTermsForYear(1990).find(t => t.koreanName === '경칩');
+  const kst = t => Date.UTC(t.year, t.month - 1, t.day, t.hour, t.minute, t.second);
+  const expectedMonths = (kst(gyeongchip) - kst(ipchun)) / 86_400_000 * 4;
+
+  const male = birth({ year: 1990, month: 2, day: 4, hour: 11, minute: 14, gender: 'male' }); // 庚 양남 → 순행
+  const pm = esm.calculatePalja(male);
+  assert.equal(pm.monthGan + pm.monthJi, '戊寅');
+  const fwd = esm.calculateDaeun(pm, male, 1)[0];
+  assert.equal(fwd.gan + fwd.ji, '己卯');
+  assert.ok(Math.abs(fwd.startAgeMonths - expectedMonths) < 1e-6, `순행 개시 월수 ${fwd.startAgeMonths} ≠ ${expectedMonths}`);
+  assert.equal(esm.calculateYunStartAge(male), Math.floor(expectedMonths / 12));
+
+  const female = { ...male, gender: 'female' }; // 庚 양녀 → 역행: 방금 지난 입춘까지 0일
+  const rev = esm.calculateDaeun(esm.calculatePalja(female), female, 1)[0];
+  assert.equal(rev.gan + rev.ji, '丁丑');
+  assert.equal(rev.startAgeMonths, 0);
+});
+
+test('ziwei 윤달 보정(fixLeap): 윤달 16일 이후는 다음 달로 본다', () => {
+  // 2020 윤4월 20일 = 양력 2020-06-11 (한·중 역법 동일). 午시.
+  // 기준(iztro 2.6.5 fixLeap=true): 명궁·신궁 子, 좌보 申, 우필 午, 화육국, 자미 酉
+  const fixed = esm.calculateZiwei('2020-06-11', 12, 'male');
+  const pos = (r, star) => r.palaces.find(p => [...p.majorStars, ...p.minorStars].some(s => s.name === star)).earthlyBranch;
+  assert.equal(fixed.soulPalaceBranch, '자');
+  assert.equal(fixed.bodyPalaceBranch, '자');
+  assert.equal(pos(fixed, '좌보'), '신');
+  assert.equal(pos(fixed, '우필'), '오');
+  assert.equal(fixed.fiveElementsClass, '화육국');
+  assert.equal(pos(fixed, '자미'), '유');
+  assert.equal(fixed.lunarDate, '2020-4-20', '표시용 음력 날짜는 실제 날짜를 유지');
+  // 음력 입력 경로도 같은 명반
+  const byLunar = esm.calculateZiweiByLunar('2020-04-20', 12, 'male', true);
+  assert.deepEqual(byLunar.palaces, fixed.palaces);
+  // fixLeap=false 이면 윤달을 본래 달로 본다
+  const unfixed = esm.calculateZiwei('2020-06-11', 12, 'male', false);
+  assert.equal(unfixed.soulPalaceBranch, '해');
+  assert.equal(unfixed.fiveElementsClass, '토오국');
+  // 윤달 15일 이전은 보정과 무관
+  const early = esm.calculateZiwei('2020-06-01', 12, 'male');
+  assert.equal(early.soulPalaceBranch, '해');
+  assert.equal(pos(early, '자미'), '묘');
+});
+
+// ---------------------------------------------------------------------------
+// 2026 풀이 엔진 재검증 회귀 테스트 — 원진 표·대운 나이·원진 문장 위치·조사
+// ---------------------------------------------------------------------------
+
+test('원진(怨嗔)은 표준 6쌍(子未 丑午 寅酉 卯申 辰亥 巳戌)이며 육해(六害)와 구분된다', () => {
+  const standard = [['子', '未'], ['丑', '午'], ['寅', '酉'], ['卯', '申'], ['辰', '亥'], ['巳', '戌']];
+  const expected = Object.fromEntries(standard.flatMap(([a, b]) => [[a, b], [b, a]]));
+  assert.deepEqual({ ...esm.WONJIN_TABLE }, expected);
+  assert.equal(esm.WONJIN_TABLE_KR['인'], '유');
+  assert.equal(esm.WONJIN_TABLE_KR['사'], '술');
+
+  // 申丑亥午: 申亥는 육해(원진 아님), 丑午만 원진
+  const r1 = esm.buildSajuResult(birth({ year: 1993, month: 1, day: 18, hour: 11 }));
+  assert.equal(`${r1.palja.yearJi}${r1.palja.monthJi}${r1.palja.dayJi}${r1.palja.hourJi}`, '申丑亥午');
+  assert.deepEqual(r1.wonjin.pairs.map((p) => `${p.position1}${p.branch1}-${p.position2}${p.branch2}`), ['월지丑-시지午']);
+
+  // 戌亥戌巳: 巳戌 원진 2쌍
+  const r2 = esm.buildSajuResult(birth({ year: 1946, month: 12, day: 2, hour: 9 }));
+  assert.equal(`${r2.palja.yearJi}${r2.palja.monthJi}${r2.palja.dayJi}${r2.palja.hourJi}`, '戌亥戌巳');
+  assert.deepEqual(r2.wonjin.pairs.map((p) => `${p.position1}-${p.position2}`), ['년지-시지', '일지-시지']);
+
+  // 해석 계층의 원진 패턴은 facts와 일치
+  for (const r of [r1, r2]) {
+    const keys = esm.runDetectors(r).map((p) => p.key);
+    assert.equal(keys.includes('saju/relation/wonjin'), true);
+  }
+});
+
+test('원진 문장은 위치 라벨로 자리를 밝힌다 (글자 중복 없음)', () => {
+  const r = esm.buildSajuResult(birth({ year: 1993, month: 1, day: 18, hour: 11 }));
+  const p = esm.runDetectors(r).find((x) => x.key === 'saju/relation/wonjin');
+  assert.ok(p, '원진 패턴');
+  const text = esm.renderPattern(p);
+  assert.match(text, /^월지\(丑\)가 시지\(午\)와 원진을 이루어/);
+  assert.doesNotMatch(text, /([子丑寅卯辰巳午未申酉戌亥])\(\1\)/);
+});
+
+test('현재 대운 문장에 대운 시작 나이가 들어간다', () => {
+  const now = new Date('2026-06-15T03:00:00Z');
+  const r = esm.buildSajuResult(birth({ year: 1990, month: 10, day: 21, hour: 8, minute: 47 }), { now });
+  const current = r.daeun.find((d) => d.isCurrent);
+  assert.ok(current);
+  const p = esm.runDetectors(r).find((x) => x.key.startsWith('saju/timing/daeun-'));
+  assert.ok(esm.renderPattern(p).includes(`현재 대운 ${current.age}세 무렵의 ${current.gan}${current.ji}`));
+  const md = esm.renderReportMarkdown(esm.assembleReport(r, { gender: 'male', now }));
+  assert.ok(!/대운 세 무렵/.test(md), '나이 빈칸 없음');
+});
+
+// 조사 검사기 — 오행·간지(한자)·괄호 설명 뒤의 조사가 받침과 맞는지 본다.
+const READ = { 甲: '갑', 乙: '을', 丙: '병', 丁: '정', 戊: '무', 己: '기', 庚: '경', 辛: '신', 壬: '임', 癸: '계', 子: '자', 丑: '축', 寅: '인', 卯: '묘', 辰: '진', 巳: '사', 午: '오', 未: '미', 申: '신', 酉: '유', 戌: '술', 亥: '해', 木: '목', 火: '화', 土: '토', 金: '금', 水: '수' };
+const JOSA_RE = /(?:(?<![가-힣])([목화토금수])|([甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥木火土金水])|([가-힣甲-龥])\([^()\n]{1,20}\))(은|는|이|가|을|를|과|와|으로|로)(?=[\s,.·:;!?)"'」』—-]|$)/g;
+function josaErrors(text) {
+  const out = [];
+  for (const m of text.matchAll(JOSA_RE)) {
+    const ch = READ[m[1] ?? m[2] ?? m[3]] ?? (m[1] ?? m[2] ?? m[3]);
+    const code = ch.charCodeAt(0);
+    if (code < 0xac00 || code > 0xd7a3) continue;
+    const jong = (code - 0xac00) % 28;
+    const has = jong !== 0;
+    const p = m[4];
+    const bad = ['는', '를', '와', '가'].includes(p) ? has
+      : ['은', '을', '과', '이'].includes(p) ? !has
+      : p === '으로' ? !has || jong === 8
+      : has && jong !== 8;
+    if (bad) out.push(m[0]);
+  }
+  return out;
+}
+
+test('사주 풀이 리포트(Markdown·HTML)의 동적 조사가 받침과 맞는다', () => {
+  const nows = ['2026-01-15', '2026-04-15', '2026-06-15', '2026-09-15', '2027-02-20'].map((d) => new Date(`${d}T03:00:00Z`));
+  const errors = [];
+  let i = 0;
+  for (let year = 1932; year <= 2012; year += 4) {
+    for (const [month, day, hour] of [[1, 9, 3], [4, 21, 13], [7, 3, null], [10, 27, 20]]) {
+      const now = nows[i++ % nows.length];
+      const gender = i % 2 ? 'male' : 'female';
+      const r = esm.buildSajuResult(birth({ year, month, day, hour, minute: hour === null ? null : 15, gender }), { now });
+      const report = esm.assembleReport(r, { gender, now });
+      const md = esm.renderReportMarkdown(report);
+      const html = esm.renderReportHtml(report).replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ');
+      for (const e of [...josaErrors(md), ...josaErrors(html)]) errors.push(`${year}-${month}-${day}: ${e}`);
+    }
+  }
+  assert.deepEqual([...new Set(errors)].slice(0, 20), []);
+});
+
+// ---------------------------------------------------------------------------
+// 시각 기반 모듈의 법정시(서머타임) 정규화 — 사주 엔진과 같은 기준
+// ---------------------------------------------------------------------------
+
+test('기문·육임·자미는 서머타임을 뺀 표준시로 시주를 잡는다 (1987 DST)', () => {
+  const date = '1987-07-15';
+  for (let h = 0; h < 24; h++) {
+    const p = esm.calculatePalja(birth({ year: 1987, month: 7, day: 15, hour: h, minute: 0 }));
+    const q = esm.calculateQimen(date, h);
+    assert.equal(`${q.hourGan}${q.hourJi}`, `${p.hourGan}${p.hourJi}`, `qimen ${h}시`);
+    const d = esm.calculateDaeyukim(date, h);
+    assert.equal(d.hourJi, p.hourJi, `daeyukim ${h}시`);
+    assert.equal(`${d.dayGan}${d.dayJi}`, `${p.dayGan}${p.dayJi}`, `daeyukim 일주 ${h}시`);
+  }
+  // 서머타임 23시 = 표준시 22시(亥) → 기문은 같은 날 일주
+  const q23 = esm.calculateQimen(date, 23);
+  const p23 = esm.calculatePalja(birth({ year: 1987, month: 7, day: 15, hour: 23, minute: 0 }));
+  assert.equal(`${q23.dayGan}${q23.dayJi}`, `${p23.dayGan}${p23.dayJi}`);
+  // 자미: 서머타임 23시와 22시는 같은 亥시 명반, 0시는 전날 23시(子)
+  assert.deepEqual(esm.calculateZiwei(date, 23, 'male'), esm.calculateZiwei(date, 22, 'male'));
+  assert.equal(esm.calculateZiwei(date, 23, 'male').time, '해시');
+  assert.equal(esm.calculateZiwei(date, 0, 'male').lunarDate, '1987-6-19');
+});
+
+test('기문·육임의 절기 경계도 표준 순간(UTC+9) 기준으로 비교한다 (1987 DST)', () => {
+  // 망종 1987-06-06 14:18 KST — 서머타임 시계 15:00은 KST 14:00이라 아직 소만
+  assert.equal(esm.calculateQimen('1987-06-06', 15).solarTerm, '소만');
+  assert.equal(esm.calculateQimen('1987-06-06', 16).solarTerm, '망종');
+  // 하지 1987-06-22 07:10 KST — 월장은 하지 전후로 바뀐다
+  const before = esm.calculateDaeyukim('1987-06-22', 5).wolJang;
+  const after = esm.calculateDaeyukim('1987-06-22', 12).wolJang;
+  assert.notEqual(before, after);
+  assert.equal(esm.calculateDaeyukim('1987-06-22', 8).wolJang, before);
+  assert.equal(esm.calculateDaeyukim('1987-06-22', 9).wolJang, after);
+});
+
+test('법정시 정의 이전(1908 이전) 날짜도 기문·육임·자미 계산은 그대로 동작한다', () => {
+  assert.doesNotThrow(() => esm.calculateQimen('1900-01-01', 12));
+  assert.doesNotThrow(() => esm.calculateDaeyukim('1900-01-01', 12));
+  assert.doesNotThrow(() => esm.calculateZiwei('1900-01-01', 12, 'male'));
+});
+
+// ---------------------------------------------------------------------------
+// 다른 풀이 모듈의 조사 — 기문·육임·토정·궁합·작명
+// ---------------------------------------------------------------------------
+
+const DIGIT_READ = ['영', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+const VOCAB = ['천봉', '천임', '천충', '천보', '천영', '천예', '천주', '천심', '천금', '민준', '서연', '지우', '하늘'];
+const VOCAB_RE = new RegExp(`(?<![가-힣])(${VOCAB.join('|')}|[0-9])(은|는|이|가|을|를|과|와|으로|로)(?=[\\s,.·:;!?)"'」』—-]|$)`, 'g');
+function josaErrorsExtended(text) {
+  const out = josaErrors(text);
+  for (const m of text.matchAll(VOCAB_RE)) {
+    const word = m[1];
+    const last = /[0-9]/.test(word) ? DIGIT_READ[Number(word)] : word[word.length - 1];
+    const jong = (last.charCodeAt(0) - 0xac00) % 28;
+    const has = jong !== 0;
+    const p = m[2];
+    const bad = ['는', '를', '와', '가'].includes(p) ? has
+      : ['은', '을', '과', '이'].includes(p) ? !has
+      : p === '으로' ? !has || jong === 8
+      : has && jong !== 8;
+    if (bad) out.push(m[0]);
+  }
+  return out;
+}
+
+test('기문·육임·토정·궁합·작명 풀이의 동적 조사가 받침과 맞는다', () => {
+  const errors = [];
+  const push = (tag, text) => { for (const e of josaErrorsExtended(text)) errors.push(`${tag}: ${e}`); };
+  for (let k = 0; k < 60; k++) {
+    const date = new Date(Date.UTC(2024, 0, 1 + k * 6)).toISOString().slice(0, 10);
+    const hour = (k * 5) % 24;
+    push(`qimen ${date} ${hour}`, JSON.stringify(esm.interpretQimenResult(esm.calculateQimen(date, hour))));
+    push(`daeyukim ${date} ${hour}`, JSON.stringify(esm.interpretDaeyukimResult(esm.calculateDaeyukim(date, hour))));
+  }
+  for (let y = 1960; y <= 2000; y += 3) {
+    const t = esm.analyzeTojeong(y, (y % 12) + 1, (y % 27) + 1, 2026);
+    push(`tojeong ${y}`, esm.renderTojeongMarkdown(t, esm.interpretTojeong(t)));
+  }
+  const people = [
+    ['민준', { year: 1990, month: 5, day: 15, hour: 14, minute: 30, gender: 'male' }],
+    ['서연', { year: 1992, month: 8, day: 3, hour: 9, minute: 0, gender: 'female' }],
+    ['지우', { year: 1988, month: 2, day: 20, hour: 6, minute: 0, gender: 'female' }],
+    ['하늘', { year: 1991, month: 11, day: 9, hour: 21, minute: 0, gender: 'male' }],
+  ];
+  for (const [nameA, pa] of people) for (const [nameB, pb] of people) {
+    if (nameA === nameB) continue;
+    const compat = esm.calculateCompatibility({ person1: { isLunar: false, ...pa }, person2: { isLunar: false, ...pb } });
+    const a = esm.buildSajuResult(birth(pa));
+    const b = esm.buildSajuResult(birth(pb));
+    const narrative = esm.interpretCompatibility(a, b, compat, { nameA, nameB });
+    push(`compat ${nameA}-${nameB}`, esm.renderCompatibilityMarkdown(compat, narrative, { nameA, nameB }));
+  }
+  for (const [given, pb] of [['민수', people[0][1]], ['서아', people[1][1]], ['하준', people[2][1]], ['지호', people[3][1]]]) {
+    const text = JSON.stringify(esm.interpretNameWithSaju(esm.analyzeName('김', given), '김', esm.buildSajuResult(birth(pb))));
+    push(`naming ${given}`, text);
+    assert.doesNotMatch(text, /이\(가\)|은\(는\)|을\(를\)|와\(과\)/, `naming ${given}: 병기 조사 대신 받침에 맞는 조사`);
+  }
+  assert.deepEqual([...new Set(errors)].slice(0, 20), []);
+});
+
+test('대운이 용신을 간접적으로 도울 때는 "용신을 데려온다"고 쓰지 않는다', () => {
+  const now = new Date('2026-06-15T03:00:00Z');
+  let direct = 0;
+  let indirect = 0;
+  for (let year = 1940; year <= 2005 && (direct < 3 || indirect < 3); year++) {
+    for (const month of [1, 4, 7, 10]) {
+      const r = esm.buildSajuResult(birth({ year, month, day: 11, hour: 10 }), { now });
+      const p = esm.runDetectors(r).find((x) => x.key === 'saju/timing/daeun-fit');
+      if (!p) continue;
+      const y = r.yongsin.ohaeng;
+      const touches = p.figures.ganOhaeng === y || p.figures.jiOhaeng === y;
+      const text = esm.renderPattern(p);
+      if (touches) {
+        direct++;
+        assert.match(text, /데려와/, text);
+      } else {
+        indirect++;
+        assert.doesNotMatch(text, /데려와/, text);
+      }
+    }
+  }
+  assert.ok(direct >= 1 && indirect >= 1, `표본 부족 direct=${direct} indirect=${indirect}`);
+});
+
+test('삼합·방합·삼형에 같은 지지가 두 자리면 두 자리 모두 관계 위치로 기록한다', () => {
+  const palja = (yearJi, monthJi, dayJi, hourJi) => ({ yearGan: '甲', monthGan: '丙', dayGan: '戊', hourGan: '庚', yearJi, monthJi, dayJi, hourJi });
+  const triple = (rels, type) => rels.find((r) => r.type === type && r.positions.length >= 3);
+
+  // 戌未丑未 — 丑戌未 삼형, 未가 월지·시지 두 자리
+  const hy = triple(esm.analyzeJijiRelations(palja('戌', '未', '丑', '未')), '형');
+  assert.deepEqual([...hy.positions].sort(), ['dayJi', 'hourJi', 'monthJi', 'yearJi']);
+  assert.equal(hy.jijis.length, 4);
+
+  // 申子辰子 — 申子辰 삼합, 子가 월지·시지
+  const sh = triple(esm.analyzeJijiRelations(palja('申', '子', '辰', '子')), '삼합');
+  assert.deepEqual(sh.positions, ['yearJi', 'monthJi', 'hourJi', 'dayJi']);
+  assert.deepEqual(sh.jijis, ['申', '子', '子', '辰']);
+
+  // 중복이 없으면 기존 3자리 표기를 유지한다
+  const plain = triple(esm.analyzeJijiRelations(palja('寅', '午', '戌', '子')), '삼합');
+  assert.deepEqual(plain.positions, ['yearJi', 'monthJi', 'dayJi']);
+});
+
+// ---------------------------------------------------------------------------
+// 사주풀이 엔진 판정 논리 재검증 (2026) — 도화·맥락 문장·결핍 기준·특수격·강약 등급·편중·흐름·신살·록겁격·문구
+// ---------------------------------------------------------------------------
+
+const sample = (count, fn, opts = {}) => {
+  // 결정적 표본: 1932~2011년, 월·일·시를 고르게 돌린다
+  let k = 0;
+  for (let i = 0; i < count; i++) {
+    const year = 1932 + (i * 7) % 80;
+    const month = 1 + (i * 5) % 12;
+    const day = 1 + (i * 11) % 28;
+    const hour = (i * 13) % 24;
+    let r;
+    try {
+      r = esm.buildSajuResult(birth({ year, month, day, hour, minute: 30, gender: i % 2 ? 'female' : 'male' }), { now: new Date('2026-06-15T03:00:00Z'), ...opts });
+    } catch { continue; }
+    if (fn(r, { year, month, day, hour, gender: i % 2 ? 'female' : 'male' }) === false) break;
+    k++;
+  }
+  return k;
+};
+const GEN = { 목: '화', 화: '토', 토: '금', 금: '수', 수: '목' };
+const CTRL = { 목: '토', 토: '수', 수: '화', 화: '금', 금: '목' };
+const OH = { 甲: '목', 乙: '목', 丙: '화', 丁: '화', 戊: '토', 己: '토', 庚: '금', 辛: '금', 壬: '수', 癸: '수' };
+const roleOf = (day, o) => (o === day ? '비겁' : GEN[day] === o ? '식상' : CTRL[day] === o ? '재성' : CTRL[o] === day ? '관성' : '인성');
+
+test('연살(도화)이 있으면 연애 축에 매력 지표 문장이 나온다', () => {
+  let found = 0;
+  sample(400, (r, b) => {
+    if (!r.sinsal.some((s) => s.name === '연살')) return;
+    const love = JSON.stringify(esm.assembleReport(r, { gender: b.gender, now: new Date('2026-06-15T03:00:00Z') }).sections.love);
+    assert.match(love, /도화\(연살·年殺\)[이가] .+에 있어 인기·매력의 지표가 됩니다/, `${b.year}-${b.month}-${b.day}`);
+    found++;
+  });
+  assert.ok(found >= 10, `연살 표본 ${found}`);
+});
+
+test('"이 명식에서" 맥락 문장은 패턴마다 다르고 같은 문장을 반복하지 않는다', () => {
+  sample(60, (r, b) => {
+    const md = esm.renderReportMarkdown(esm.assembleReport(r, { gender: b.gender, now: new Date('2026-06-15T03:00:00Z') }));
+    const lines = md.split('\n').filter((l) => l.startsWith('- 이 명식에서:'));
+    assert.equal(new Set(lines).size, lines.length, `${b.year}-${b.month}-${b.day} 맥락 문장 중복`);
+    assert.doesNotMatch(md, /다른 축이라, 이 패턴은 본업과 활용점 사이의 다리 역할/);
+  });
+});
+
+test('격국·용신 축 교차 패턴은 격국용신 규칙의 정의상 결과일 때는 내지 않는다', () => {
+  sample(200, (r) => {
+    const keys = esm.runDetectors(r).map((p) => p.key);
+    assert.ok(!keys.some((k) => k.startsWith('saju/cross/gyeokguk-yongsin-')), '기본(격국) 학파에서는 동어반복');
+  });
+  let seen = 0;
+  sample(200, (r) => {
+    const keys = esm.runDetectors(r).map((p) => p.key);
+    if (keys.some((k) => k.startsWith('saju/cross/gyeokguk-yongsin-'))) seen++;
+  }, { subSchool: 'johu' });
+  assert.ok(seen > 0, '다른 학파 용신이면 격국과의 축 관계를 알린다');
+});
+
+test('오행 결핍 조합은 결오행(0%)일 때만 나온다', () => {
+  sample(400, (r) => {
+    const keys = new Set(esm.runDetectors(r).map((p) => p.key));
+    const comboMissing = [...keys].filter((k) => k.startsWith('saju/combo/ohaeng-missing--'));
+    if (comboMissing.length > 0) assert.ok(keys.has('saju/imbalance/ohaeng-missing'), comboMissing.join(','));
+  });
+});
+
+test('참고 수준(불성립 요소 다수·생조)의 특수격은 대표 격국이 아니라 후보로만 둔다', () => {
+  // 壬 일간 종재격 — 미세 통근이 있어 참고 수준
+  const jong = esm.buildSajuResult(birth({ year: 1986, month: 6, day: 7, hour: 10, minute: 0 }));
+  assert.notEqual(jong.gyeokguk.name, '종재격');
+  assert.ok(jong.gyeokguk.candidates?.some((c) => c.name === '종재격' && c.confidence === '참고'));
+  // 戊癸 간합이 寅월(목, 화를 생조) — 당령이 아니라 생조라 대표 화격이 될 수 없다
+  const hwa = esm.buildSajuResult(birth({ year: 1985, month: 3, day: 5, hour: 20, minute: 0 }));
+  assert.notEqual(hwa.gyeokguk.name, '무계합화화격');
+  // 대표 격국의 특수격은 확정·유력만
+  sample(600, (r) => {
+    if (/종|합화/.test(r.gyeokguk.name)) assert.notEqual(r.gyeokguk.confidence, '참고', r.gyeokguk.name);
+  });
+});
+
+test('점수제 강약 등급은 지지·견제의 순세력 순서를 따르고 극단 등급은 드물다', () => {
+  const ORDER = ['태약', '신약', '중화신약', '중화신강', '신강', '태강'];
+  const byLabel = Object.fromEntries(ORDER.map((l) => [l, []]));
+  let n = 0;
+  sample(1500, (r) => {
+    const a = r.strengthAssessment;
+    byLabel[a.label].push(a.score - a.hostilePressure);
+    if (a.label === '태강') assert.ok(a.deukryeong && a.deukji, '태강은 득령·득지가 함께 있어야 한다');
+    n++;
+  });
+  const mean = (xs) => xs.reduce((s, x) => s + x, 0) / xs.length;
+  const means = ORDER.filter((l) => byLabel[l].length > 0).map((l) => mean(byLabel[l]));
+  for (let i = 1; i < means.length; i++) assert.ok(means[i] > means[i - 1], `등급 순서 ${JSON.stringify(ORDER.map((l) => [l, byLabel[l].length]))}`);
+  assert.ok(byLabel['태강'].length / n <= 0.1, `태강 ${byLabel['태강'].length}/${n}`);
+  assert.ok(byLabel['태약'].length / n <= 0.1, `태약 ${byLabel['태약'].length}/${n}`);
+  assert.ok(byLabel['신강'].length >= byLabel['태강'].length, '신강이 태강보다 흔하다');
+});
+
+test('오행 편중 패턴은 한 오행이 평균의 두 배(40%) 이상일 때만 나온다', () => {
+  let n = 0;
+  let fired = 0;
+  sample(600, (r) => {
+    n++;
+    const p = esm.runDetectors(r).find((x) => x.key === 'saju/imbalance/ohaeng-skew');
+    if (!p) return;
+    fired++;
+    assert.ok(p.figures.topPercent >= 40, `top ${p.figures.topPercent}`);
+  });
+  assert.ok(fired / n <= 0.5, `편중 발화 ${fired}/${n}`);
+});
+
+test('상생 흐름의 두 자리가 떨어져 있으면 "생한다"고 단정하지 않는다', () => {
+  const pi = (s) => (s.startsWith('year') ? 0 : s.startsWith('month') ? 1 : s.startsWith('day') ? 2 : 3);
+  let far = 0;
+  sample(400, (r) => {
+    for (const p of esm.runDetectors(r).filter((x) => x.key.startsWith('saju/flow/') && x.slots?.length === 2)) {
+      const text = esm.renderPattern(p);
+      if (Math.abs(pi(p.slots[0].slot) - pi(p.slots[1].slot)) > 1) {
+        far++;
+        assert.match(text, /떨어져 있어/, text);
+        assert.doesNotMatch(text, /생하여|떠받쳐|제어하여|이어져\(/, text);
+      }
+    }
+  });
+  assert.ok(far > 0);
+});
+
+test('12신살 교차 패턴은 기준 자리(일지) 자신에서 만들지 않는다', () => {
+  sample(400, (r) => {
+    for (const p of esm.runDetectors(r).filter((x) => x.key.startsWith('saju/cross/sinsal-'))) {
+      assert.notEqual(p.slots?.[0]?.slot, 'dayJi', p.key);
+    }
+  });
+});
+
+test('록겁격(건록·양인·비견·겁재격)의 격국용신은 관성, 기신은 식상 (자평진전 祿劫·陽刃 用官煞)', () => {
+  let n = 0;
+  sample(600, (r) => {
+    if (!/^(건록|양인|비견|겁재)격$/.test(r.gyeokguk.name)) return;
+    const day = OH[r.palja.dayGan];
+    const y = r.yongsinBySchool.gyeokguk;
+    assert.equal(roleOf(day, y.ohaeng), '관성', `${r.gyeokguk.name} ${y.yongsin}`);
+    assert.equal(roleOf(day, y.gisin[0]), '식상', `${r.gyeokguk.name} ${y.gisin}`);
+    n++;
+  });
+  assert.ok(n > 20, `록겁격 표본 ${n}`);
+});
+
+test('패턴 제목·문구 DB 정리 — 한자 표기 통일, 키 그대로인 제목 없음, 기신운 조합은 주의', () => {
+  const content = JSON.parse(readFileSync(new URL('../../src/engine/interpretation/content-db.generated.json', import.meta.url)));
+  for (const [key, meta] of Object.entries(esm.PATTERN_REGISTRY)) {
+    if (/신강/.test(meta.title.split('(')[0])) assert.match(meta.title, /身强/, meta.title);
+    if (/원진/.test(meta.title)) assert.match(meta.title, /怨嗔/, meta.title);
+    if (/--(daeun|seun)-tension$/.test(key)) assert.equal(meta.polarity, 'caution', key);
+  }
+  for (const entry of Object.values(content)) {
+    assert.match(entry.title, /[가-힣]/, `제목이 키 그대로: ${entry.id}`);
+    if (/원진/.test(entry.title)) assert.match(entry.title, /怨嗔/, entry.title);
+    // 등록부 제목과 콘텐츠 제목은 한 글자도 다르지 않아야 한다(한자 약어·풀어쓰기 혼용 금지)
+    const reg = esm.PATTERN_REGISTRY[entry.id];
+    if (reg) assert.equal(reg.title, entry.title, `등록부·콘텐츠 제목 불일치: ${entry.id}`);
+  }
 });

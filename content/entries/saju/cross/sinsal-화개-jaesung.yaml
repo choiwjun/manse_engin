@@ -7,12 +7,12 @@ sampleBirth:
   year: 1950
   month: 1
   day: 9
-  hour: 1
+  hour: 7
   minute: 30
   gender: male
   isLunar: false
 assert:
-  palja: 己丁甲乙
+  palja: 己丁甲戊
   gyeokguk: 정재격
   yongsin: 금
 body:

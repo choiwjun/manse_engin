@@ -19,6 +19,7 @@ import {
 import { measureOhaeng } from '../meter';
 import type { OhaengMeter } from '../meter';
 import { judgeGanJi } from '../narrative';
+import { josa } from '@/engine/adapter/josa';
 
 /** 대운 종합 판정 — 천간·지지 이중 축(judgeGanJi). 'mixed'면 fit/tension 어느 쪽으로도 단정하지 않는다 */
 function daeunVerdict(result: SajuResult) {
@@ -201,7 +202,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.7,
       evidence: [
         ...meterEvidence,
-        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}이 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})을 극함 + 신약`,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}${josa(meter.season.kingOhaeng, '이가')} 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})${josa(result.palja.dayGan, '을를')} 극함 + 신약`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
     });
@@ -212,7 +213,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.65,
       evidence: [
         ...meterEvidence,
-        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}이 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})을 생함 + 신강`,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}${josa(meter.season.kingOhaeng, '이가')} 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})${josa(result.palja.dayGan, '을를')} 생함 + 신강`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
     });
@@ -309,8 +310,9 @@ export function detectCombos(result: SajuResult): RawPattern[] {
     });
   }
 
-  // 오행결핍×신약 — 오행 분포에 결핍이 있는데 일간이 약함
-  const missingOhaeng = meter.distribution.filter((d) => d.percent < 5).map((d) => d.ohaeng);
+  // 오행결핍×신약 — 원국에 아예 없는 오행(결오행, 0%)이 있는데 일간이 약함.
+  // 문구가 '비어 있는 축'이라고 말하므로 단일 패턴(결오행)과 같은 0% 기준을 쓴다.
+  const missingOhaeng = meter.distribution.filter((d) => d.percent === 0).map((d) => d.ohaeng);
   if (missingOhaeng.length > 0 && weak) {
     patterns.push({
       key: 'saju/combo/ohaeng-missing--daymaster-weak',
@@ -927,7 +929,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}이 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})을 생함 + 신약`,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}${josa(meter.season.kingOhaeng, '이가')} 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})${josa(result.palja.dayGan, '을를')} 생함 + 신약`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
     });
@@ -940,7 +942,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}이 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})을 극함 + 신강`,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}${josa(meter.season.kingOhaeng, '이가')} 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})${josa(result.palja.dayGan, '을를')} 극함 + 신강`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
     });
@@ -1300,7 +1302,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}을 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})이 생함(설기) + 신약`,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}${josa(meter.season.kingOhaeng, '을를')} 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})${josa(result.palja.dayGan, '이가')} 생함(설기) + 신약`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
     });
@@ -1313,7 +1315,7 @@ export function detectCombos(result: SajuResult): RawPattern[] {
       strength: 0.6,
       evidence: [
         ...meterEvidence,
-        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}을 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})이 극함(제절) + 신약`,
+        `월지 ${meter.season.monthJi} ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}${josa(meter.season.kingOhaeng, '을를')} 일간 ${result.palja.dayGan}(${dayGanOhaeng(result)})${josa(result.palja.dayGan, '이가')} 극함(제절) + 신약`,
       ],
       figures: { dayMasterScore: meter.dayMaster.score, season: meter.season.name, king: meter.season.kingOhaeng },
     });

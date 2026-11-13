@@ -5,6 +5,7 @@
 import type { DetectedPattern, PatternSlot } from './types';
 import { PATTERN_REGISTRY } from './registry';
 import { conclusionFor } from './content';
+import { josa } from '@/engine/adapter/josa';
 
 /** 강도 0~1 → 상담 등급 라벨 */
 export function strengthLabel(strength: number): string {
@@ -14,26 +15,8 @@ export function strengthLabel(strength: number): string {
   return '약';
 }
 
-/** Hangul 종성 판정 조사. 조사가 붙는 단어는 Hangul(십신명·위치 라벨)만 넘긴다 */
-export function josa(word: string, pair: '이가' | '을를' | '은는' | '으로' | '와과'): string {
-  const last = word[word.length - 1] ?? '';
-  const code = last.charCodeAt(0);
-  const isHangulSyllable = code >= 0xac00 && code <= 0xd7a3;
-  const hasBatchim = isHangulSyllable && (code - 0xac00) % 28 !== 0;
-  const isRieul = isHangulSyllable && (code - 0xac00) % 28 === 8; // ㄹ 받침 → '로'
-  switch (pair) {
-    case '이가':
-      return hasBatchim ? '이' : '가';
-    case '을를':
-      return hasBatchim ? '을' : '를';
-    case '은는':
-      return hasBatchim ? '은' : '는';
-    case '으로':
-      return hasBatchim && !isRieul ? '으로' : '로';
-    case '와과':
-      return hasBatchim ? '과' : '와';
-  }
-}
+/** 받침에 맞는 조사 — 한자(천간·지지·오행)는 독음으로, 끝 괄호 설명은 걷어내고 판정한다 */
+export { josa };
 
 /** 슬롯 한 개를 위치 문구로: '일지의 식신(酉)'. 십신이 없는 자리(일간 등)는 '일간(己)' */
 function slotPhrase(s: PatternSlot): string {
@@ -53,6 +36,7 @@ function num(p: DetectedPattern, key: string, fallback = 0): number {
 
 function str(p: DetectedPattern, key: string, fallback = ''): string {
   const v = p.figures?.[key];
+  if (typeof v === 'number' && Number.isFinite(v)) return String(v);
   return typeof v === 'string' ? v : fallback;
 }
 
@@ -79,14 +63,22 @@ const RELATION_INTRO: Record<string, (a: PatternSlot, b: PatternSlot) => string>
 };
 
 const TIMING_VERDICT: Record<string, (p: DetectedPattern) => string> = {
-  'saju/timing/daeun-fit': (p) =>
-    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}가 용신 ${str(p, 'yongsin')}${josa(str(p, 'yongsin'), '을를')} 데려와`,
+  'saju/timing/daeun-fit': (p) => {
+    const yongsin = str(p, 'yongsin');
+    const head = `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}${josa(str(p, 'ganJi'), '이가')}`;
+    // 천간·지지 중 하나가 용신 오행 자체일 때만 '데려온다'고 쓴다.
+    // 용신을 생하거나 기신을 누르는 준(準)용신 대운은 간접 지원으로 표현한다.
+    const direct = str(p, 'ganOhaeng') === yongsin || str(p, 'jiOhaeng') === yongsin;
+    return direct
+      ? `${head} 용신 ${yongsin}${josa(yongsin, '을를')} 데려와`
+      : `${head} 용신 ${yongsin} 축을 간접적으로 받쳐`;
+  },
   'saju/timing/daeun-tension': (p) =>
-    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}가 기신 ${str(p, 'gisin')} 축으로 기울어`,
+    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}${josa(str(p, 'ganJi'), '이가')} 기신 ${str(p, 'gisin')} 축으로 기울어`,
   'saju/timing/daeun-neutral': (p) =>
-    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}가 중간 오행(${str(p, 'ohaeng')})으로 흘러`,
+    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}${josa(str(p, 'ganJi'), '이가')} 중간 오행(${str(p, 'ohaeng')})으로 흘러`,
   'saju/timing/daeun-mixed': (p) =>
-    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}(천간 ${str(p, 'ganOhaeng')}·지지 ${str(p, 'jiOhaeng')})가 용신·기신 축에 걸쳐 엇갈려`,
+    `현재 대운 ${str(p, 'age')}세 무렵의 ${str(p, 'ganJi')}(천간 ${str(p, 'ganOhaeng')}·지지 ${str(p, 'jiOhaeng')})${josa(str(p, 'ganJi'), '이가')} 용신·기신 축에 걸쳐 엇갈려`,
 };
 
 const JOHU_INTRO: Record<string, (p: DetectedPattern) => string> = {
@@ -101,10 +93,21 @@ const JOHU_INTRO: Record<string, (p: DetectedPattern) => string> = {
     `${str(p, 'dayOhaeng')} 일간이 ${str(p, 'season', '계절')}의 ${str(p, 'king')} 기운을 채워 흘려`,
 };
 
+/** 슬롯의 기둥 순번 (년 0, 월 1, 일 2, 시 3) */
+function pillarOrder(slot: string): number {
+  return slot.startsWith('year') ? 0 : slot.startsWith('month') ? 1 : slot.startsWith('day') ? 2 : 3;
+}
+
 function flowIntro(p: DetectedPattern): string | null {
   const [src, tgt] = p.slots ?? [];
+  if (!src || !tgt) return null;
+  // 생극은 붙어 있는 기둥(같은 기둥·이웃 기둥) 사이에서 직접 작용한다.
+  // 떨어진 자리(예: 년↔시)는 흐름이 있다고만 말하고 '생한다'고 단정하지 않는다.
+  if (Math.abs(pillarOrder(src.slot) - pillarOrder(tgt.slot)) > 1) {
+    return `${slotPhrase(src)}${josa(josaBase(src), '와과')} ${slotPhrase(tgt)}${josa(josaBase(tgt), '이가')} 떨어져 있어 흐름이 간접적으로만 이어지며`;
+  }
   const builder = FLOW_INTRO[p.key];
-  if (!builder || !src || !tgt) return null;
+  if (!builder) return null;
   return builder(src, tgt);
 }
 
@@ -122,7 +125,7 @@ function relationIntro(p: DetectedPattern): string | null {
     const guk = str(p, 'guk');
     if (!guk) return null;
     const glyphs = [a.glyph, b.glyph, c.glyph].join('');
-    return `${a.label}(${a.glyph})·${b.label}(${b.glyph})·${c.label}(${c.glyph})로 ${name} ${glyphs} ${guk}을(를) 이루어`;
+    return `${a.label}(${a.glyph})·${b.label}(${b.glyph})·${c.label}(${c.glyph})로 ${name} ${glyphs} ${guk}${josa(guk, '을를')} 이루어`;
   }
   // 천간합 5종 — slots [a, b]
   if (p.key.startsWith('saju/relation/gan-hap-') && a && b) {
@@ -147,7 +150,7 @@ function crossIntro(p: DetectedPattern): string | null {
     const gyeokguk = str(p, 'gyeokguk');
     const yongsin = str(p, 'yongsin');
     if (!gyeokguk || !yongsin) return null;
-    return `격국 ${gyeokguk}과 용신 ${yongsin}이 같은 축 위에 놓여`;
+    return `격국 ${gyeokguk}${josa(gyeokguk, '와과')} 용신 ${yongsin}${josa(yongsin, '이가')} 같은 축 위에 놓여`;
   }
   if (p.key === 'saju/cross/gyeokguk-yongsin-split') {
     const gyeokguk = str(p, 'gyeokguk');
@@ -155,7 +158,7 @@ function crossIntro(p: DetectedPattern): string | null {
     const gkGroup = str(p, 'gyeokgukGroup');
     const ysGroup = str(p, 'yongsinGroup');
     if (!gyeokguk || !yongsin) return null;
-    return `격국 ${gyeokguk}(${gkGroup} 축)과 용신 ${yongsin}(${ysGroup} 축)이 갈라져`;
+    return `격국 ${gyeokguk}(${gkGroup} 축)${josa(gyeokguk, '와과')} 용신 ${yongsin}(${ysGroup} 축)${josa(yongsin, '이가')} 갈라져`;
   }
   return null;
 }
@@ -210,14 +213,14 @@ function timingIntro(p: DetectedPattern): string | null {
     const seun = str(p, 'seunGanJi');
     const yongsin = str(p, 'yongsin');
     if (!daeun || !seun || !yongsin) return null;
-    return `대운 ${daeun}과 세운 ${seun}가 함께 용신 ${yongsin} 축을 밀어`;
+    return `대운 ${daeun}${josa(daeun, '와과')} 세운 ${seun}${josa(seun, '이가')} 함께 용신 ${yongsin} 축을 밀어`;
   }
   if (p.key === 'saju/timing/daeun-seun-tension') {
     const daeun = str(p, 'daeunGanJi');
     const seun = str(p, 'seunGanJi');
     const gisin = str(p, 'gisin');
     if (!daeun || !seun || !gisin) return null;
-    return `대운 ${daeun}과 세운 ${seun}가 함께 기신 ${gisin} 축으로 기울어`;
+    return `대운 ${daeun}${josa(daeun, '와과')} 세운 ${seun}${josa(seun, '이가')} 함께 기신 ${gisin} 축으로 기울어`;
   }
   return null;
 }

@@ -1,5 +1,5 @@
 // 해석 계층(detector·조립기) 회귀 테스트 — `npm run build` 후 실행.
-// 골든 케이스: 1985-01-10 16:45 남(甲子 丁丑 己酉 壬申, 비견격·용신 금)
+// 골든 케이스: 1985-01-10 16:45 남(甲子 丁丑 己酉 壬申, 비견격(록겁)·용신 목 — 祿劫用官)
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -46,11 +46,11 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(keys.includes('saju/relation/gan-hap-gabgi'), '갑기합 감지 (년간 甲-일간 己)');
   assert.ok(keys.includes('saju/flow/gwanin-sangsaeng'), '정관(甲)+편인(丁) → 관인상생 감지');
   assert.ok(!keys.some((k) => k.startsWith('saju/cross/gongmang-')), '공망(寅卯) 미포함 → 교차 미감지');
-  assert.ok(keys.includes('saju/cross/sinsal-장성-siksang'), '장성(일지)+식신 교차');
+  assert.ok(!keys.includes('saju/cross/sinsal-장성-siksang'), '일지 자신의 장성(12신살 기준 자리)은 교차 패턴을 만들지 않음');
   assert.ok(keys.includes('saju/cross/sinsal-화개-bigeop'), '화개(월지)+비견 교차');
-  // 辛巳 대운 — 천간 辛(금)=용신, 지지 巳(화)=기신 → 천간·지지 이중판정에서 '혼재'로 판정된다.
-  // (한 축만 보면 fit으로 단정되는 오류 — 이 판이 바로 이중판정이 필요한 사례)
-  assert.ok(keys.includes('saju/timing/daeun-mixed'), '38세 辛巳 — 천간 금(용신)·지지 화(기신) 혼재 대운');
+  // 辛巳 대운 — 천간 辛(금)=기신, 지지 巳(화)=준용신(기신 금을 극함) → 천간·지지 이중판정에서 '혼재'로 판정된다.
+  // (한 축만 보면 한 방향으로 단정되는 오류 — 이 판이 바로 이중판정이 필요한 사례)
+  assert.ok(keys.includes('saju/timing/daeun-mixed'), '38세 辛巳 — 천간 금(기신)·지지 화(준용신) 혼재 대운');
   assert.ok(!keys.includes('saju/timing/daeun-fit'), '혼재 대운을 용신 대운으로 단정하지 않음');
 
   // 계량기 — 골든 값 (본기/중기/여기 가중 + 월지 2배)
@@ -64,18 +64,19 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(su && Math.abs(su.percent - 32.2) < 0.3, `수 점유율: ${su?.percent}`);
   assert.ok(meter.season.kingOhaeng === '토', '丑월 계교 → 토왕');
   assert.ok(keys.includes('saju/imbalance/daymaster-weak'), '신약 감지');
-  assert.ok(keys.includes('saju/imbalance/ohaeng-skew'), '오행 편중 감지 (수 32.2% vs 목 11.1%)');
+  assert.ok(!keys.includes('saju/imbalance/ohaeng-skew'), '최고 오행 수 32.2% — 편중 기준(40%) 미만이라 미감지');
 
   const interp = interpretSaju(r);
   const priorities = interp.patterns.map((p) => p.priority);
   assert.deepEqual(priorities, [...priorities].sort((a, b) => a - b), '우선순위 정렬');
   assert.ok(interp.summary.headline.includes('비견격'), '헤드라인에 격국');
-  assert.ok(interp.summary.headline.includes('금'), '헤드라인에 용신 오행');
+  assert.ok(interp.summary.headline.includes('용신 목'), '헤드라인에 용신 오행');
   assert.ok(interp.summary.structureLines.length >= 2, '구조 문장 생성');
   assert.ok(interp.baseline.gyeokguk.length > 0 && interp.baseline.yongsin.length > 0, '1층 baseline 보존');
 
   // 3차 — 동적 문장 생성기: 위치·글자·강도가 문장에 반영되는지
-  const flowLine = interp.summary.structureLines.find((s) => s.includes('생재'));
+  // 요약 라인 상한(6) 때문에 조합키가 앞서면 흐름 패턴 문장이 요약에서 밀릴 수 있어, 패턴을 직접 렌더한다
+  const flowLine = renderPattern(interp.patterns.find((p) => p.key === 'saju/flow/sangsaeng-saengjae'));
   assert.ok(flowLine, '생재 동적 문장 존재');
   // content DB 제목('식상생재')이 동적 라벨을 대체한다 — DB가 로드되면 '식상생재, 강도 최상' 형태
   assert.ok(flowLine.includes('생하여(식상생재, 강도 최상)') || flowLine.includes('생하여(생재, 강도 최상)') || flowLine.includes('생재×용신운'), `첫형+제목+강도 조립: ${flowLine}`);
@@ -102,7 +103,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 
   // 3차 — 축별 리포트
   const rep = assembleReport(r, { gender: 'male' });
-  assert.ok(rep.headline.includes('비견격') && rep.headline.includes('금'), '리포트 헤드라인');
+  assert.ok(rep.headline.includes('비견격') && rep.headline.includes('용신 목'), '리포트 헤드라인');
   for (const axis of ['love', 'wealth', 'career', 'health', 'family']) {
     const sec = rep.sections[axis];
     assert.ok(sec.lines.length >= 2, `${sec.title} 섹션 문장 부족`);
@@ -121,9 +122,9 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 
   // 3차 — 시점 서사
   assert.ok(rep.timing.daeun && rep.timing.daeun.ganJi === '辛巳', '현재 대운 서사 (38세 辛巳)');
-  assert.equal(rep.timing.daeun.verdict, 'mixed', '천간 용신·지지 기신 → 혼재 대운 판정');
-  assert.equal(rep.timing.daeun.ganVerdict, 'fit', '천간 辛(금) = 용신 축');
-  assert.equal(rep.timing.daeun.jiVerdict, 'tension', '지지 巳(화) = 기신 축');
+  assert.equal(rep.timing.daeun.verdict, 'mixed', '천간 기신·지지 준용신 → 혼재 대운 판정');
+  assert.equal(rep.timing.daeun.ganVerdict, 'tension', '천간 辛(금) = 기신 축');
+  assert.equal(rep.timing.daeun.jiVerdict, 'fit', '지지 巳(화) = 준용신 축(기신 금을 극함)');
   assert.ok(rep.timing.sewoon && rep.timing.sewoon.ganJi.length === 2, '세운 서사');
   assert.equal(rep.timing.sewoon.sipsin, '정인', `세운 십신 — 丙 vs 일간 己 = 정인: ${rep.timing.sewoon.sipsin}`);
   assert.ok(rep.timing.combined && rep.timing.combined.includes('큰 판'), '대운×세운 결합 서사');
@@ -209,11 +210,20 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(maleFamily.some((l) => l.startsWith('자녀 축(관성)')), '남명 자녀성=관성');
   assert.ok(femaleFamily.some((l) => l.startsWith('자녀 축(식상)')), '여명 자녀성=식상');
 
-  // QA — 특수격(종강격)에서 격국×용신 cross 패턴이 발화되어야 한다
+  // QA — 격국×용신 cross 패턴: 최종 용신이 격국용신 규칙의 결과 그대로면(종강격→비겁 용신) 축 관계는
+  // 정의상 결과라 내지 않고, 다른 학파 용신을 채택했을 때만 격국과의 축 관계(동심·이축)를 알린다
   const rJonggang = saju({ year: 1947, month: 12, day: 22, hour: 0, minute: 57, gender: 'male' });
   assert.equal(rJonggang.gyeokguk.name, '종강격', '종강격 판정');
   const keysJonggang = runDetectors(rJonggang).map((p) => p.key);
-  assert.ok(keysJonggang.includes('saju/cross/gyeokguk-yongsin-fit'), '종강격 격국·용신 동심(fit) 발화');
+  assert.ok(!keysJonggang.some((k) => k.startsWith('saju/cross/gyeokguk-yongsin-')), '격국학파 기본 용신 — 동어반복 cross 미발화');
+  const rJonggangJohu = buildSajuResult(
+    { isLunar: false, birthPlace: null, year: 1947, month: 12, day: 22, hour: 0, minute: 57, gender: 'male' },
+    { now: new Date(NOW), subSchool: 'johu' },
+  );
+  if (rJonggangJohu.yongsin.ohaeng !== rJonggangJohu.yongsinBySchool.gyeokguk.ohaeng) {
+    const keysJohu = runDetectors(rJonggangJohu).map((p) => p.key);
+    assert.ok(keysJohu.some((k) => k.startsWith('saju/cross/gyeokguk-yongsin-')), '조후학파 용신 채택 — 격국과의 축 관계 발화');
+  }
 
   // QA — 연살(도화)+재성 cross 패턴이 발화되어야 한다
   const rDohwa = saju({ year: 1996, month: 10, day: 6, hour: 2, minute: 5, gender: 'male' });
@@ -292,9 +302,9 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   assert.ok(keys.includes('saju/flow/gwanin-sangsaeng'), '관인상생 감지');
 }
 
-// 3차 — 원진 감지 케이스 (1984-04-15: 월지 辰-일지 卯 원진)
+// 3차 — 원진 감지 케이스 (1950-01-01 13:30: 월지 子-시지 未 원진)
 {
-  const r = saju({ year: 1984, month: 4, day: 15, hour: 10, minute: 0, gender: 'male' });
+  const r = saju({ year: 1950, month: 1, day: 1, hour: 13, minute: 30, gender: 'male' });
   assert.ok(r.wonjin?.hasWonjin, '원진 facts 존재');
   const keys = runDetectors(r).map((p) => p.key);
   assert.ok(keys.includes('saju/relation/wonjin'), '원진 패턴 감지');
@@ -320,9 +330,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
   const combos = runDetectors(r).filter((p) => p.key.startsWith('saju/combo/'));
   const comboKeys = combos.map((p) => p.key);
   assert.ok(comboKeys.includes('saju/combo/sangsaeng-saengjae--daymaster-weak'), '생재×신약 조합 감지');
-  // 현재 대운이 혼재(mixed)이므로 daeun-fit 조합은 발화하지 않고, 세운 기신 조합이 발화한다
+  // 현재 대운이 혼재(mixed)이므로 daeun-fit 조합은 발화하지 않고, 세운 조합이 발화한다
+  // (2026 丙午 세운 — 화가 기신 금을 극하는 준용신 방향)
   assert.ok(comboKeys.includes('saju/combo/gwanin-sangsaeng--daymaster-weak'), '관인상생×신약 조합 감지');
-  assert.ok(comboKeys.includes('saju/combo/sangsaeng-saengjae--seun-tension'), '생재×세운기신 조합 감지');
+  assert.ok(comboKeys.includes('saju/combo/sangsaeng-saengjae--seun-fit'), '생재×세운용신 조합 감지');
   assert.ok(!comboKeys.includes('saju/combo/daymaster-weak--daeun-fit'), '혼재 대운은 용신운 조합으로 단정하지 않음');
   for (const c of combos) {
     const rendered = renderPattern(c);
@@ -336,7 +347,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 }
 
 // 5차 — 조합키 2차 확장 (8개 신규 조합 감지)
-// 각 케이스는 scan-combos.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
+// 각 케이스는 scripts/scan-combos.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
 {
   const cases = [
     {
@@ -392,7 +403,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 }
 
 // 5차 — 원진×충 수학적 분리 확인 (같은 지지 쌍에서 동시 성립 불가)
-// 원진 6쌍(子未 丑午 寅巳 卯辰 申亥 酉戌)과 충 6쌍(子午 丑未 寅申 卯酉 辰戌 巳亥)은 교집합 없음
+// 원진 6쌍(子未 丑午 寅酉 卯申 辰亥 巳戌)과 충 6쌍(子午 丑未 寅申 卯酉 辰戌 巳亥)은 교집합 없음
 {
   const r = saju({ year: 1950, month: 1, day: 1, hour: 11, minute: 0, gender: 'male' });
   const wonjin = r.wonjin;
@@ -406,7 +417,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 }
 
 // 6차 — 조합키 3차 확장 (8개 신규 조합 감지)
-// 각 케이스는 scan-combos3.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
+// 각 케이스는 scripts/scan-combos.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
 {
   const cases = [
     {
@@ -491,7 +502,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
       label: '충×기신운',
     },
     {
-      input: { year: 1940, month: 1, day: 2, hour: 1, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 1, day: 1, hour: 13, minute: 30, gender: 'male' },
       key: 'saju/combo/wonjin--daeun-tension',
       label: '원진×기신운',
     },
@@ -501,7 +512,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
       label: '신약×세운용신',
     },
     {
-      input: { year: 1940, month: 1, day: 7, hour: 4, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 1, day: 3, hour: 7, minute: 30, gender: 'male' },
       key: 'saju/combo/daymaster-strong--seun-tension',
       label: '신강×세운기신',
     },
@@ -605,9 +616,10 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
     assert.ok(n.strengths.every((line) => !line.includes('메웁니다') && !line.includes('돕습니다')), `작명 강점의 인과 단정 금지: ${n.strengths.join(' / ')}`);
     assert.ok(!n.headline.includes('undefined') && !n.headline.includes('null'), '헤드라인 누수');
   }
-  // 용신(금) 오행 이름은 '용신 방향' 또는 '결핍 보완' 접미어를 가져야 한다
+  // 이름 대표 오행이 용신·기신 축과 맞물리면 헤드라인 접미어로 드러난다 —
+  // 골든 명식은 록겁격(용신 목·기신 금)이라 대표 오행 금인 '김민준'은 '기신 방향'
   const minjun = ns.find((n) => n.headline.startsWith('김민준'));
-  assert.ok(minjun && /용신 방향|결핍 보완/.test(minjun.headline), `용신/보완 접미: ${minjun?.headline}`);
+  assert.ok(minjun && /기신 방향/.test(minjun.headline), `기신 접미: ${minjun?.headline}`);
 }
 
 // 5차-후속3 — 시점 서사 2단계 (월운×세운 교차, 대운 전환 서사)
@@ -706,17 +718,17 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 {
   const cases = [
     {
-      input: { year: 1950, month: 1, day: 11, hour: 1, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 3, day: 21, hour: 1, minute: 30, gender: 'male' },
       key: 'saju/cross/sinsal-장성-bigeop',
       label: '장성+비겁',
     },
     {
-      input: { year: 1950, month: 1, day: 2, hour: 1, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 3, day: 17, hour: 1, minute: 30, gender: 'male' },
       key: 'saju/cross/sinsal-장성-jaesung',
       label: '장성+재성',
     },
     {
-      input: { year: 1950, month: 1, day: 9, hour: 1, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 1, day: 9, hour: 7, minute: 30, gender: 'male' },
       key: 'saju/cross/sinsal-화개-jaesung',
       label: '화개+재성',
     },
@@ -761,7 +773,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
 }
 
 // 9차 — 조합키 9차 확장 (8개 신규 조합 감지)
-// 각 케이스는 scan-combos-13.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
+// 각 케이스는 scripts/scan-combos.mjs로 확정된 sampleBirth — palja·격국·용신은 content YAML assert와 동일
 {
   const cases = [
     {
@@ -770,7 +782,7 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
       label: '삼합×세운용신',
     },
     {
-      input: { year: 1950, month: 1, day: 14, hour: 10, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 1, day: 1, hour: 7, minute: 30, gender: 'male' },
       key: 'saju/combo/samhap--seun-tension',
       label: '삼합×세운기신',
     },
@@ -796,12 +808,12 @@ function saju(input, now = new Date('2026-09-13T12:00:00+09:00')) {
       label: '합×세운기신',
     },
     {
-      input: { year: 1950, month: 1, day: 24, hour: 19, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 1, day: 1, hour: 4, minute: 30, gender: 'male' },
       key: 'saju/combo/jiji-hyeong--seun-tension',
       label: '형×세운기신',
     },
     {
-      input: { year: 1950, month: 1, day: 13, hour: 22, minute: 30, gender: 'male' },
+      input: { year: 1950, month: 1, day: 1, hour: 13, minute: 30, gender: 'male' },
       key: 'saju/combo/jiji-hae--seun-tension',
       label: '해×세운기신',
     },

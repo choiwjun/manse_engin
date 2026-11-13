@@ -1,4 +1,5 @@
 import type { TojeongResult } from '@/engine/types';
+import { josa } from '@/engine/adapter/josa';
 
 export interface TojeongLine { label: string; text: string }
 export interface TojeongInterpretationReport {
@@ -20,9 +21,9 @@ export function interpretTojeong(result: TojeongResult): TojeongInterpretationRe
   const b = c.lunarBirth;
   const lines: TojeongLine[] = [
     { label: '개인별 입력', text: `음력 ${b.year}년 ${b.isLeapMonth ? '윤' : ''}${b.month}월 ${b.day}일 출생 · 대상 ${result.targetYear}년 · 세는나이 ${c.koreanAge}세입니다. 이 결과를 같은 띠 전체의 운세로 일반화하지 않습니다.` },
-    { label: '상괘', text: `세는나이 ${c.koreanAge} + 태세수 ${c.taeseSu} = ${c.koreanAge + c.taeseSu}, 8로 나눈 나머지로 상괘 ${g.sangGwae}을 구합니다(나머지 0은 8).` },
-    { label: '중괘', text: `대상 연도 생월 ${c.monthDays}일 + 월건수 ${c.wolgeonSu} = ${c.monthDays + c.wolgeonSu}, 6으로 나눈 나머지로 중괘 ${g.jungGwae}을 구합니다(나머지 0은 6).` },
-    { label: '하괘', text: `적용 생일 ${c.effectiveDay}일 + 일진수 ${c.iljinSu} = ${c.effectiveDay + c.iljinSu}, 3으로 나눈 나머지로 하괘 ${g.haGwae}을 구합니다(나머지 0은 3).` },
+    { label: '상괘', text: `세는나이 ${c.koreanAge} + 태세수 ${c.taeseSu} = ${c.koreanAge + c.taeseSu}, 8로 나눈 나머지로 상괘 ${g.sangGwae}${josa(String(g.sangGwae), '을를')} 구합니다(나머지 0은 8).` },
+    { label: '중괘', text: `대상 연도 생월 ${c.monthDays}일 + 월건수 ${c.wolgeonSu} = ${c.monthDays + c.wolgeonSu}, 6으로 나눈 나머지로 중괘 ${g.jungGwae}${josa(String(g.jungGwae), '을를')} 구합니다(나머지 0은 6).` },
+    { label: '하괘', text: `적용 생일 ${c.effectiveDay}일 + 일진수 ${c.iljinSu} = ${c.effectiveDay + c.iljinSu}, 3으로 나눈 나머지로 하괘 ${g.haGwae}${josa(String(g.haGwae), '을를')} 구합니다(나머지 0은 3).` },
     { label: '계산 정책', text: `윤달 기준: ${c.leapMonthPolicy === 'reject' ? '윤달 출생 계산 거부' : '같은 월의 평달로 환산'}. 대상 월에 30일이 없으면 29일을 적용합니다. 윤달·말일 처리는 서비스가 채택한 정책입니다.` },
     { label: '해설 상태', text: '144괘 원문·판본 대응이 미검증 상태입니다. 연간·월별 길흉 해설은 제공하지 않으며, 괘 숫자만으로 좋고 나쁨을 판단하지 않습니다.' },
   ];

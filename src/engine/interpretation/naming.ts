@@ -5,6 +5,7 @@
 import type { NamingAnalysis, NamingAnalysisExtended, NamingResult, NamingResultExtended, SajuResult } from '@/engine/types';
 import { measureOhaeng } from './meter';
 import { getContentEntry } from './content';
+import { josa } from '@/engine/adapter/josa';
 
 /** content DB 문구 — naming/* 키의 body.short를 읽고, 없으면 fallback */
 function phrase(key: string, fallback: string): string {
@@ -219,28 +220,28 @@ export function interpretNameWithSaju(
   if (missing.includes(nameOhaeng)) {
     lines.push({
       label: '사주 보완',
-      text: `이름의 대표 오행 ${nameOhaeng}이(가) 사주에서 비어 있는 축(${missing.join('·')})과 맞물립니다. 작명에서 결핍 축을 고려한 후보로 참고하되, 실제 선택은 가족의 선호·발음·사용 환경·현실 조건을 함께 확인합니다.`,
+      text: `이름의 대표 오행 ${nameOhaeng}${josa(nameOhaeng, '이가')} 사주에서 비어 있는 축(${missing.join('·')})과 맞물립니다. 작명에서 결핍 축을 고려한 후보로 참고하되, 실제 선택은 가족의 선호·발음·사용 환경·현실 조건을 함께 확인합니다.`,
     });
-    strengths.push(`이름 오행 ${nameOhaeng}이(가) 사주의 결핍 축(${missing.join('·')})과 맞물리는 후보입니다.`);
+    strengths.push(`이름 오행 ${nameOhaeng}${josa(nameOhaeng, '이가')} 사주의 결핍 축(${missing.join('·')})과 맞물리는 후보입니다.`);
     guidance.push('이 이름은 사주의 결핍 축을 고려한 후보입니다. 결핍 축의 영역을 참고하되, 가족의 선호·발음·사용 환경·현실 조건과 실제 의미를 함께 확인합니다.');
   } else if (nameOhaeng === yongsin) {
     lines.push({
       label: '사주 보완',
-      text: `이름의 대표 오행 ${nameOhaeng}이(가) 사주의 용신 오행과 같습니다. 용신 방향을 고려한 후보로 참고하되, 이름만으로 삶의 결과를 결정한다고 보지 않고 의미·발음·사용 환경·현실 조건을 함께 확인합니다.`,
+      text: `이름의 대표 오행 ${nameOhaeng}${josa(nameOhaeng, '이가')} 사주의 용신 오행과 같습니다. 용신 방향을 고려한 후보로 참고하되, 이름만으로 삶의 결과를 결정한다고 보지 않고 의미·발음·사용 환경·현실 조건을 함께 확인합니다.`,
     });
-    strengths.push(`이름 오행 ${nameOhaeng}이(가) 사주의 용신 오행과 일치하는 후보입니다.`);
+    strengths.push(`이름 오행 ${nameOhaeng}${josa(nameOhaeng, '이가')} 사주의 용신 오행과 일치하는 후보입니다.`);
     guidance.push('이 이름은 용신 방향을 고려한 후보입니다. 사주의 활용점을 참고하되, 의미·발음·사용 환경·현실 조건과 가족의 선호를 함께 확인합니다.');
   } else if (nameOhaeng === gisin) {
     lines.push({
       label: '사주 보완',
-      text: `이름의 대표 오행 ${nameOhaeng}이(가) 사주의 기신 오행과 같습니다. 기신 방향과 겹치는 후보로 참고하되, 이것만으로 이름의 적합성을 단정하지 않고 다른 오행·의미·발음·현실 조건 후보와 비교합니다.`,
+      text: `이름의 대표 오행 ${nameOhaeng}${josa(nameOhaeng, '이가')} 사주의 기신 오행과 같습니다. 기신 방향과 겹치는 후보로 참고하되, 이것만으로 이름의 적합성을 단정하지 않고 다른 오행·의미·발음·현실 조건 후보와 비교합니다.`,
     });
-    cautions.push(`이름 오행 ${nameOhaeng}이(가) 기신 오행과 겹치므로 다른 후보와 비교할 때 확인할 항목입니다.`);
+    cautions.push(`이름 오행 ${nameOhaeng}${josa(nameOhaeng, '이가')} 기신 오행과 겹치므로 다른 후보와 비교할 때 확인할 항목입니다.`);
     guidance.push('이 이름은 기신 방향과 겹치는 후보입니다. 용신 또는 결핍 축 후보와 비교하되, 의미·발음·사용 환경·현실 조건과 가족의 선호를 함께 확인합니다.');
   } else {
     lines.push({
       label: '사주 보완',
-      text: `이름의 대표 오행 ${nameOhaeng}은(는) 사주의 용신·기신·결핍 축과 직접 맞물리지 않는 중간 오행입니다. 사주상 중립적인 후보로 참고하되, 의미·발음·사용 환경을 기준으로 함께 비교합니다.`,
+      text: `이름의 대표 오행 ${nameOhaeng}${josa(nameOhaeng, '은는')} 사주의 용신·기신·결핍 축과 직접 맞물리지 않는 중간 오행입니다. 사주상 중립적인 후보로 참고하되, 의미·발음·사용 환경·현실 조건을 기준으로 함께 비교합니다.`,
     });
   }
 

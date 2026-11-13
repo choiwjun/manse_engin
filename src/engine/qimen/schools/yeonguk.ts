@@ -4,6 +4,7 @@
 import type { QimenResult } from '@/engine/types';
 import { ManseryeokEngine } from '@/engine/core/manseryeok-engine';
 import { calculateQimen } from '@/engine/qimen';
+import { josa } from '@/engine/adapter/josa';
 
 // ---------- 양간/음간 분류 ----------
 
@@ -56,7 +57,7 @@ export function analyzeYeonguk(solarDate: string, hour: number): YeongukAnalysis
   const result = calculateQimen(solarDate, hour);
 
   // 2. 연도 천간/지지 추출
-  const yearPillar = ManseryeokEngine.getSolarContextFromDateString(solarDate, hour).ganji.year;
+  const yearPillar = ManseryeokEngine.getLegalClockContextFromDateString(solarDate, hour).ganji.year;
   const yearGan: string = yearPillar.gan;
   const yearJi: string = yearPillar.ji;
 
@@ -111,7 +112,7 @@ function buildCharacteristics(
 
   // 직부성/직사문과 연간의 관계
   chars.push(
-    `직부성 ${result.zhifu}와 연간 ${yearGan}의 관계에서 해당 연도의 귀인(貴人) 방향을 판단`,
+    `직부성 ${result.zhifu}${josa(result.zhifu, '와과')} 연간 ${yearGan}의 관계에서 해당 연도의 귀인(貴人) 방향을 판단`,
   );
 
   return chars;

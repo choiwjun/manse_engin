@@ -37,7 +37,10 @@ export function detectDayMasterWeak(result: SajuResult): RawPattern[] {
   ];
 }
 
-/** 오행 편중 — 최고/최저 점유율 격차가 크고, 결(缺)오행이 있으면 별도 표기 */
+/** 한 오행이 평균(20%)의 두 배 이상을 차지하면 편중으로 본다 — 격차 기준(15%p)은 거의 모든 명식이 해당해 정보가 없었다 */
+const SKEW_TOP_PERCENT = 40;
+
+/** 오행 편중 — 한 오행이 40% 이상 점유하면 편중, 결(缺)오행이 있으면 별도 표기 */
 export function detectOhaengSkew(result: SajuResult): RawPattern[] {
   const meter = measureOhaeng(result);
   const sorted = [...meter.distribution].sort((a, b) => b.percent - a.percent);
@@ -47,10 +50,10 @@ export function detectOhaengSkew(result: SajuResult): RawPattern[] {
   const missing = meter.distribution.filter((d) => d.percent === 0).map((d) => d.ohaeng);
 
   const patterns: RawPattern[] = [];
-  if (gap >= 15) {
+  if (top.percent >= SKEW_TOP_PERCENT) {
     patterns.push({
       key: 'saju/imbalance/ohaeng-skew',
-      strength: Math.min(1, 0.4 + gap / 50),
+      strength: Math.min(1, 0.5 + (top.percent - SKEW_TOP_PERCENT) / 40 + gap / 200),
       evidence: [`${top.ohaeng} ${top.percent}% — ${bottom.ohaeng} ${bottom.percent}% (격차 ${gap}%p)`, meter.season.name ? `월지 계절: ${meter.season.name}·왕오행 ${meter.season.kingOhaeng}` : ''].filter(Boolean),
       figures: { top: top.ohaeng, topPercent: top.percent, bottom: bottom.ohaeng, bottomPercent: bottom.percent },
     });

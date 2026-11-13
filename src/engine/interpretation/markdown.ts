@@ -2,7 +2,7 @@
 // 디자인·레이아웃은 다음 단계(화면 작업)의 몫이고, 여기서는 '문서의 뼈대'만 만든다.
 // content DB에 body.long이 있으면 섹션 깊은 곳에 심층 문단으로 붙인다.
 
-import type { SajuReport } from './report';
+import { patternContextLine, type SajuReport } from './report';
 import type { CompatibilityInterpretation } from './compatibility';
 import type { NamingInterpretation } from './naming';
 import type { TaekilInterpretation } from './taekil';
@@ -53,20 +53,9 @@ function patternBody(key: string, level: 'medium' | 'long', report?: SajuReport)
   return report ? fillTemplate(trimmed, report) : trimmed;
 }
 
-/** 이 명식의 맥락 한 줄 — 같은 패턴이어도 격국·용신·강약이 다르면 다른 해석이 되도록 명식별 문장을 붙인다 */
+/** 패턴별 맥락 한 줄 — 용신·기신 축과 맞물리는 자리가 있을 때만 (report.ts patternContextLine) */
 function contextLine(report: SajuReport, pattern: NonNullable<SajuReport['patterns']>[number]): string {
-  const ctx = report.context;
-  if (!ctx) return '';
-  const fit = ctx.gyeokgukGroup === ctx.yongsinGroup;
-  const axis = fit
-    ? `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 같은 축이라 이 패턴이 곧 명식의 주 라인이 됩니다.`
-    : `${ctx.gyeokguk}(${ctx.gyeokgukGroup})과 용신 ${ctx.yongsin}(${ctx.yongsinGroup})이 다른 축이라, 이 패턴은 본업과 활용점 사이의 다리 역할을 합니다.`;
-  const strength = ctx.dayMasterVerdict.includes('신약')
-    ? '신약한 일간이 이 구조를 감당할 때 기반(인성·비겁) 보강 가능성을 먼저 살펴볼 수 있습니다.'
-    : ctx.dayMasterVerdict.includes('신강')
-      ? '신강한 일간이라 이 구조를 밀고 나가는 힘이 있습니다.'
-      : '중화된 일간이라 이 구조를 양방향으로 활용할 수 있습니다.';
-  return `${axis} ${strength}`;
+  return patternContextLine(report, pattern);
 }
 
 function addPatternDetail(

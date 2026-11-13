@@ -5,6 +5,7 @@
 import type { SajuResult } from '@/engine/types';
 import { isChildOf, isSanggeukOf } from './sipsin-groups';
 import { determineSipsin } from '@/engine/saju/sipsin';
+import { josa } from '@/engine/adapter/josa';
 import { getOhaengForGan, getOhaengForJi, getKoreanForGan, getKoreanForJi } from '@/engine/adapter/hanja-mapper';
 
 /** 용신·기신 축 대비 판정. 대운 detector(timing.ts)와 같은 판정 기준.
@@ -291,7 +292,7 @@ export function buildTimingNarrative(result: SajuResult, now?: Date): TimingNarr
         verdict: wolunJ.verdict,
         ganVerdict: wolunJ.ganAxis?.verdict,
         jiVerdict: wolunJ.jiAxis?.verdict,
-        line: `이번 달 월운 ${reading}(${result.wolun.gan}${result.wolun.ji})은${sipsinPart} ${wolunJ.label}(${wolunJ.axisText}) — ${wolunJ.line}.${crossText}`,
+        line: `이번 달 월운 ${reading}(${result.wolun.gan}${result.wolun.ji})${josa(reading, '은는')}${sipsinPart} ${wolunJ.label}(${wolunJ.axisText}) — ${wolunJ.line}.${crossText}`,
         cross,
       };
     }

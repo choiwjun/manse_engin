@@ -48,17 +48,16 @@ export function isZiweiProviderAvailable(): boolean {
  * @param solarDate 양력 날짜 (YYYY-M-D)
  * @param hour 시간 (0~23)
  * @param gender 성별
- * @param _fixLeap 윤달 보정 여부 (자체 엔진에서는 미사용, 호환성 유지)
+ * @param fixLeap 윤달 보정 여부 (기본 true): 윤달 15일까지는 본래 달, 16일부터는 다음 달로 본다
  * @returns ZiweiResult
  */
 export function calculateZiwei(
   solarDate: string,
   hour: number,
   gender: 'male' | 'female',
-  // @ts-ignore unused param kept for API compatibility
-  _fixLeap = true,
+  fixLeap = true,
 ): ZiweiResult {
-  return calculateZiweiSelf(solarDate, hour, gender);
+  return calculateZiweiSelf(solarDate, hour, gender, fixLeap);
 }
 
 /**
@@ -68,7 +67,7 @@ export function calculateZiwei(
  * @param hour 시간 (0~23)
  * @param gender 성별
  * @param isLeapMonth 윤달 여부 (기본: false)
- * @param _fixLeap 윤달 보정 여부 (자체 엔진에서는 미사용, 호환성 유지)
+ * @param fixLeap 윤달 보정 여부 (기본 true): 윤달 15일까지는 본래 달, 16일부터는 다음 달로 본다
  * @returns ZiweiResult
  */
 export function calculateZiweiByLunar(
@@ -76,10 +75,9 @@ export function calculateZiweiByLunar(
   hour: number,
   gender: 'male' | 'female',
   isLeapMonth = false,
-  // @ts-ignore unused param kept for API compatibility
-  _fixLeap = true,
+  fixLeap = true,
 ): ZiweiResult {
-  return calculateZiweiByLunarSelf(lunarDate, hour, gender, isLeapMonth);
+  return calculateZiweiByLunarSelf(lunarDate, hour, gender, isLeapMonth, fixLeap);
 }
 
 // ---------- 12궁 이름 상수 ----------

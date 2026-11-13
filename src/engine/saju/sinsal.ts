@@ -378,14 +378,11 @@ export function analyzeJijiRelations(palja: Palja): JijiRelation[] {
   // Samhap (三合)
   for (const group of SAMHAP_GROUPS) {
     if (group.jijis.every(j => jiSet.has(j))) {
-      const positions = group.jijis.map(j => {
-        const entry = entries.find(e => e.ji === j);
-        return entry ? entry.position : '';
-      });
+      const members = triadMembers(entries, group.jijis);
       result.push({
         type: '삼합',
-        positions,
-        jijis: [...group.jijis],
+        positions: members.map(m => m.position),
+        jijis: members.map(m => m.ji),
         description: group.desc,
       });
     }
@@ -394,14 +391,11 @@ export function analyzeJijiRelations(palja: Palja): JijiRelation[] {
   // Banghap (方合)
   for (const group of BANGHAP_GROUPS) {
     if (group.jijis.every(j => jiSet.has(j))) {
-      const positions = group.jijis.map(j => {
-        const entry = entries.find(e => e.ji === j);
-        return entry ? entry.position : '';
-      });
+      const members = triadMembers(entries, group.jijis);
       result.push({
         type: '방합',
-        positions,
-        jijis: [...group.jijis],
+        positions: members.map(m => m.position),
+        jijis: members.map(m => m.ji),
         description: group.desc,
       });
     }
@@ -410,20 +404,28 @@ export function analyzeJijiRelations(palja: Palja): JijiRelation[] {
   // Hyeong triples (寅巳申, 丑戌未)
   for (const triple of HYEONG_TRIPLES) {
     if (triple.jijis.every(j => jiSet.has(j))) {
-      const positions = triple.jijis.map(j => {
-        const entry = entries.find(e => e.ji === j);
-        return entry ? entry.position : '';
-      });
+      const members = triadMembers(entries, triple.jijis);
       result.push({
         type: '형',
-        positions,
-        jijis: [...triple.jijis],
+        positions: members.map(m => m.position),
+        jijis: members.map(m => m.ji),
         description: triple.desc,
       });
     }
   }
 
   return annotateConflicts(result);
+}
+
+/**
+ * 삼합·방합·삼형 구성 지지를 차지한 자리 전부 — 국(局) 순서를 지키고, 같은 지지가 두 자리면
+ * 두 자리 모두 넣는다(예: 戌未丑未의 丑戌未 삼형은 년·월·일·시 네 자리).
+ */
+function triadMembers(
+  entries: { position: string; ji: string }[],
+  jijis: readonly string[],
+): { position: string; ji: string }[] {
+  return jijis.flatMap(j => entries.filter(e => e.ji === j));
 }
 
 // ---------------------------------------------------------------------------

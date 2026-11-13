@@ -50,6 +50,8 @@ export interface SajuReport {
     yongsinGroup: string;
     /** 기신 오행 (예: '화') */
     gisin: string;
+    /** 기신이 속한 십신 묶음 라벨 (예: '인성'). 판별 불가면 없음 */
+    gisinGroup?: string;
     /** 일간 강약 라벨 (예: '신약(身弱)') */
     dayMasterVerdict: string;
     /** 용신 판정 근거 — '왜 이 오행이 용신인가'를 상담사가 확인할 수 있게 하는 설명 */
@@ -197,9 +199,9 @@ function buildLoveSection(
     }
   }
 
-  // 도화·홍염 — 매력 지표
-  const dohwa = result.sinsal.find((s) => s.name === '도화' || s.name === '홍염');
-  if (dohwa) lines.push(`${dohwa.name}(${dohwa.hanja})가 ${posLabel(dohwa.position)}에 있어 인기·매력의 지표가 됩니다.`);
+  // 도화 — 매력 지표. 엔진의 12신살은 도화살을 '연살(年殺)'로 낸다
+  const dohwa = result.sinsal.find((s) => s.name === '연살' || s.name === '도화');
+  if (dohwa) lines.push(`도화(연살·年殺)${josa('도화', '이가')} ${posLabel(dohwa.position)}에 있어 인기·매력의 지표가 됩니다.`);
 
   // 축 관련 감지 패턴 — 일지가 걸린 관계 패턴 + 도화 교차 + 배우자성 공망
   const relevant = patterns.filter((p) => {
@@ -217,9 +219,9 @@ function buildLoveSection(
   const dayMasterStrong = meter.dayMaster.verdict === 'strong';
   const partnerLabel = opts.gender === 'male' ? '재성' : opts.gender === 'female' ? '관성' : '배우자성';
   if (dayMasterWeak) {
-    lines.push(`신약으로 분류된 지표에서는 ${partnerLabel}과 관련한 책임·시간·정서의 부담을 생활 점검 항목으로 살펴봅니다 — 실제 관계의 판단은 당사자의 대화와 상황을 우선합니다.`);
+    lines.push(`신약으로 분류된 지표에서는 ${partnerLabel}${josa(partnerLabel, '와과')} 관련한 책임·시간·정서의 부담을 생활 점검 항목으로 살펴봅니다 — 실제 관계의 판단은 당사자의 대화와 상황을 우선합니다.`);
   } else if (dayMasterStrong) {
-    lines.push(`신강으로 분류된 지표에서는 ${partnerLabel}과 관련한 책임을 주도적으로 맡는 경향이라는 전통적 해석을 참고합니다 — 관계에서는 상대의 의사와 경계를 함께 존중합니다.`);
+    lines.push(`신강으로 분류된 지표에서는 ${partnerLabel}${josa(partnerLabel, '와과')} 관련한 책임을 주도적으로 맡는 경향이라는 전통적 해석을 참고합니다 — 관계에서는 상대의 의사와 경계를 함께 존중합니다.`);
   }
   const daeunFit = patterns.find((p) => p.key === 'saju/timing/daeun-fit');
   const daeunTension = patterns.find((p) => p.key === 'saju/timing/daeun-tension');
@@ -428,6 +430,7 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
   const gyeokgukGroup = groupFromOhaeng(result, getOhaengForJi(result.palja.monthJi) ?? '') ?? 'bigeop';
   const yongsinGroup = groupFromOhaeng(result, result.yongsin.ohaeng) ?? 'siksang';
   const gisin = result.yongsin.gisin.split('(')[0].trim();
+  const gisinGroupKey = groupFromOhaeng(result, gisin);
   const rawYongsinReasoning = result.yongsin.reasoning ?? '';
   const schoolMatch = rawYongsinReasoning.match(/^(\S+?용신)\s*:/);
   const yongsinSchool = schoolMatch ? schoolMatch[1] : '용신';
@@ -490,6 +493,7 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     yongsin: result.yongsin.ohaeng,
     yongsinGroup: groupLabel(yongsinGroup),
     gisin,
+    ...(gisinGroupKey ? { gisinGroup: groupLabel(gisinGroupKey) } : {}),
     dayMasterVerdict: meter.dayMaster.verdictLabel,
     yongsinReasoning,
     yongsinSchool,
@@ -523,4 +527,26 @@ export function assembleReport(result: SajuResult, opts: AssembleReportOptions =
     patterns,
     context,
   };
+}
+
+/**
+ * 패턴별 맥락 한 줄 — 패턴을 이루는 자리 중 용신·기신 축에 해당하는 자리가 있으면 그 사실을 밝힌다.
+ * 용신·기신 어느 쪽과도 맞물리지 않거나 자리 정보가 없는 패턴이면 빈 문자열(문장을 붙이지 않음).
+ * 패턴 이름을 문장에 넣어, 한 리포트 안에서 같은 문장이 반복되지 않게 한다.
+ */
+export function patternContextLine(report: SajuReport, pattern: DetectedPattern): string {
+  const ctx = report.context;
+  if (!ctx) return '';
+  const short = pattern.title.replace(/\(.*\)\s*$/, '');
+  const slots = (pattern.slots ?? []).filter((s) => s.group && s.sipsin);
+  const describe = (s: (typeof slots)[number]) => `${s.label}의 ${s.sipsin}(${s.glyph})`;
+  const yong = slots.find((s) => groupLabel(s.group!) === ctx.yongsinGroup);
+  if (yong) {
+    return `${short}에 걸린 ${describe(yong)}${josa(yong.sipsin!, '이가')} 용신 축(${ctx.yongsin}·${ctx.yongsinGroup})이라, 이 명식의 활용점과 직접 맞닿아 있습니다.`;
+  }
+  const gi = ctx.gisinGroup ? slots.find((s) => groupLabel(s.group!) === ctx.gisinGroup) : undefined;
+  if (gi) {
+    return `${short}에 걸린 ${describe(gi)}${josa(gi.sipsin!, '이가')} 기신 축(${ctx.gisin}·${ctx.gisinGroup})이라, 과하면 부담 쪽으로 기울기 쉬워 조절이 필요합니다.`;
+  }
+  return '';
 }

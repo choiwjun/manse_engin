@@ -4,6 +4,7 @@
 import type { QimenResult, Palja } from '@/engine/types';
 import { calculateQimen } from '@/engine/qimen';
 import { analyzeHongyeon, type HongyeonResult } from '@/engine/hongyeon';
+import { josa } from '@/engine/adapter/josa';
 // PALACE_NAMES는 PALACE_DIRECTION에서 키로 사용
 
 // ---------- 궁 -> 방위 매핑 ----------
@@ -177,7 +178,7 @@ function buildCombinedInterpretation(
 
   parts.push(
     `홍연기문파 통합 분석: 기문둔갑 ${qimen.dunType} ${qimen.bureauNumber}국 포국과` +
-    ` 홍연기문 홍국수 ${hongyeon.hongguksu}(본명성: ${hongyeon.bonmyeongseong})을 비교 분석하였다.`,
+    ` 홍연기문 홍국수 ${hongyeon.hongguksu}(본명성: ${hongyeon.bonmyeongseong})${josa(String(hongyeon.hongguksu), '을를')} 비교 분석하였다.`,
   );
 
   parts.push(

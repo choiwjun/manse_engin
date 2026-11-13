@@ -223,7 +223,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/relation/wonjin': {
     category: 'relation',
     priority: 46,
-    title: '원진(元辰)',
+    title: '원진(怨嗔)',
     defaultText:
       '원진이 있습니다. 끌리다가 다시 귀찮게 느껴지는 밀당 구조로, 큰 다툼보다 은근한 마찰을 오래 끌기 쉽습니다.',
     polarity: 'caution',
@@ -526,13 +526,13 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
     title: '신강×기신운(身强忌神運)',
     defaultText:
       '두터운 일간 축이 기신 대운과 마주 선 구간으로 읽습니다. 기반과 시기의 관계를 참고하되, 확장·유지 여부는 자원·위험·대안을 함께 확인합니다.',
-    polarity: 'neutral',
+    polarity: 'caution',
     conclusion: '기반과 시기의 관계를 살펴보는 구간으로, 확장·유지 여부는 자원·위험·대안을 함께 확인합니다.',
   },
   'saju/combo/gwansung-gwada--daymaster-weak': {
     category: 'combo',
     priority: 9,
-    title: '관과다×신약(官多身弱)',
+    title: '관과다×신약(官過多身弱)',
     defaultText:
       '과다한 관성(책임·압박)이 얇은 일간 축을 누르는 구조로 읽힙니다. 역할과 부담을 나눌 통로를 살펴봅니다.',
     polarity: 'caution',
@@ -541,7 +541,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/insung-gwada--daymaster-strong': {
     category: 'combo',
     priority: 9,
-    title: '인과다×신강(印多身强)',
+    title: '인과다×신강(印過多身强)',
     defaultText:
       '넓은 인성의 배움이 두터운 기반 위에 쌓이는 구조로 읽습니다. 축적과 실행·산출의 균형을 전통적 해석으로 살펴보되, 실제 결과는 준비도와 환경을 함께 확인합니다.',
     polarity: 'neutral',
@@ -550,7 +550,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/jaesung-nochul--daymaster-weak': {
     category: 'combo',
     priority: 9,
-    title: '재노출×신약(財露身弱)',
+    title: '재노출×신약(財露出身弱)',
     defaultText:
       '노출된 재성이 얇은 기반 앞에 놓인 구조입니다. 기회는 많이 보이지만 감당하는 힘이 먼저 고갈되기 쉬워, 선택과 포기가 실력입니다.',
     polarity: 'caution',
@@ -559,7 +559,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/gongmang-jaesung--daymaster-weak': {
     category: 'combo',
     priority: 9,
-    title: '재공망×신약(財空身弱)',
+    title: '재공망×신약(財空亡身弱)',
     defaultText:
       '공망으로 빈 재성 자리에 얇은 기반이 겹친 구조로 읽습니다. 재물에 대한 태도와 현금흐름·자산의 관계를 참고하되, 재정 계획은 조건과 회수 가능성을 함께 확인합니다.',
     polarity: 'neutral',
@@ -568,7 +568,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/daymaster-weak--johu-pressure': {
     category: 'combo',
     priority: 9,
-    title: '신약×계절압박(身弱季壓)',
+    title: '신약×계절압박(身弱季節壓迫)',
     defaultText:
       '얇은 일간 축과 계절의 압박이 함께 읽히는 구조입니다. 환경(직장·도시·관계)과 부담의 관계를 살펴보되, 이동·변경 여부는 자원·안전·당사자의 의사를 함께 확인합니다.',
     polarity: 'caution',
@@ -577,7 +577,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/daymaster-strong--johu-support': {
     category: 'combo',
     priority: 9,
-    title: '신강×계절후원(身强季扶)',
+    title: '신강×계절후원(身强季節後援)',
     defaultText:
       '두터운 일간 축에 계절의 후원까지 겹친 구조입니다. 기반·환경이 모두 도와주니 남는 자원을 어디로 내보낼지가 설계의 전부입니다.',
     polarity: 'plus',
@@ -586,7 +586,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/wonjin--jiji-chung': {
     category: 'combo',
     priority: 9,
-    title: '원진×충(元辰沖)',
+    title: '원진×충(怨嗔沖)',
     defaultText:
       '원진과 충이 한 명식 안에 공존하는 구조입니다. 관계·영역의 마찰이 크고 작게 번갈아 나타나는 양상으로 참고할 수 있습니다. 큰 결단 여부는 안전·현실 조건·당사자의 의사를 확인하고, 주기적 점검과 거리 조절 가능성을 살펴봅니다.',
     polarity: 'caution',
@@ -595,7 +595,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/sangsaeng-saengjae--siksang-gwada': {
     category: 'combo',
     priority: 9,
-    title: '생재×식과다(生財食多)',
+    title: '생재×식과다(生財食傷過多)',
     defaultText:
       '생재의 흐름이 있으나 식상이 과다해 관심사가 흩어질 수 있는 구조로 참고합니다. 어느 기술에 집중할지는 목표·자원·시장 조건을 함께 확인하며, 수입 결과는 현실 지표로 따로 살펴봅니다.',
     polarity: 'caution',
@@ -678,7 +678,7 @@ export const PATTERN_REGISTRY: Record<string, PatternMeta> = {
   'saju/combo/gwanin-sangsaeng--daymaster-strong': {
     category: 'combo',
     priority: 9,
-    title: '관인상생×신강(官印相生生强)',
+    title: '관인상생×신강(官印相生身强)',
     defaultText:
       '권위와 학습의 흐름이 살아 있고 일간도 강한 구조로 읽습니다. 제도·조직·자격과의 연결 가능성을 참고하되, 실제 선택은 요건·준비도·환경을 함께 확인합니다.',
     polarity: 'plus',

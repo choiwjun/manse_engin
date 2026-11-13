@@ -10,6 +10,7 @@ import {
   getGuseongStarDescription,
   getGuseongRelationDescription,
 } from './interpretation-data';
+import { josa } from '@/engine/adapter/josa';
 
 // ---------- 구성(九星) 상수 ----------
 
@@ -326,7 +327,7 @@ function generateInterpretation(
   const relationDesc = getGuseongRelationDescription(relation);
 
   const lines: string[] = [
-    `본명성 ${bonmyeongseong.name}(${bonmyeongseong.hanja}, ${bonmyeongseong.ohaeng})과 ` +
+    `본명성 ${bonmyeongseong.name}(${bonmyeongseong.hanja}, ${bonmyeongseong.ohaeng})${josa(bonmyeongseong.name, '와과')} ` +
     `연반 중궁 ${yearCenterStar.name}(${yearCenterStar.hanja}, ${yearCenterStar.ohaeng})의 ` +
     `관계는 ${relation}입니다.`,
   ];

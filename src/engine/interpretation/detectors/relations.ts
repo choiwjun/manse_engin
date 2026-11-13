@@ -28,6 +28,10 @@ const JIJI_POSITION_LABEL: Record<string, string> = {
   hourJi: '시지',
 };
 
+const JIJI_SLOT_BY_LABEL: Record<string, string> = Object.fromEntries(
+  Object.entries(JIJI_POSITION_LABEL).map(([slot, label]) => [label, slot]),
+);
+
 /** 천간 슬롯 → PatternSlot. result.sipsin의 천간 키는 일간이 빈 문자열이라 여기서 보강한다 */
 function ganSlot(result: SajuResult, pos: string, glyph: string): PatternSlot {
   const sipsin = pos === 'dayGan' ? null : result.sipsin[pos] || null;
@@ -119,14 +123,11 @@ export function detectWonjin(result: SajuResult): RawPattern[] {
       key: 'saju/relation/wonjin',
       strength: 0.6,
       evidence: wonjin.pairs.map((p) => `${p.position1}(${p.branch1})–${p.position2}(${p.branch2}): ${p.interpretation}`),
-      slots: wonjin.pairs
-        .slice(0, 2)
-        .flatMap((p) => [
-          jiSlot(p.branch1, undefined),
-          jiSlot(p.branch2, undefined),
-        ])
-        .filter((s, i, arr) => arr.findIndex((x) => x.glyph === s.glyph) === i)
-        .slice(0, 2),
+      // 문장은 첫 쌍의 두 자리로 쓴다 — facts의 위치는 한글 라벨('년지')이라 슬롯 ID로 되돌린다
+      slots: [
+        jiSlot(wonjin.pairs[0].branch1, JIJI_SLOT_BY_LABEL[wonjin.pairs[0].position1]),
+        jiSlot(wonjin.pairs[0].branch2, JIJI_SLOT_BY_LABEL[wonjin.pairs[0].position2]),
+      ],
     },
   ];
 }

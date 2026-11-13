@@ -14,6 +14,7 @@ import {
   GATE_FORTUNE_BY_HANJA,
   STAR_FORTUNE,
 } from './constants';
+import { josa } from '@/engine/adapter/josa';
 
 // ---------- 오행 판별 ----------
 
@@ -172,7 +173,7 @@ function interpretGateStarCombo(
 
   return {
     fortune,
-    description: `${gateName}(${gateLabel})과 ${starName}(${starLabel})의 조합. ${fortuneLabel} 기운.`,
+    description: `${gateName}(${gateLabel})${josa(gateName, '와과')} ${starName}(${starLabel})의 조합. ${fortuneLabel} 기운.`,
   };
 }
 
@@ -202,7 +203,7 @@ export function interpretPalace(palace: QimenPalace): QimenPalaceInterpretation 
   const relation = getStemRelation(palace.heavenStem, palace.earthStem);
   const ohA = getStemOhaeng(palace.heavenStem);
   const ohB = getStemOhaeng(palace.earthStem);
-  const stemRelation = `천반 ${palace.heavenStem}(${ohA})과 지반 ${palace.earthStem}(${ohB})은 ${relation} 관계. ${RELATION_DESCRIPTIONS[relation]}`;
+  const stemRelation = `천반 ${palace.heavenStem}(${ohA})${josa(palace.heavenStem, '와과')} 지반 ${palace.earthStem}(${ohB})${josa(palace.earthStem, '은는')} ${relation} 관계. ${RELATION_DESCRIPTIONS[relation]}`;
 
   // 2. 문성 조합 해석
   const combo = interpretGateStarCombo(palace.gate, palace.gateHanja, palace.star);
@@ -327,7 +328,7 @@ export function findYongsin(result: QimenResult): QimenYongsin[] {
     type: '시간',
     palaceIndex: best.palace.index,
     palaceName: best.palace.name,
-    reason: `${best.palace.name}이 가장 길한 궁(${best.palace.gate}+${best.palace.star}). `
+    reason: `${best.palace.name}${josa(best.palace.name, '이가')} 가장 길한 궁(${best.palace.gate}+${best.palace.star}). `
       + `${best.palace.deity} 신의 도움을 받을 수 있는 시간대가 유리.`,
   });
 
@@ -337,7 +338,7 @@ export function findYongsin(result: QimenResult): QimenYongsin[] {
     palaceIndex: best.palace.index,
     palaceName: best.palace.name,
     reason: `${direction}방이 가장 길한 방위. `
-      + `${best.palace.gate}과 ${best.palace.star}이 조합된 ${best.palace.name} 방향으로 행동하면 유리.`,
+      + `${best.palace.gate}${josa(best.palace.gate, '와과')} ${best.palace.star}${josa(best.palace.star, '이가')} 조합된 ${best.palace.name} 방향으로 행동하면 유리.`,
   });
 
   // 행동 용신: 가장 길한 궁의 문에 따른 행동 추천
@@ -346,7 +347,7 @@ export function findYongsin(result: QimenResult): QimenYongsin[] {
     type: '행동',
     palaceIndex: best.palace.index,
     palaceName: best.palace.name,
-    reason: `${best.palace.gate}이 위치한 ${best.palace.name}: ${action}.`,
+    reason: `${best.palace.gate}${josa(best.palace.gate, '이가')} 위치한 ${best.palace.name}: ${action}.`,
   });
 
   // 차선 궁도 방향 용신으로 추가 (있으면)
@@ -358,7 +359,7 @@ export function findYongsin(result: QimenResult): QimenYongsin[] {
       palaceIndex: second.palace.index,
       palaceName: second.palace.name,
       reason: `${secondDir}방도 길한 방위. `
-        + `${second.palace.gate}과 ${second.palace.star}의 조합이 양호.`,
+        + `${second.palace.gate}${josa(second.palace.gate, '와과')} ${second.palace.star}의 조합이 양호.`,
     });
   }
 
