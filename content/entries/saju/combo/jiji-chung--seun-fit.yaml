@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-chung--seun-fit
+title: 충×세운용신(沖歲運用神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 6
+  hour: 13
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁辛乙
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 충의 마찰과 세운의 관계를 살펴볼 수 있는 해로, 관계·영역의 문제는 현실 조건과 당사자의 의사를 함께 확인합니다.
+  medium: 지지 충이 있는 명식에 올해 세운이 용신 방향입니다. 마찰이 연운의 도움으로 정리·전환의 계기가 될 수 있다는 전통적 해석을 참고하되, 오래 끌던 관계·영역·자리의 문제를 운세만으로 매듭짓지 않습니다. 결단은 안전·계약·주거·직업 조건과 당사자의 의사를 우선해 판단합니다.
+tags: [조합, 충, 세운, 용신]

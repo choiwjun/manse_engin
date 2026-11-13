@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/samhap--daeun-fit
+title: 삼합×용신운(三合用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 7
+  minute: 30
+  gender: female
+  isLunar: false
+assert:
+  palja: 己丙丙壬
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 삼합의 결속과 대운의 관계를 참고하는 구간으로, 팀·조직·연합의 결정은 역할·조건·당사자의 의사를 함께 확인합니다.
+  medium: 삼합이 있는 명식에 현재 대운이 용신 방향으로 들어온 구간입니다. 결속과 시기의 관계를 전통적 해석으로 참고하되, 팀·조직·연합·컨소시엄의 결과는 역할·조건·문서·당사자의 의사를 함께 확인합니다.
+tags: [조합, 삼합, 대운, 용신]

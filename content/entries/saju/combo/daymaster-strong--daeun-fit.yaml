@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/daymaster-strong--daeun-fit
+title: 신강×용신운(身强用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 목
+body:
+  short: 기반과 판의 도움이 겹친 구간으로 읽히지만, 확장 여부는 자원·위험·대안을 함께 점검해 정합니다.
+  medium: 두터운 기반 위에 용신 대운이 더해진 구조로 참고할 수 있습니다. 강약 지표를 체력이나 결과의 보증으로 해석하지 않으며, 확장·도전은 실제 자원·품질·현금흐름과 우선순위를 확인해 범위를 정합니다.
+tags: [조합, 신강, 대운]

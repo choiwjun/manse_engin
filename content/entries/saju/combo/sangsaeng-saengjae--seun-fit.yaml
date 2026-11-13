@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-saengjae--seun-fit
+title: 생재×세운용신(生財歲運用神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 16
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁辛庚
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 재물을 만드는 흐름과 세운의 관계를 살펴볼 수 있는 구간입니다. 수입·투자·계약은 현실 조건·위험·회수 가능성을 함께 확인합니다.
+  medium: 식상생재 구조가 있고 올해 세운이 용신 방향인 명식입니다. 재물을 만드는 흐름이 연운의 도움을 받는다는 전통적 해석을 참고하되, 수입원 확대·투자·계약은 운세가 대신 결정하지 않습니다. 자원·위험·회수 가능성과 준비도를 확인해 판단합니다.
+tags: [조합, 식상생재, 세운, 용신]

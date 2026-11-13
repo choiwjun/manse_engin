@@ -1,0 +1,48 @@
+{
+  "name": "myeong-manseryeok-engine",
+  "version": "0.5.0",
+  "description": "MYEONG 만세력 엔진 + 사주풀이 엔진 — 한국 법정시·서머타임·진태양시·자시 학파를 처리하는 만세력 계산과, 명식 구조를 감지해 풀이 리포트로 조립하는 순수 TypeScript 엔진",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "generate:data": "node generate-data.mjs",
+    "content:validate": "node build.mjs && node validate-content.mjs",
+    "pretest": "npm run build",
+    "test": "node smoke.test.mjs && node --test regression.test.mjs && node --test interpretation.test.mjs && node validate-content.mjs",
+    "prepack": "node build.mjs"
+  },
+  "devDependencies": {
+    "astronomy-engine": "2.1.19",
+    "esbuild": "^0.25.0",
+    "korean-lunar-calendar": "0.4.0",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [
+    "saju",
+    "manseryeok",
+    "four-pillars",
+    "korean-astrology",
+    "사주",
+    "만세력"
+  ],
+  "license": "UNLICENSED",
+  "private": true
+}

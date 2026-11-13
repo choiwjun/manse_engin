@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/bigeop-gwada--daeun-tension
+title: 비겁과다×기신운(比劫過多忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 3
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙戊癸
+  gyeokguk: 정재격
+  yongsin: 목
+body:
+  short: 비겁이 과다하고 대운이 기신 방향으로 읽히는 구간입니다. 동업·공동투자·보증은 상대의 신뢰도와 계약·상환 조건을 함께 확인합니다.
+  medium: 비겁이 과다한 명식에 현재 대운이 기신 방향으로 들어온 구간입니다. 경쟁·동업 관련 부담이 커질 수 있다는 전통적 해석을 참고하되 결과를 단정하지 않습니다. 동업·공동투자·보증은 운세가 아니라 자원·계약·상환·철회 조건과 전문가 조언을 확인해 판단합니다.
+tags: [조합, 비겁, 대운, 기신]

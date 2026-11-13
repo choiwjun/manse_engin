@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gongmang-jaesung--daeun-tension
+title: 재공망×기신운(財空亡忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 7
+  hour: 10
+  minute: 30
+  gender: female
+  isLunar: false
+assert:
+  palja: 己丁壬乙
+  gyeokguk: 정관격
+  yongsin: 금
+body:
+  short: 재성 자리가 공망인데 대운이 기신 방향입니다. 재물의 실체와 시기의 관계를 참고하되, 재정 계획은 현금흐름·조건·회수 가능성을 함께 확인합니다.
+  medium: 재성 자리에 공망이 걸린 명식에 현재 대운이 기신 방향으로 들어온 구간입니다. 재물의 실체와 시기의 관계를 전통적 해석으로 참고하되, 부동산·지분·권리 관련 결정은 조건·문서·현금흐름·회수 가능성을 함께 확인합니다.
+tags: [조합, 공망, 재성, 대운, 기신]

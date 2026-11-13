@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/ohaeng-missing--daeun-fit
+title: 오행결핍×용신운(五行缺乏用神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 오행 분포에 결핍이 있는데 대운이 용신 방향입니다. 비어 있는 축을 용신운이 메워주는 구간으로 읽을 수 있어, 평소 약했던 영역의 조건과 가능성을 점검해 볼 시기로 참고합니다.
+  medium: 오행 분포에 결핍이 있는 명식에 현재 대운이 용신 방향으로 들어온 구간입니다. 비어 있는 축을 대운이 메워주는 시기로 참고할 수 있으나, 운이 결과를 대신하지는 않습니다. 평소 약했던 영역(관계·재물·지위·배움 중 결핍 오행에 해당하는 쪽)의 현실 조건을 확인하며 계획을 조정합니다.
+tags: [조합, 오행결핍, 대운, 용신]

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-chung--daymaster-weak
+title: 충×신약(沖身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙庚
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 충의 마찰과 일간 강약의 관계를 살펴볼 수 있는 구조입니다. 거리 조절 여부는 안전·현실 조건·당사자의 의사를 함께 확인합니다.
+  medium: 지지 충과 일간 강약의 관계를 살펴볼 수 있는 명식입니다. 관계·영역의 변화 양상은 참고 신호로만 보고, 거리 조절 여부와 대응은 안전·현실 조건·당사자의 의사를 함께 확인합니다.
+tags: [조합, 충, 신약]

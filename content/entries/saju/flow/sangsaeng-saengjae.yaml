@@ -1,0 +1,22 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/flow/sangsaeng-saengjae
+title: 식상생재(食傷生財)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 목
+body:
+  short: 기술·표현을 재물과 연결해 살펴볼 수 있는 명식으로, 전문성 축적과 수입 구조의 관계를 점검합니다.
+  medium: 식상이 재성을 생하는 식상생재 구조로, 몸에 밴 기술·표현이 재물로 이어지는 흐름으로 해석합니다. 일의 방향은 기술에서 수입으로 이어지는 가능성을 보되, 시장·역할·계약 조건을 함께 확인합니다.
+  long: 식상이 재성으로 이어지는 구조는 전문직·기술직·콘텐츠 등 자기 손으로 만드는 가치와 자산의 관계를 살피는 전통적 해석입니다. 조직 안팎의 선택은 개인의 역량·시장성·조건을 검토해 정하고, 운세가 수입이나 축적 속도를 정해 주지는 않습니다.
+tags: [재물, 식상, 흐름]

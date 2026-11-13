@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/siksang-gwada--daeun-tension
+title: 식과다×기신운(食過多忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 1
+  minute: 30
+  gender: female
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 식상이 과다한데 대운이 기신 방향입니다. 표현·생산과 시기의 관계를 참고하며, 산출물의 양·검증·공개 범위는 목표·품질·리스크를 함께 확인합니다.
+  medium: 식상이 과다한 명식에 현재 대운이 기신 방향으로 들어온 구간입니다. 표현·생산·발설과 시기의 관계를 전통적 해석으로 참고하되, 말·글·산출물의 공개 범위는 목표·품질·조직 맥락을 함께 확인합니다.
+tags: [조합, 식상, 대운, 기신]

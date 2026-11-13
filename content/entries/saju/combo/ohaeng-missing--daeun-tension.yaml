@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/ohaeng-missing--daeun-tension
+title: 오행결핍×기신운(五行缺乏忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 1
+  minute: 30
+  gender: female
+  isLunar: false
+assert:
+  palja: 己丙丙己
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 오행 분포에 결핍이 있는데 대운이 기신 방향으로 겹친 구간입니다. 비어 있는 축 위에 어긋난 시기가 놓인 모습이라, 결핍 오행에 해당하는 영역(관계·재물·지위·배움)의 공백이 더 크게 느껴질 수 있으니 그 축을 의식적으로 보완하는 것이 좋습니다.
+  medium: 오행 분포에 결핍이 있는 명식에 현재 대운이 기신 방향으로 들어온 구간입니다. 비어 있는 축과 시기의 관계를 전통적 해석으로 참고하되, 관계·재물·지위·배움·생활 리듬의 공백 여부는 실제 상황과 자원을 함께 확인합니다. 보완 방법은 사람·학습·문서화 등 현실적으로 가능한 선택지를 비교해 당사자가 정합니다.
+tags: [조합, 오행결핍, 대운, 기신]

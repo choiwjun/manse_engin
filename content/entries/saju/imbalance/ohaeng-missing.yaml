@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/imbalance/ohaeng-missing
+title: 결오행(缺五行)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 목
+body:
+  short: 해당 오행이 원국에 없다는 뜻이지 그 영역의 가능성을 제한한다는 의미는 아니며, 환경·습관으로 보완할 주제로 참고합니다.
+  medium: 명식에 아예 없는 오행이 있습니다. 이는 해당 영역의 가능성을 제한한다는 의미가 아니라, 환경(사람·장소·도구)으로 보완할 주제로 참고할 수 있습니다.
+tags: [오행, 보완]

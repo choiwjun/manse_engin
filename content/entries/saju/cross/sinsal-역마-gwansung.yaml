@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/cross/sinsal-역마-gwansung
+title: 역마+관성(驛馬官星)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 2
+  hour: 22
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丁辛
+  gyeokguk: 편관격
+  yongsin: 목
+body:
+  short: 역마에 관성이 겹친 구조로 참고합니다. 이동과 책임·규범의 관계를 살피며, 근무지·출장·역할 조건을 함께 확인합니다.
+  medium: 역마에 관성이 겹친 구조로 참고합니다. 이동과 책임·규범의 관계를 살피며, 근무지·출장·역할 조건을 함께 확인합니다. 실제 선택은 계약·일정·자원 조건을 함께 확인합니다.
+tags: [신살, 교차]

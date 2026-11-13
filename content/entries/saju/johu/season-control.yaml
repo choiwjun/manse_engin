@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/johu/season-control
+title: 계절 제어(季節制御)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 목
+body:
+  short: 환경을 통제·운용하는 쪽에 힘이 실리는 구조로 참고하며, 역할 적합성은 실제 역량·선호·환경을 함께 확인합니다.
+  medium: 계절의 큰 기운을 일간이 극하는 구조로 읽습니다. 관리·운영·조율 역할의 가능성을 참고하되, 실제 적합성은 역량·선호·환경을 함께 확인합니다.
+tags: [조후, 계절]

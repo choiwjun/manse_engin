@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-saengjae--daymaster-strong
+title: 생재×신강(生財身强)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 목
+body:
+  short: 만드는 힘과 벌리는 힘이 함께 드러나는 구조로, 산출과 수입의 연결 조건을 점검합니다.
+  medium: 기반과 기술이 수입으로 이어지는 흐름을 함께 살펴볼 수 있습니다. 산출 규모의 확대는 실제 자원·품질·현금흐름·위험을 확인해 판단하며, 강약 지표를 체력이나 결과의 보증으로 해석하지 않습니다.
+tags: [조합, 생재, 신강]

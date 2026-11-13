@@ -1,0 +1,10 @@
+{
+  "name": "manse-engin",
+  "private": true,
+  "description": "MYEONG 만세력 엔진 + 사주풀이 엔진",
+  "scripts": {
+    "build": "npm --prefix packages/myeong-engine run build",
+    "test": "npm --prefix packages/myeong-engine test",
+    "pack": "npm --prefix packages/myeong-engine pack"
+  }
+}

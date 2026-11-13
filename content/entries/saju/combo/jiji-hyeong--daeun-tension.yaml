@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-hyeong--daeun-tension
+title: 형×기신운(刑忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 3
+  hour: 13
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙戊己
+  gyeokguk: 정재격
+  yongsin: 목
+body:
+  short: 지지 형과 대운의 방향이 겹치는 구간으로 읽히므로, 계약·약속·절차는 문서와 실제 조건을 함께 확인합니다.
+  medium: 지지 형이 있는 명식에 현재 대운이 기신 방향으로 들어온 구간입니다. 규칙·약속·절차의 마찰이 시기와 겹친다는 전통적 해석을 참고하되 결과를 단정하지 않습니다. 계약서 조항·구두 약속·행정 절차는 관련 기준과 전문가 조언을 확인해 판단합니다.
+tags: [조합, 형, 대운, 기신]

@@ -1,0 +1,21 @@
+id: saju/combo/season-drain--daymaster-weak
+title: 설기×신약(泄氣身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 14
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁丙己
+  gyeokguk: 상관격
+  yongsin: 금
+body:
+  short: 기운이 밖으로 흘러나가는데 축이 얇은 구조로, 회수·보존·기반 보강의 균형을 확인합니다.
+  medium: 일간이 계절의 왕오행을 생하는 설기(洩氣) 구조인데 일간 축이 약합니다. 기운이 자꾸 밖으로 새어나가는 형태라 지출·소모·남을 위한 수고가 부담으로 읽힐 수 있습니다. 쓰는 만큼 들어오는 회수 구조와 기반 보강의 균형을 함께 살펴봅니다.
+  long: 설기는 일간이 계절의 왕오행을 생해 기운이 밖으로 흘러나가는 상태를 말합니다. 이 명식은 설기 구조에 일간 축이 약하게 잡혀, 나가는 기운을 감당하기 어려운 형태로 읽힙니다. 전통적으로는 식상이 과다하거나 재성에 기운이 새는 구조에서 비슷한 판단을 합니다. 상담에서는 나가는 기운의 방향(어디에 쓰이는지)과 들어오는 기운(회수·보존·기반)의 균형을 함께 봅니다.
+tags: [조후, 강약, 설기, 신약]

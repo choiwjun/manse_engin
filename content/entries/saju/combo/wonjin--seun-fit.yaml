@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/wonjin--seun-fit
+title: 원진×세운용신(怨嗔歲運用神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 15
+  hour: 10
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁庚辛
+  gyeokguk: 정인격
+  yongsin: 화
+body:
+  short: 원진의 속마찰과 세운의 관계를 살펴볼 수 있는 해로, 관계의 오해와 감정은 대화·경계·당사자의 의사를 함께 확인합니다.
+  medium: 원진이 있는 명식에 올해 세운이 용신 방향입니다. 속마찰이 연운의 도움으로 풀릴 수 있다는 전통적 해석을 참고하되, 화해·연락·관계 정리를 운세가 지시하지는 않습니다. 안전과 상대의 의사를 확인한 뒤 필요한 대화나 거리 조절을 현실 조건에 맞춰 판단합니다.
+tags: [조합, 원진, 세운, 용신]

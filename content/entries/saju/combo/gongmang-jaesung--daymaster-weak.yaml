@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gongmang-jaesung--daymaster-weak
+title: 재공망×신약(財空亡身弱)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 7
+  hour: 10
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁壬乙
+  gyeokguk: 정관격
+  yongsin: 금
+body:
+  short: 재물 자리가 비어 있는데 감당할 힘마저 약한 구조라, 재물의 크기보다 흐름의 안정성을 먼저 확보하는 것이 우선입니다.
+  medium: 재성 자리에 공망이 걸려 있고 일간이 신약한 명식입니다. 재물이 눈에 잡히지 않거나 잡혀도 새어 나가기 쉬운 구조입니다. 큰 수익을 노리기보다 고정 수입·자동 이체처럼 흐름을 시스템으로 고정하는 것이 이 구조의 보완책입니다.
+tags: [조합, 재성, 공망, 신약]

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/imbalance/siksang-gwada
+title: 식상 과다(食傷過多)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 목
+body:
+  short: 표현·활동 폭이 넓지만 산으로 흩어지기 쉬워, 시기별로 한 방향을 정해 몰아주는 절제가 성과를 좌우합니다.
+  medium: 표현·활동·관심사가 많아 시작은 빠른 편으로 읽힙니다. 여러 일을 병행할 때 산출이 분산되는지 살피고, 시기별 우선순위와 자원 배분을 현실 조건에 맞춰 점검합니다.
+tags: [식상, 집중]

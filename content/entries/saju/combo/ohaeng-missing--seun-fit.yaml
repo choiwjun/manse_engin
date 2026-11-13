@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/ohaeng-missing--seun-fit
+title: 오행결핍×세운용신(五行缺乏歲運用神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 6
+  hour: 7
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁辛壬
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 오행 분포에 결핍이 있는데 세운이 용신 방향입니다. 결핍과 연운의 관계를 참고하되, 약했던 영역의 선택은 자원·위험·준비도를 함께 확인합니다.
+  medium: 오행 분포에 결핍이 있는 명식에 올해 세운이 용신 방향입니다. 비어 있는 축과 연운의 관계를 전통적 해석으로 참고하되, 관계·재물·지위·배움의 선택은 현실 조건·자원·위험을 함께 확인합니다.
+tags: [조합, 오행결핍, 세운, 용신]

@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/samhap--seun-tension
+title: 삼합×세운기신(三合歲運忌神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 7
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙壬
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 묶인 결속력이 어긋난 연운과 만나, 소속·연합 내부의 마찰이나 방향 충돌이 표면화되기 쉬운 해입니다.
+  medium: 삼합 국을 이루는 명식에 세운이 기신 방향으로 들어옵니다. 결속력과 연운의 관계를 전통적 해석으로 참고하되, 소속·연합·팀의 마찰 가능성을 살피고 역할·기대는 현실 조건과 당사자의 의사를 함께 확인합니다.
+tags: [조합, 삼합, 세운, 기신]

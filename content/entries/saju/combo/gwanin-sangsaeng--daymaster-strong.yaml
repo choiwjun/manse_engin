@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gwanin-sangsaeng--daymaster-strong
+title: 관인상생×신강(官印相生身强)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 4
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙己丙
+  gyeokguk: 편재격
+  yongsin: 목
+body:
+  short: 권위와 학습의 흐름이 살아 있고 일간도 강한 구조로, 제도·조직·자격과의 연결 조건을 살펴볼 수 있습니다.
+  medium: 관성과 인성이 모두 있어 권위와 학습이 서로를 돕는 흐름이 있고, 일간도 신강한 명식입니다. 제도·조직·자격의 선택은 이 구조의 참고 신호로만 활용하고, 실제 요건·준비도·자원과 본인의 방향을 함께 확인합니다.
+tags: [조합, 관성, 인성, 신강]

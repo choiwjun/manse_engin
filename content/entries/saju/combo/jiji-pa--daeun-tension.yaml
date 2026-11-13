@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-pa--daeun-tension
+title: 파×기신운(破忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 1
+  hour: 7
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙丙壬
+  gyeokguk: 정관격
+  yongsin: 목
+body:
+  short: 지지 파와 대운의 방향이 겹치는 구간으로 읽힙니다. 관계·자리·약속의 변경 가능성을 현실 조건과 문서로 점검하고, 이탈·보완 조건을 미리 확인합니다.
+  medium: 지지 파가 있는 명식에 현재 대운이 기신 방향으로 들어온 구간입니다. 깨짐·파열의 마찰이 시기와 겹친다는 전통적 해석을 참고하되, 관계·자리·약속·물건의 결과를 단정하지 않습니다. 중요한 결합은 조건·이탈 조항·보완책을 확인해 판단합니다.
+tags: [조합, 파, 대운, 기신]

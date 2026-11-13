@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/jiji-chung--daeun-tension
+title: 충×기신운(沖忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 2
+  hour: 19
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙甲甲
+  gyeokguk: 정인격
+  yongsin: 금
+body:
+  short: 충의 마찰과 대운의 기신 방향이 함께 읽히는 구간으로 참고합니다. 관계·영역의 변화와 거리 조절 여부는 안전·현실 조건·당사자의 의사를 함께 확인합니다.
+  medium: 지지 충과 현재 대운의 기신 방향이 함께 읽히는 명식입니다. 관계·영역의 변화 가능성은 전통적 참고 신호로만 보고, 대응과 거리 조절 여부는 안전·현실 조건·당사자의 의사를 함께 확인합니다.
+tags: [조합, 충, 대운, 기신]

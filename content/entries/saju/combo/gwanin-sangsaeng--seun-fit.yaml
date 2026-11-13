@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/gwanin-sangsaeng--seun-fit
+title: 관인상생×세운용신(官印相生歲運用神)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 6
+  hour: 7
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁辛壬
+  gyeokguk: 편인격
+  yongsin: 화
+body:
+  short: 권위와 학습이 서로 돕는 흐름에 세운이 용신 방향입니다. 올해는 승진·자격·진학 같은 계단식 도전을 준비한 조건과 함께 점검해 볼 시기로, 서류·시험·심사 일정도 현실 조건을 확인해 판단합니다.
+  medium: 관인상생 구조가 있는데 올해 세운이 용신 방향인 명식입니다. 권위와 학습이 서로 돕는 흐름에 연운의 지지가 겹치는 해로 참고할 수 있으나, 승진·자격·진학·심사의 결과를 운만으로 판단할 수는 없습니다. 서류로 평가받는 자리는 요건·준비도·일정을 확인해 제출·응시 여부를 결정합니다.
+tags: [조합, 관인상생, 세운, 용신]

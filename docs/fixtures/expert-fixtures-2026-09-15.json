@@ -1,0 +1,1621 @@
+{
+  "generated": "2026-09-15",
+  "note": "엔진 출력 + 전문가 수기 대조란. expertFill을 채워 검수 기록으로 사용. engine 블록은 buildSajuResult(input, { now: new Date(asOf) })로 재현 가능 — asOf는 각 fixture의 기준시각.",
+  "fixtures": [
+    {
+      "id": "G1",
+      "label": "골든 기준 명식",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1985,
+        "month": 1,
+        "day": 10,
+        "hour": 16,
+        "minute": 45,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "甲",
+          "monthGan": "丁",
+          "dayGan": "己",
+          "hourGan": "壬",
+          "yearJi": "子",
+          "monthJi": "丑",
+          "dayJi": "酉",
+          "hourJi": "申"
+        },
+        "gyeokguk": "비견격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 丑 본기 己 = 비견"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "목",
+        "gisin": "금(식상)",
+        "sipsin": {
+          "yearGan": "정관",
+          "monthGan": "편인",
+          "dayGan": "",
+          "hourGan": "정재",
+          "yearJi": "편재",
+          "monthJi": "비견",
+          "dayJi": "식신",
+          "hourJi": "상관"
+        },
+        "sinsal": [
+          {
+            "name": "육해",
+            "position": "yearJi"
+          },
+          {
+            "name": "화개",
+            "position": "monthJi"
+          },
+          {
+            "name": "장성",
+            "position": "dayJi"
+          },
+          {
+            "name": "망신",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "辛巳",
+          "verdict": "mixed",
+          "ganVerdict": "tension",
+          "jiVerdict": "fit"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
+        "patterns": [
+          "saju/combo/daymaster-weak--seun-fit",
+          "saju/combo/sangsaeng-saengjae--seun-fit",
+          "saju/combo/gwanin-sangsaeng--seun-fit",
+          "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/jaesaeng-gwan--daymaster-weak",
+          "saju/combo/gwanin-sangsaeng--daymaster-weak",
+          "saju/combo/jaesung-insung--daymaster-weak",
+          "saju/combo/season-command--daymaster-weak",
+          "saju/combo/jiji-hap--seun-fit",
+          "saju/cross/sinsal-화개-bigeop",
+          "saju/johu/season-command",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/gwanin-sangsaeng",
+          "saju/flow/jaesaeng-gwan",
+          "saju/flow/insung-saeng-bigeop",
+          "saju/flow/bigeop-saeng-siksang",
+          "saju/imbalance/daymaster-weak",
+          "saju/relation/gan-hap-gabgi",
+          "saju/relation/gan-hap-jeongim",
+          "saju/relation/jiji-hap",
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(관성)",
+          "조후": "화(丙火)",
+          "강약": "화(인성)",
+          "물상": "화"
+        },
+        "strengthAssessment": {
+          "label": "중화신강",
+          "score": 7,
+          "wangState": "旺",
+          "deukryeong": true,
+          "deukji": false,
+          "deukse": false
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "G2",
+      "label": "남명 자녀축 샘플",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1930,
+        "month": 8,
+        "day": 6,
+        "hour": 10,
+        "minute": 0,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "庚",
+          "monthGan": "癸",
+          "dayGan": "戊",
+          "hourGan": "丁",
+          "yearJi": "午",
+          "monthJi": "未",
+          "dayJi": "子",
+          "hourJi": "巳"
+        },
+        "gyeokguk": "겁재격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 未 본기 己 = 겁재"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "목",
+        "gisin": "금(식상)",
+        "sipsin": {
+          "yearGan": "식신",
+          "monthGan": "정재",
+          "dayGan": "",
+          "hourGan": "정인",
+          "yearJi": "정인",
+          "monthJi": "겁재",
+          "dayJi": "정재",
+          "hourJi": "편인"
+        },
+        "sinsal": [
+          {
+            "name": "재살",
+            "position": "yearJi"
+          },
+          {
+            "name": "천살",
+            "position": "monthJi"
+          },
+          {
+            "name": "장성",
+            "position": "dayJi"
+          },
+          {
+            "name": "겁살",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": null,
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
+        "patterns": [
+          "saju/combo/wonjin--jiji-chung",
+          "saju/combo/sangsaeng-saengjae--daymaster-strong",
+          "saju/combo/sangsaeng-saengjae--seun-fit",
+          "saju/combo/season-command--daymaster-strong",
+          "saju/combo/insung-gwada--daymaster-strong",
+          "saju/combo/jiji-chung--daymaster-strong",
+          "saju/combo/jiji-chung--seun-fit",
+          "saju/combo/wonjin--seun-fit",
+          "saju/combo/jiji-hap--seun-fit",
+          "saju/cross/gongmang-insung",
+          "saju/cross/gongmang-bigeop",
+          "saju/johu/season-command",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/insung-saeng-bigeop",
+          "saju/flow/bigeop-saeng-siksang",
+          "saju/imbalance/insung-gwada",
+          "saju/imbalance/daymaster-strong",
+          "saju/relation/banghap",
+          "saju/relation/gan-hap-mugye",
+          "saju/relation/jiji-hap",
+          "saju/relation/jiji-chung",
+          "saju/relation/jiji-hae",
+          "saju/relation/wonjin"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(관성)",
+          "조후": "수(壬水)",
+          "강약": "금(식상)",
+          "물상": "화"
+        },
+        "strengthAssessment": {
+          "label": "신강",
+          "score": 8.7,
+          "wangState": "旺",
+          "deukryeong": true,
+          "deukji": true,
+          "deukse": true
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "G3",
+      "label": "여명 자녀축 샘플",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1978,
+        "month": 11,
+        "day": 5,
+        "hour": 14,
+        "minute": 0,
+        "gender": "female"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "戊",
+          "monthGan": "壬",
+          "dayGan": "辛",
+          "hourGan": "乙",
+          "yearJi": "午",
+          "monthJi": "戌",
+          "dayJi": "未",
+          "hourJi": "未"
+        },
+        "gyeokguk": "정인격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 戌 본기 戊 = 정인"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "화",
+        "gisin": "목(재성)",
+        "sipsin": {
+          "yearGan": "정인",
+          "monthGan": "상관",
+          "dayGan": "",
+          "hourGan": "편재",
+          "yearJi": "편관",
+          "monthJi": "정인",
+          "dayJi": "편인",
+          "hourJi": "편인"
+        },
+        "sinsal": [
+          {
+            "name": "육해",
+            "position": "yearJi"
+          },
+          {
+            "name": "천살",
+            "position": "monthJi"
+          },
+          {
+            "name": "화개",
+            "position": "dayJi"
+          },
+          {
+            "name": "화개",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "戊午",
+          "verdict": "fit",
+          "ganVerdict": "neutral",
+          "jiVerdict": "fit"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
+        "patterns": [
+          "saju/combo/sangsaeng-saengjae--daeun-fit",
+          "saju/combo/gwanin-sangsaeng--daeun-fit",
+          "saju/combo/sangsaeng-saengjae--daymaster-strong",
+          "saju/combo/daymaster-strong--daeun-fit",
+          "saju/combo/daymaster-strong--johu-support",
+          "saju/combo/sangsaeng-saengjae--seun-fit",
+          "saju/combo/gwanin-sangsaeng--seun-fit",
+          "saju/combo/gwanin-sangsaeng--insung-gwada",
+          "saju/combo/insung-gwada--daymaster-strong",
+          "saju/combo/gwanin-sangsaeng--daymaster-strong",
+          "saju/combo/jiji-hap--daeun-fit",
+          "saju/combo/siksang-gwansung--daymaster-strong",
+          "saju/combo/jiji-hap--seun-fit",
+          "saju/cross/gongmang-insung",
+          "saju/cross/sinsal-화개-insung",
+          "saju/johu/season-support",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/gwanin-sangsaeng",
+          "saju/imbalance/insung-gwada",
+          "saju/imbalance/daymaster-strong",
+          "saju/imbalance/ohaeng-skew",
+          "saju/relation/jiji-hap",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-fit",
+          "saju/timing/daeun-fit"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "화(관성)",
+          "조후": "수(壬水)",
+          "강약": "수(식상)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "신강",
+          "score": 7.7,
+          "wangState": "相",
+          "deukryeong": true,
+          "deukji": true,
+          "deukse": true
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "C1",
+      "label": "관인상생×신약",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 1,
+        "hour": 4,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丙",
+          "dayGan": "丙",
+          "hourGan": "庚",
+          "yearJi": "丑",
+          "monthJi": "子",
+          "dayJi": "申",
+          "hourJi": "寅"
+        },
+        "gyeokguk": "정관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 정관"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "목",
+        "gisin": "토(식상)",
+        "sipsin": {
+          "yearGan": "상관",
+          "monthGan": "비견",
+          "dayGan": "",
+          "hourGan": "편재",
+          "yearJi": "상관",
+          "monthJi": "정관",
+          "dayJi": "편재",
+          "hourJi": "편인"
+        },
+        "sinsal": [
+          {
+            "name": "반안",
+            "position": "yearJi"
+          },
+          {
+            "name": "장성",
+            "position": "monthJi"
+          },
+          {
+            "name": "지살",
+            "position": "dayJi"
+          },
+          {
+            "name": "역마",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/daymaster-weak--daeun-tension",
+          "saju/combo/daymaster-weak--johu-pressure",
+          "saju/combo/jiji-chung--daeun-tension",
+          "saju/combo/jiji-chung--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--daeun-tension",
+          "saju/combo/gwanin-sangsaeng--daeun-tension",
+          "saju/combo/jiji-chung--seun-tension",
+          "saju/combo/jiji-hyeong--daeun-tension",
+          "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/gwanin-sangsaeng--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/gwanin-sangsaeng--seun-tension",
+          "saju/combo/jiji-hap--daeun-tension",
+          "saju/combo/jaesung-insung--daymaster-weak",
+          "saju/combo/jiji-hyeong--seun-tension",
+          "saju/combo/jiji-hap--seun-tension",
+          "saju/cross/sinsal-장성-gwansung",
+          "saju/johu/season-pressure",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/gwanin-sangsaeng",
+          "saju/flow/bigeop-saeng-siksang",
+          "saju/imbalance/daymaster-weak",
+          "saju/relation/jiji-hap",
+          "saju/relation/jiji-chung",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-tension",
+          "saju/timing/daeun-tension"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(인성)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "신약",
+          "score": 1,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "C2",
+      "label": "식상제살×신약",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 5,
+        "hour": 19,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丙",
+          "dayGan": "庚",
+          "hourGan": "丙",
+          "yearJi": "丑",
+          "monthJi": "子",
+          "dayJi": "子",
+          "hourJi": "戌"
+        },
+        "gyeokguk": "상관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 상관"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "목",
+        "gisin": "토(인성)",
+        "sipsin": {
+          "yearGan": "정인",
+          "monthGan": "편관",
+          "dayGan": "",
+          "hourGan": "편관",
+          "yearJi": "정인",
+          "monthJi": "상관",
+          "dayJi": "상관",
+          "hourJi": "편인"
+        },
+        "sinsal": [
+          {
+            "name": "반안",
+            "position": "yearJi"
+          },
+          {
+            "name": "장성",
+            "position": "monthJi"
+          },
+          {
+            "name": "장성",
+            "position": "dayJi"
+          },
+          {
+            "name": "월살",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/daymaster-weak--daeun-tension",
+          "saju/combo/ohaeng-missing--daymaster-weak",
+          "saju/combo/gwanin-sangsaeng--daeun-tension",
+          "saju/combo/jiji-hyeong--daeun-tension",
+          "saju/combo/gwanin-sangsaeng--insung-gwada",
+          "saju/combo/sangsaeng-jesal--daymaster-weak",
+          "saju/combo/gwanin-sangsaeng--daymaster-weak",
+          "saju/combo/gwanin-sangsaeng--seun-tension",
+          "saju/combo/insung-gwada--daeun-tension",
+          "saju/combo/jiji-hap--daeun-tension",
+          "saju/combo/ohaeng-missing--daeun-tension",
+          "saju/combo/jiji-hyeong--seun-tension",
+          "saju/combo/season-drain--daymaster-weak",
+          "saju/combo/jiji-hap--seun-tension",
+          "saju/cross/sinsal-장성-siksang",
+          "saju/johu/season-drain",
+          "saju/flow/gwanin-sangsaeng",
+          "saju/flow/sangsaeng-jesal",
+          "saju/imbalance/insung-gwada",
+          "saju/imbalance/daymaster-weak",
+          "saju/imbalance/ohaeng-missing",
+          "saju/relation/jiji-hap",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-tension",
+          "saju/timing/daeun-tension"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(재성)",
+          "조후": "화(丙火)",
+          "강약": "화(관성)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "중화신약",
+          "score": 4.2,
+          "wangState": "休",
+          "deukryeong": false,
+          "deukji": true,
+          "deukse": false
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "C3",
+      "label": "재생관×신강",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 6,
+        "hour": 13,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丁",
+          "dayGan": "辛",
+          "hourGan": "乙",
+          "yearJi": "丑",
+          "monthJi": "丑",
+          "dayJi": "丑",
+          "hourJi": "未"
+        },
+        "gyeokguk": "편인격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 丑 본기 己 = 편인"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "화",
+        "gisin": "목(재성)",
+        "sipsin": {
+          "yearGan": "편인",
+          "monthGan": "편관",
+          "dayGan": "",
+          "hourGan": "편재",
+          "yearJi": "편인",
+          "monthJi": "편인",
+          "dayJi": "편인",
+          "hourJi": "편인"
+        },
+        "sinsal": [
+          {
+            "name": "화개",
+            "position": "yearJi"
+          },
+          {
+            "name": "화개",
+            "position": "monthJi"
+          },
+          {
+            "name": "화개",
+            "position": "dayJi"
+          },
+          {
+            "name": "월살",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "fit",
+          "ganVerdict": "neutral",
+          "jiVerdict": "fit"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
+        "patterns": [
+          "saju/combo/gwanin-sangsaeng--daeun-fit",
+          "saju/combo/daymaster-strong--daeun-fit",
+          "saju/combo/daymaster-strong--johu-support",
+          "saju/combo/gwanin-sangsaeng--seun-fit",
+          "saju/combo/jaesaeng-gwan--daeun-fit",
+          "saju/combo/gwanin-sangsaeng--insung-gwada",
+          "saju/combo/insung-gwada--daymaster-strong",
+          "saju/combo/jaesaeng-gwan--daymaster-strong",
+          "saju/combo/jiji-chung--daymaster-strong",
+          "saju/combo/gwanin-sangsaeng--daymaster-strong",
+          "saju/combo/jiji-chung--seun-fit",
+          "saju/cross/sinsal-화개-insung",
+          "saju/johu/season-support",
+          "saju/flow/gwanin-sangsaeng",
+          "saju/flow/jaesaeng-gwan",
+          "saju/imbalance/insung-gwada",
+          "saju/imbalance/daymaster-strong",
+          "saju/imbalance/ohaeng-skew",
+          "saju/relation/jiji-chung",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-fit",
+          "saju/timing/daeun-fit"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "화(관성)",
+          "조후": "화(丙火)",
+          "강약": "수(식상)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "신강",
+          "score": 8.2,
+          "wangState": "相",
+          "deukryeong": true,
+          "deukji": true,
+          "deukse": true
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "C4",
+      "label": "지지충×신강",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 3,
+        "hour": 7,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丙",
+          "dayGan": "戊",
+          "hourGan": "丙",
+          "yearJi": "丑",
+          "monthJi": "子",
+          "dayJi": "戌",
+          "hourJi": "辰"
+        },
+        "gyeokguk": "정재격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 정재"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "목",
+        "gisin": "토(비겁)",
+        "sipsin": {
+          "yearGan": "겁재",
+          "monthGan": "편인",
+          "dayGan": "",
+          "hourGan": "편인",
+          "yearJi": "겁재",
+          "monthJi": "정재",
+          "dayJi": "비견",
+          "hourJi": "비견"
+        },
+        "sinsal": [
+          {
+            "name": "천살",
+            "position": "yearJi"
+          },
+          {
+            "name": "재살",
+            "position": "monthJi"
+          },
+          {
+            "name": "화개",
+            "position": "dayJi"
+          },
+          {
+            "name": "월살",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/jiji-chung--daeun-tension",
+          "saju/combo/jiji-chung--seun-tension",
+          "saju/combo/bigeop-gwada--daeun-tension",
+          "saju/combo/jiji-hyeong--daeun-tension",
+          "saju/combo/daymaster-strong--daeun-tension",
+          "saju/combo/jiji-chung--daymaster-strong",
+          "saju/combo/daymaster-strong--seun-tension",
+          "saju/combo/jiji-hap--daeun-tension",
+          "saju/combo/jiji-pa--daeun-tension",
+          "saju/combo/jiji-hyeong--seun-tension",
+          "saju/combo/jiji-hap--seun-tension",
+          "saju/cross/gongmang-bigeop",
+          "saju/johu/season-control",
+          "saju/flow/insung-saeng-bigeop",
+          "saju/imbalance/bigeop-gwada",
+          "saju/imbalance/daymaster-strong",
+          "saju/imbalance/ohaeng-skew",
+          "saju/relation/jiji-hap",
+          "saju/relation/jiji-chung",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-seun-tension",
+          "saju/timing/daeun-tension"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(관성)",
+          "조후": "화(丙火)",
+          "강약": "금(식상)",
+          "물상": "금"
+        },
+        "strengthAssessment": {
+          "label": "신강",
+          "score": 5.4,
+          "wangState": "囚",
+          "deukryeong": false,
+          "deukji": true,
+          "deukse": true
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "X1",
+      "label": "장성+비겁",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 3,
+        "day": 21,
+        "hour": 1,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "庚",
+          "monthGan": "己",
+          "dayGan": "乙",
+          "hourGan": "丁",
+          "yearJi": "寅",
+          "monthJi": "卯",
+          "dayJi": "卯",
+          "hourJi": "丑"
+        },
+        "gyeokguk": "건록격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 卯 = 일간 乙의 건록"
+          ],
+          "blockers": [],
+          "candidates": [
+            {
+              "name": "비견격",
+              "confidence": "확정"
+            }
+          ]
+        },
+        "yongsin": "금",
+        "gisin": "화(식상)",
+        "sipsin": {
+          "yearGan": "정관",
+          "monthGan": "편재",
+          "dayGan": "",
+          "hourGan": "식신",
+          "yearJi": "겁재",
+          "monthJi": "비견",
+          "dayJi": "비견",
+          "hourJi": "편재"
+        },
+        "sinsal": [
+          {
+            "name": "망신",
+            "position": "yearJi"
+          },
+          {
+            "name": "장성",
+            "position": "monthJi"
+          },
+          {
+            "name": "장성",
+            "position": "dayJi"
+          },
+          {
+            "name": "월살",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "丁亥",
+          "verdict": "mixed",
+          "ganVerdict": "tension",
+          "jiVerdict": "fit"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/gongmang-jaesung--seun-tension",
+          "saju/cross/gongmang-jaesung",
+          "saju/cross/sinsal-장성-bigeop",
+          "saju/johu/season-command",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/jaesaeng-gwan",
+          "saju/flow/bigeop-saeng-siksang",
+          "saju/imbalance/bigeop-gwada",
+          "saju/imbalance/ohaeng-skew",
+          "saju/relation/gan-hap-eulgyeong",
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "금(관성)",
+          "조후": "화(丙火)",
+          "강약": "화(식상)",
+          "물상": "수"
+        },
+        "strengthAssessment": {
+          "label": "신강",
+          "score": 8.5,
+          "wangState": "旺",
+          "deukryeong": true,
+          "deukji": true,
+          "deukse": true
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "X2",
+      "label": "장성+재성",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 3,
+        "day": 17,
+        "hour": 1,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "庚",
+          "monthGan": "己",
+          "dayGan": "辛",
+          "hourGan": "己",
+          "yearJi": "寅",
+          "monthJi": "卯",
+          "dayJi": "亥",
+          "hourJi": "丑"
+        },
+        "gyeokguk": "편재격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 卯 본기 乙 = 편재"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "화",
+        "gisin": "금(비겁)",
+        "sipsin": {
+          "yearGan": "겁재",
+          "monthGan": "편인",
+          "dayGan": "",
+          "hourGan": "편인",
+          "yearJi": "정재",
+          "monthJi": "편재",
+          "dayJi": "상관",
+          "hourJi": "편인"
+        },
+        "sinsal": [
+          {
+            "name": "망신",
+            "position": "yearJi"
+          },
+          {
+            "name": "장성",
+            "position": "monthJi"
+          },
+          {
+            "name": "지살",
+            "position": "dayJi"
+          },
+          {
+            "name": "월살",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "丙戌",
+          "verdict": "mixed",
+          "ganVerdict": "fit",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "fit",
+          "ganVerdict": "fit",
+          "jiVerdict": "fit"
+        },
+        "patterns": [
+          "saju/combo/sangsaeng-saengjae--seun-fit",
+          "saju/combo/jiji-hap--seun-fit",
+          "saju/cross/gongmang-jaesung",
+          "saju/cross/sinsal-장성-jaesung",
+          "saju/johu/season-control",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/insung-saeng-bigeop",
+          "saju/imbalance/insung-gwada",
+          "saju/relation/jiji-hap",
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "화(관성)",
+          "조후": "토(戊土)",
+          "강약": "토(인성)",
+          "물상": "토"
+        },
+        "strengthAssessment": {
+          "label": "중화신강",
+          "score": 3.7,
+          "wangState": "囚",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": true
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "X3",
+      "label": "화개+재성",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 9,
+        "hour": 7,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丁",
+          "dayGan": "甲",
+          "hourGan": "戊",
+          "yearJi": "丑",
+          "monthJi": "丑",
+          "dayJi": "辰",
+          "hourJi": "辰"
+        },
+        "gyeokguk": "정재격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 丑 본기 己 = 정재"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "금",
+        "gisin": "목(비겁)",
+        "sipsin": {
+          "yearGan": "정재",
+          "monthGan": "상관",
+          "dayGan": "",
+          "hourGan": "편재",
+          "yearJi": "정재",
+          "monthJi": "정재",
+          "dayJi": "편재",
+          "hourJi": "편재"
+        },
+        "sinsal": [
+          {
+            "name": "반안",
+            "position": "yearJi"
+          },
+          {
+            "name": "반안",
+            "position": "monthJi"
+          },
+          {
+            "name": "화개",
+            "position": "dayJi"
+          },
+          {
+            "name": "화개",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "mixed",
+          "ganVerdict": "fit",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/jaesung-nochul--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/jaesung-nochul--seun-tension",
+          "saju/combo/jiji-hyeong--seun-tension",
+          "saju/combo/season-control--daymaster-weak",
+          "saju/cross/sinsal-화개-jaesung",
+          "saju/johu/season-control",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/imbalance/jaesung-nochul",
+          "saju/imbalance/daymaster-weak",
+          "saju/imbalance/ohaeng-skew",
+          "saju/relation/gan-hap-gabgi",
+          "saju/relation/jiji-hyeong",
+          "saju/timing/daeun-mixed"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "금(관성)",
+          "조후": "화(丙火)",
+          "강약": "수(인성)",
+          "물상": "수"
+        },
+        "strengthAssessment": {
+          "label": "신약",
+          "score": 2,
+          "wangState": "囚",
+          "deukryeong": false,
+          "deukji": true,
+          "deukse": false
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "X4",
+      "label": "역마+관성",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 2,
+        "hour": 22,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丙",
+          "dayGan": "丁",
+          "hourGan": "辛",
+          "yearJi": "丑",
+          "monthJi": "子",
+          "dayJi": "酉",
+          "hourJi": "亥"
+        },
+        "gyeokguk": "편관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 편관"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "목",
+        "gisin": "토(식상)",
+        "sipsin": {
+          "yearGan": "식신",
+          "monthGan": "겁재",
+          "dayGan": "",
+          "hourGan": "편재",
+          "yearJi": "식신",
+          "monthJi": "편관",
+          "dayJi": "편재",
+          "hourJi": "정관"
+        },
+        "sinsal": [
+          {
+            "name": "화개",
+            "position": "yearJi"
+          },
+          {
+            "name": "육해",
+            "position": "monthJi"
+          },
+          {
+            "name": "장성",
+            "position": "dayJi"
+          },
+          {
+            "name": "역마",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/daymaster-weak--daeun-tension",
+          "saju/combo/daymaster-weak--johu-pressure",
+          "saju/combo/sangsaeng-saengjae--daeun-tension",
+          "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/jiji-hap--daeun-tension",
+          "saju/combo/jiji-pa--daeun-tension",
+          "saju/combo/banghap--daeun-tension",
+          "saju/combo/jiji-hap--seun-tension",
+          "saju/cross/sinsal-화개-siksang",
+          "saju/cross/sinsal-역마-gwansung",
+          "saju/johu/season-pressure",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/bigeop-saeng-siksang",
+          "saju/imbalance/daymaster-weak",
+          "saju/relation/banghap",
+          "saju/relation/gan-hap-byeongsin",
+          "saju/relation/jiji-hap",
+          "saju/timing/daeun-seun-tension",
+          "saju/timing/daeun-tension"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(인성)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "태약",
+          "score": 0.5,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "F1",
+      "label": "인성생비겁",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 2,
+        "hour": 10,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丙",
+          "dayGan": "丁",
+          "hourGan": "乙",
+          "yearJi": "丑",
+          "monthJi": "子",
+          "dayJi": "酉",
+          "hourJi": "巳"
+        },
+        "gyeokguk": "편관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 편관"
+          ],
+          "blockers": [],
+          "candidates": []
+        },
+        "yongsin": "목",
+        "gisin": "토(식상)",
+        "sipsin": {
+          "yearGan": "식신",
+          "monthGan": "겁재",
+          "dayGan": "",
+          "hourGan": "편인",
+          "yearJi": "식신",
+          "monthJi": "편관",
+          "dayJi": "편재",
+          "hourJi": "겁재"
+        },
+        "sinsal": [
+          {
+            "name": "화개",
+            "position": "yearJi"
+          },
+          {
+            "name": "육해",
+            "position": "monthJi"
+          },
+          {
+            "name": "장성",
+            "position": "dayJi"
+          },
+          {
+            "name": "지살",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/daymaster-weak--daeun-tension",
+          "saju/combo/daymaster-weak--johu-pressure",
+          "saju/combo/sangsaeng-saengjae--daeun-tension",
+          "saju/combo/gwanin-sangsaeng--daeun-tension",
+          "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/gwanin-sangsaeng--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/gwanin-sangsaeng--seun-tension",
+          "saju/combo/jiji-hap--daeun-tension",
+          "saju/combo/jaesung-insung--daymaster-weak",
+          "saju/combo/samhap--daeun-tension",
+          "saju/combo/jiji-pa--daeun-tension",
+          "saju/combo/samhap--seun-tension",
+          "saju/combo/jiji-hap--seun-tension",
+          "saju/cross/gongmang-bigeop",
+          "saju/cross/sinsal-화개-siksang",
+          "saju/johu/season-pressure",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/gwanin-sangsaeng",
+          "saju/flow/insung-saeng-bigeop",
+          "saju/flow/bigeop-saeng-siksang",
+          "saju/imbalance/daymaster-weak",
+          "saju/relation/samhap",
+          "saju/relation/jiji-hap",
+          "saju/timing/daeun-seun-tension",
+          "saju/timing/daeun-tension"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(인성)",
+          "조후": "목(甲木)",
+          "강약": "목(인성)",
+          "물상": "토"
+        },
+        "strengthAssessment": {
+          "label": "중화신약",
+          "score": 1.7,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": true
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    },
+    {
+      "id": "F2",
+      "label": "비겁생식상",
+      "input": {
+        "isLunar": false,
+        "birthPlace": null,
+        "year": 1950,
+        "month": 1,
+        "day": 1,
+        "hour": 1,
+        "minute": 30,
+        "gender": "male"
+      },
+      "engine": {
+        "palja": {
+          "yearGan": "己",
+          "monthGan": "丙",
+          "dayGan": "丙",
+          "hourGan": "己",
+          "yearJi": "丑",
+          "monthJi": "子",
+          "dayJi": "申",
+          "hourJi": "丑"
+        },
+        "gyeokguk": "정관격",
+        "gyeokgukDetail": {
+          "confidence": "확정",
+          "basis": [
+            "월지 子 본기 癸 = 정관"
+          ],
+          "blockers": [],
+          "candidates": [
+            {
+              "name": "종아격",
+              "confidence": "참고"
+            }
+          ]
+        },
+        "yongsin": "목",
+        "gisin": "토(식상)",
+        "sipsin": {
+          "yearGan": "상관",
+          "monthGan": "비견",
+          "dayGan": "",
+          "hourGan": "상관",
+          "yearJi": "상관",
+          "monthJi": "정관",
+          "dayJi": "편재",
+          "hourJi": "상관"
+        },
+        "sinsal": [
+          {
+            "name": "반안",
+            "position": "yearJi"
+          },
+          {
+            "name": "장성",
+            "position": "monthJi"
+          },
+          {
+            "name": "지살",
+            "position": "dayJi"
+          },
+          {
+            "name": "반안",
+            "position": "hourJi"
+          }
+        ],
+        "daeun": {
+          "ganJi": "己巳",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "seun": {
+          "ganJi": "丙午",
+          "verdict": "tension",
+          "ganVerdict": "tension",
+          "jiVerdict": "tension"
+        },
+        "patterns": [
+          "saju/combo/daymaster-weak--daeun-tension",
+          "saju/combo/daymaster-weak--johu-pressure",
+          "saju/combo/ohaeng-missing--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--daeun-tension",
+          "saju/combo/sangsaeng-saengjae--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--siksang-gwada",
+          "saju/combo/siksang-gwada--daymaster-weak",
+          "saju/combo/sangsaeng-saengjae--seun-tension",
+          "saju/combo/siksang-gwada--daeun-tension",
+          "saju/combo/jiji-hap--daeun-tension",
+          "saju/combo/ohaeng-missing--daeun-tension",
+          "saju/combo/jiji-hap--seun-tension",
+          "saju/cross/sinsal-장성-gwansung",
+          "saju/johu/season-pressure",
+          "saju/flow/sangsaeng-saengjae",
+          "saju/flow/bigeop-saeng-siksang",
+          "saju/imbalance/siksang-gwada",
+          "saju/imbalance/daymaster-weak",
+          "saju/imbalance/ohaeng-missing",
+          "saju/relation/jiji-hap",
+          "saju/timing/daeun-seun-tension",
+          "saju/timing/daeun-tension"
+        ],
+        "asOf": "2026-09-15T00:00:00.000Z",
+        "yongsinBySchool": {
+          "격국": "목(인성)",
+          "조후": "목(甲木)",
+          "강약": "화(비겁)",
+          "물상": "목"
+        },
+        "strengthAssessment": {
+          "label": "태약",
+          "score": 0,
+          "wangState": "死",
+          "deukryeong": false,
+          "deukji": false,
+          "deukse": false
+        }
+      },
+      "expertFill": {
+        "palja": null,
+        "gyeokguk": null,
+        "yongsin": null,
+        "gisin": null,
+        "strength": null,
+        "verdict": null,
+        "note": null
+      }
+    }
+  ],
+  "engineVersion": "0.5.0"
+}

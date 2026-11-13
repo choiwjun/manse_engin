@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-saengjae--daeun-tension
+title: 생재×기신운(生財忌神運)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1940
+  month: 1
+  day: 2
+  hour: 1
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丙甲乙
+  gyeokguk: 정인격
+  yongsin: 금
+body:
+  short: 재물을 만드는 흐름과 대운의 방향이 어긋나는 구간으로 읽힙니다. 재물 계획은 확장 여부를 운세로 정하지 않고 자원·위험·회수 가능성을 함께 점검합니다.
+  medium: 식상생재 구조는 있으나 현재 대운이 기신 방향인 명식입니다. 재물을 만드는 흐름과 시기가 어긋난다는 전통적 해석을 참고하되, 확장·투자·규모 확대는 현실 조건과 대안을 확인해 판단합니다. 기존 흐름의 질과 회수 가능성도 함께 점검합니다.
+tags: [조합, 재성, 대운, 기신]

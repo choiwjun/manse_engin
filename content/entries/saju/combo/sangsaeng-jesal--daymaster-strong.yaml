@@ -1,0 +1,21 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/combo/sangsaeng-jesal--daymaster-strong
+title: 식상제살×신강(食傷制殺身强)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1950
+  month: 1
+  day: 13
+  hour: 4
+  minute: 30
+  gender: male
+  isLunar: false
+assert:
+  palja: 己丁戊甲
+  gyeokguk: 겁재격
+  yongsin: 목
+body:
+  short: 압박을 제압할 힘이 충분한 구조입니다. 식상의 제압력이 일간의 강함과 맞물려, 어려운 국면을 오히려 실력으로 돌파하는 힘이 있습니다.
+  medium: 편관의 압박이 실재하는데, 식상이 그것을 제어하고 일간도 강한 명식입니다. 압박을 실력으로 다룰 가능성을 참고할 수 있으나, 어려운 국면의 대응은 안전·자원·현실 조건과 선택지를 함께 확인합니다.
+tags: [조합, 식상, 관성, 신강]

@@ -1,0 +1,22 @@
+# 전문가 등급 해석 문구 — 검수 완료 (reviewed)
+id: saju/imbalance/daymaster-strong
+title: 신강(身强)
+audience: counselor
+status: reviewed
+sampleBirth:
+  year: 1985
+  month: 1
+  day: 10
+  hour: 16
+  minute: 45
+  gender: male
+  isLunar: false
+assert:
+  palja: 甲丁己壬
+  gyeokguk: 비견격
+  yongsin: 목
+body:
+  short: 자기 기준이 분명하고 축적한 힘을 일·표현으로 전환하기 쉬운 구조로 참고하며, 산출·거래의 결과는 현실 지표로 점검합니다.
+  medium: 비겁·인성의 축이 두터워 자기 기준이 분명하고 축적한 자원을 활용하기 쉽습니다. 대신 이 명식은 쌓아두기만 하면 막히므로, 일·거래·성과로 내보내는 흐름을 순환의 열쇠로 참고합니다.
+  long: 신강한 명식의 관리 포인트를 배출과 순환의 관점으로 참고할 수 있습니다. 식상(산출·표현), 재성(거래·수입), 관성(책임·자리)의 통로와 협업 조건을 살피되, 결과는 시장·역할·현실 지표로 점검합니다.
+tags: [강약, 기반]
